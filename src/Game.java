@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Game extends Application {
@@ -19,7 +20,8 @@ public class Game extends Application {
         Canvas canvas = new Canvas(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         GraphicsContext graphics = canvas.getGraphicsContext2D();
 
-        Scene scene = new Scene(canvas);
+        Pane root = new Pane(canvas);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
