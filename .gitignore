@@ -1,4 +1,5 @@
 
 # generated files
 /bin
+/out
 *.class
