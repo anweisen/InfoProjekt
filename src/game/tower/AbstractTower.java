@@ -26,4 +26,6 @@ public abstract class AbstractTower extends GameObject {
     }
 
     public abstract boolean shoot();
+
+    public abstract double getPrice();
 }

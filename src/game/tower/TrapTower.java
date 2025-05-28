@@ -2,17 +2,13 @@ package game.tower;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class AuraTower extends AbstractTower {
-    // A tower that emits a powerful aura, dealing the damage to nearby enemies
+public class TrapTower extends AbstractTower {
+    // A spike thrower that sets a trap that slows down or damages enemies
     double price = 100;
 
-    public AuraTower(double x, double y) {
+    public TrapTower(double x, double y) {
         super(x, y, 100, 100);
-    }
 
-    @Override
-    public double getShootInterval() {
-        return 0;
     }
 
     @Override
@@ -21,8 +17,12 @@ public class AuraTower extends AbstractTower {
     }
 
     @Override
-    public boolean shoot() {
+    public double getShootInterval() {
+        return 0;
+    }
 
+    @Override
+    public boolean shoot() {
         return true;
     }
 
