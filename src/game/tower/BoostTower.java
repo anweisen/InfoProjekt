@@ -1,12 +1,13 @@
+
 package game.tower;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class AuraTower extends AbstractTower {
-    // A tower that emits a powerful aura, dealing the damage to nearby enemies
+public class BoostTower extends AbstractTower {
+    // A tower that boosts the damage of all placed towers
     double price = 100;
 
-    public AuraTower(double x, double y) {
+    public BoostTower(double x, double y) {
         super(x, y, 100, 100);
     }
 
@@ -22,7 +23,6 @@ public class AuraTower extends AbstractTower {
 
     @Override
     public boolean shoot() {
-
         return true;
     }
 
