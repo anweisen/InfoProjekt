@@ -53,7 +53,8 @@ public class GameState extends State {
         for (Enemy enemy : enemies) {
             enemy.render(graphics);
         }
-        for (TestProjectile projectile : projectiles) {
+        for (GameObject projectile : projectiles) {
+            if (projectile.isMarkedForRemoval()) continue;
             projectile.render(graphics);
         }
 
@@ -68,7 +69,7 @@ public class GameState extends State {
         for (Enemy enemy : enemies) {
             enemy.update(deltaTime);
         }
-        for (TestProjectile projectile : projectiles) {
+        for (GameObject projectile : projectiles) {
             projectile.update(deltaTime);
         }
 
