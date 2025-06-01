@@ -1,4 +1,18 @@
 
 # generated files
 /bin
+/out
 *.class
+
+# vscode
+/.vscode
+
+# intellij
+/.idea
+*.iml
+
+# eclipse
+.project
+.classpath
+.settings
+
