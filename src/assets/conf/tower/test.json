@@ -1,0 +1,66 @@
+{
+    "name": "Test-Kanone",
+    "info": "Schießt explodierende Kanonenkugeln",
+    "price": 100,
+    "range": 200,
+    "damage": 20,
+    "speed": 1.5,
+    "targets": 1,
+    "model": {
+        "img": "kanona.png",
+        "width": 64,
+        "height": 64,
+        "projectileX": 32,
+        "projectileY": 32
+    },
+    "models1": [
+        {
+            "img": "kanona.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
+    "models2": [
+    ],
+    "upgrades1": [
+        {
+            "name": "Level 1",
+            "info": "Erhöht die Feuerrate der Kanone",
+            "price": 50,
+            "speed": 1
+        },
+        {
+            "name": "Level 2",
+            "info": "Erhöht den Schade der Kanonenkugeln",
+            "price": 75,
+            "damage": 50
+        },
+        {
+            "name": "Level 3",
+            "info": "Erhöht die Reichweite der Kanone",
+            "price": 100,
+            "range": 50
+        }
+    ],
+    "upgrades2": [
+        {
+            "name": "Level I",
+            "info": "Erhöht die Feuerrate der Kanone weiter",
+            "price": 500,
+            "speed": 5
+        },
+        {
+            "name": "Level II",
+            "info": "Erhöht den Schaden der Kanonenkugeln weiter",
+            "price": 750,
+            "range": 250
+        },
+        {
+            "name": "Level III",
+            "info": "Erhöht die Reichweite der Kanone weiter",
+            "price": 1000,
+            "range": 100,
+            "damage": 0
+        }
+    ]
+}
