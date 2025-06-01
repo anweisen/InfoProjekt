@@ -2,6 +2,9 @@ package game;
 
 import game.engine.State;
 import game.map.Map;
+import game.tower.impl.TestProjTower;
+import game.tower.impl.TestTower;
+import game.tower.TowerType;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -12,13 +15,21 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game extends Application {
 
+    /**
+     * Die interne (virtuelle) Größe des Spielfeldes,
+     * um eine gleichbleibende Spielfeldgröße auf verschiedenen Bildschirmen zu ermöglichen.
+     */
     public static final int
         VIRTUAL_WIDTH = 1600,
         VIRTUAL_HEIGHT = 900;
 
+    private final List<Map> maps = new ArrayList<>();
+    private final List<TowerType> towers = new ArrayList<>();
     private State currentState;
 
     public static void main(String[] args) {
@@ -28,7 +39,11 @@ public class Game extends Application {
     @Override
     public void init() throws Exception {
         currentState = new MenuState(this);
-//        currentState = new GameState(this, new Map());
+
+        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
+        registerMap(Map.loadMap("test.json"));
+        registerTower(TowerType.Config.load("test.json"), TestProjTower::new);
+        registerTower(TowerType.Config.load("test.json"), TestTower::new);
     }
 
     @Override
@@ -36,15 +51,15 @@ public class Game extends Application {
         Canvas canvas = new Canvas(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
         GraphicsContext graphics = canvas.getGraphicsContext2D();
 
+        // Canvas, also das gerenderte Spiel, an die Fenstergröße binden
         canvas.widthProperty().bind(stage.widthProperty());
         canvas.heightProperty().bind(stage.heightProperty());
-
         // TODO: 16:9?
         RescaleListener rescaleListener = new RescaleListener(graphics);
         canvas.widthProperty().addListener(rescaleListener);
         canvas.heightProperty().addListener(rescaleListener);
 
-        // setup window
+        // Fenster
         Pane root = new Pane(canvas);
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -52,6 +67,7 @@ public class Game extends Application {
         stage.setFullScreenExitHint("");
         stage.show();
 
+        // Maus Klicks
         scene.setOnMouseClicked(event -> {
             double scaleX = canvas.getWidth() / VIRTUAL_WIDTH;
             double scaleY = canvas.getHeight() / VIRTUAL_HEIGHT;
@@ -64,11 +80,27 @@ public class Game extends Application {
         loop.start();
     }
 
+    private void registerMap(Map map) {
+        maps.add(map);
+    }
+
+    private void registerTower(TowerType.Config config, TowerType.TowerConstructor constructor) {
+        towers.add(new TowerType(config, constructor));
+    }
+
     public void setState(State newState) {
         if (newState == null) throw new IllegalArgumentException("State cannot be null");
 
         currentState.dispose();
         currentState = newState;
+    }
+
+    public List<Map> getMaps() {
+        return maps;
+    }
+
+    public List<TowerType> getTowerTypes() {
+        return towers;
     }
 
     public static class RescaleListener implements ChangeListener<Number> {
@@ -102,6 +134,8 @@ public class Game extends Application {
 
         @Override
         public void handle(long now) {
+            if ((now - lastTime) < 1_000_000_000 / 1000) return;
+
             // Provisorischer FPS-Zähler zur Performanceüberwachung
             frames++;
             if (now - lastFpsTime >= 1_000_000_000) {

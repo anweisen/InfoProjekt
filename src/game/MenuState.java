@@ -1,14 +1,12 @@
 package game;
 
+import game.engine.Model;
 import game.engine.State;
-import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-
-import java.net.URL;
 
 public class MenuState extends State {
 
@@ -30,22 +28,16 @@ public class MenuState extends State {
     public MenuState(Game game) {
         super(game);
 
-        URL bgUrl = getClass().getResource("gui/menuState/background.jpg");
-        if (bgUrl != null) {
-            backgroundImage = new Image(bgUrl.toExternalForm());
-        } else {
-            System.err.println("Hintergrundbild nicht gefunden!");
-        }
-
+        backgroundImage = Model.loadImage("menu", "background.jpg");
+        // Nutze: Game#getMaps() Map#getName() Map#getImage()
         mapImages = new Image[] {
-            new Image(getClass().getResourceAsStream("gui/menuState/Map1.jpg")),
-            new Image(getClass().getResourceAsStream("gui/menuState/Map2.jpg"))
+            Model.loadImage("menu", "Map1.jpg"),
+            Model.loadImage("menu", "Map2.jpg")
         };
         mapNames = new String[] {"Map1", "Map2"};
-
-        arrowLeft = new Image(getClass().getResourceAsStream("gui/menuState/left_arrow.png"));
-        arrowRight = new Image(getClass().getResourceAsStream("gui/menuState/right_arrow.png"));
-        closeButton = new Image(getClass().getResourceAsStream("gui/menuState/close_button.png"));
+        arrowLeft = Model.loadImage("menu", "left_arrow.png");
+        arrowRight = Model.loadImage("menu", "right_arrow.png");
+        closeButton = Model.loadImage("menu", "close_button.png");
 
         currentMapIndex = 0;
 
@@ -141,7 +133,8 @@ public class MenuState extends State {
          */
         if (x >= imageX && x <= imageX + imageWidth &&
             y >= imageY && y <= imageY + imageHeight) {
-            game.setState(new GameState(game, new Map()));
+//            game.setState(new GameState(game, new Map()));
+            game.setState(new GameState(game, game.getMaps().get(currentMapIndex)));
         }
     }
 }

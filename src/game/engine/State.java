@@ -11,6 +11,10 @@ public abstract class State {
         this.game = game;
     }
 
+    public final Game getGame() {
+        return game;
+    }
+
     public abstract void render(GraphicsContext graphics);
 
     /**
@@ -25,7 +29,7 @@ public abstract class State {
 
     /**
      * Diese Methode schließt dieses State-Objekt und gibt alle Ressourcen frei, die es hält.
-     * Nachdem diese Methode aufgerufen wurde, werden weder die {@link #render(GraphicsContext)} noch {@link #update(double)} aufgerufen.
+     * Nachdem diese Methode aufgerufen wurde, wird weder {@link #render(GraphicsContext)} noch {@link #update(double)} aufgerufen.
      */
     public abstract void dispose();
 
