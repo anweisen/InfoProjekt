@@ -2,8 +2,6 @@ package game;
 
 import game.engine.State;
 import game.map.Map;
-import game.tower.impl.TestProjTower;
-import game.tower.impl.TestTower;
 import game.tower.TowerType;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -42,8 +40,6 @@ public class Game extends Application {
 
         // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
         registerMap(Map.loadMap("test.json"));
-        registerTower(TowerType.Config.load("test.json"), TestProjTower::new);
-        registerTower(TowerType.Config.load("test.json"), TestTower::new);
     }
 
     @Override
