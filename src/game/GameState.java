@@ -6,7 +6,6 @@ import game.engine.State;
 import game.map.Map;
 import game.shop.Shop;
 import game.tower.AbstractTower;
-import game.tower.projectile.TestProjectile;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -99,6 +98,13 @@ public class GameState extends State {
             }
         }
 
+        selectedTower = null; // Deselect tower if clicked outside
+
+        if (shop.isInShop(x, y)) {
+            shop.handleClick(x, y);
+            return;
+        }
+
         // Erstelle Turm beim Klicken zu Testzwecken!
         spawnTower(game.getTowerTypes().get(0), x, y);
     }
@@ -108,7 +114,7 @@ public class GameState extends State {
     }
 
     // Provisorium
-    public void registerProjectile(TestProjectile projectile) {
+    public void registerProjectile(GameObject projectile) {
         projectiles.add(projectile);
     }
 

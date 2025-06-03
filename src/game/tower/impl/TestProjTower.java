@@ -4,7 +4,8 @@ import game.GameState;
 import game.enemy.Enemy;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
-import game.tower.projectile.TestProjectile;
+import game.tower.projectile.TargetProjectile;
+import game.tower.projectile.VectorProjectile;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -31,8 +32,22 @@ public class TestProjTower extends AbstractTower {
                 double targetX = enemy.getX();
                 double targetY = enemy.getY();
                 angle = angleInDirection(targetX, targetY);
-                state.registerProjectile(new TestProjectile(state, x, y, targetX, targetY));
-                return true; // shot fired
+
+                double dx = targetX - x;
+                double dy = targetY - y;
+                double distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 1) continue;
+
+                double nx = dx / distance; // Normalisierte Richtung
+                double ny = dy / distance;
+
+              double radians = calculateRadians(dx, dy);
+              state.registerProjectile(new VectorProjectile(state,
+                x + calculateRotatedOffsetX(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians),
+                y + calculateRotatedOffsetY(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians),
+                nx, ny));
+//                state.registerProjectile(new TargetProjectile(state, x, y, targetX, targetY));
+              return true; // shot fired
             }
         }
 
@@ -42,16 +57,50 @@ public class TestProjTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         getModel().renderRotated(graphics, x, y, angle);
+//        graphics.save();
+//        graphics.translate(x, y);
+//        graphics.rotate(angle);
+//        graphics.drawImage(getModel().getImage(), -width / 2, -height / 2, width, height);
+//        graphics.setFill(Color.RED);
+//        graphics.fillOval(config.getProjectileOffsetX() - 5, config.getProjectileOffsetY() - 5, 10, 10);
+//        graphics.restore();
 
-        // Zeichne eine Linie zum Gegner zu Testzwecken
-        for (Enemy enemy : state.getEnemies()) {
-            if (this.distanceTo(enemy) <= this.getRange()) {
-                graphics.setStroke(Color.RED);
-                graphics.setLineWidth(2);
-                graphics.strokeLine(x, y, enemy.getX(), enemy.getY());
-                break;
-            }
-        }
+
+//      for (Enemy enemy : state.getEnemies()) {
+//        if (this.distanceTo(enemy) <= this.getRange()) {
+//          double targetX = enemy.getX();
+//          double targetY = enemy.getY();
+//
+//          double dx = targetX - x;
+//          double dy = targetY - y;
+//          double distance = Math.sqrt(dx * dx + dy * dy);
+//          if (distance < 1) continue;
+//
+//          double nx = dx / distance; // Normalisierte Richtung
+//          double ny = dy / distance;
+//
+//          double radians = Math.atan2(dx, -dy); // Quelle: Copilot
+////          double radians = Math.toRadians(angle);
+//
+//          graphics.setFill(Color.BLUE);
+//          graphics.fillOval(
+//            Math.cos(radians) * config.getProjectileOffsetX() - Math.sin(radians) * config.getProjectileOffsetY() + x - 5,
+//            Math.sin(radians) * config.getProjectileOffsetX() + Math.cos(radians) * config.getProjectileOffsetY() + y - 5,
+//            10, 10);
+//
+//          return; // shot fired
+//        }
+//      }
+
+//        // Zeichne eine Linie zum Gegner zu Testzwecken
+//        for (Enemy enemy : state.getEnemies()) {
+//            if (this.distanceTo(enemy) <= this.getRange()) {
+//                graphics.setStroke(Color.RED);
+//                graphics.setLineWidth(2);
+//                graphics.strokeLine(x, y, enemy.getX(), enemy.getY());
+//                break;
+//            }
+//        }
     }
 
 }

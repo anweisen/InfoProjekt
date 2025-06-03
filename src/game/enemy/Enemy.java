@@ -14,7 +14,7 @@ public class Enemy extends GameObject {
 
     // -> Attribute wie Gegner-Typ (Geschwindigkeit, Strafe, Belohnung ...) -> über eine enemy.json?
 
-    protected int health;
+    protected int health = 10; // Provisorisch, später: verschiedene Gegner-Typen mit verschiedenen Werten
     protected int waypoint;
 
     public Enemy(GameState state, double x, double y) {

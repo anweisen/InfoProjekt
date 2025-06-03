@@ -6,17 +6,20 @@ import game.engine.Model;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class TestProjectile extends GameObject {
+public class TargetProjectile extends GameObject {
 
-    private static final Model model = Model.loadModelWith("projectile", "kugel.png", 32, 32);
+    public static final Model model = Model.loadModelWith("projectile", "kugel.png", 32, 32);
 
     // evtl. auch ein zielsuchendes Projektil?
     private final double targetX, targetY;
+    private final boolean ndx, ndy; // waren dx, dy am Anfang negativ?
 
-    public TestProjectile(GameState state, double x, double y, double targetX, double targetY) {
+    public TargetProjectile(GameState state, double x, double y, double targetX, double targetY) {
         super(state, x, y, model.getWidth(), model.getHeight());
         this.targetX = targetX;
         this.targetY = targetY;
+        this.ndx = targetX < x;
+        this.ndy = targetY < y;
     }
 
     @Override
@@ -24,7 +27,7 @@ public class TestProjectile extends GameObject {
         double dx = targetX - x;
         double dy = targetY - y;
         double distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 1) {
+        if (distance < 1 || (ndx && dx > 0) || (ndy && dy > 0) || (!ndx && dx < 0) || (!ndy && dy < 0)) {
             markForRemoval();
             return;
         }
