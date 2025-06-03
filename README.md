@@ -131,7 +131,7 @@ Um ein Bild zu laden empfielt sich `Model.loadImage(category, filename)`, wobei 
 
 ### Maps (JSON-Schema)
 in `/assets/conf/map/x.json`
-```json
+```jsonc
 {
     "name": "Anzeigename der Karte",
     "img": "Dateiname des Hintergrundbildes, in /assets/img/map",
@@ -161,7 +161,7 @@ in `/assets/conf/map/x.json`
 ### Tower (JSON-Schema)
 in `/assets/conf/tower/x.json`  
 per `TowerType.Config.load(...)` geladen
-```json
+```jsonc
 {
     "name": "Anzeigename des Turms",
     "info": "Beschreibung",
