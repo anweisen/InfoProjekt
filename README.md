@@ -16,7 +16,9 @@ Diese ist mit `Game.VIRTUAL_WIDTH` und `Game.VIRTUAL_HEIGHT` festgelegt (derzeit
 Alle Positionen beziehen sich dann auf diese Größe. Es wird im nachhinein auf die passende Anzeigegröße skaliert.
   
 Da es ein JavaFx-Projekt ist, muss `Game` von `Application` erben. Dadurch sind die Methoden `init()` und `start(...)` verfügbar.  
-Zunächst werden in `init` die Resourcen geladen (also die JSON-Konfiguration ausgelesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).
+Zunächst werden in `init` die Resourcen geladen (also die JSON-Konfiguration ausge
+lesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).  
+In `start` wird das Fenster sowie die Zeichenoberfläche erstellt und der GameLoop gestartet.
 
 ## GameLoop
 
@@ -68,14 +70,16 @@ Das Spiel wird nach folgender Reihenfolge gerendert (gezeichnet):
 - UI (weitere Elemente wie Leben und Geld)
 
 ## GameObject
-Jedes Spielobjekt das auf dem Bildschirm ist (z.B. Türme, Gegner, Projektile) sind auch je ein `GameObject`.  
+Jedes Spielobjekt auf dem Bildschirm (z.B. Türme, Gegner, Projektile) sind auch je ein `GameObject`.  
 `GameObject` ist eine `abstract`-Klasse und legt bereits folgendes für alle Objekte fest:
 - `x, y`: Die aktuelle Position des Objekts auf dem Spielfeld (als `double`), kann per `=` geändert oder `getX()` / `getY()` ausgelesen werden
 - `width, height`: Die Größe (Breite, Höhe) dieses Objekts (als Rechteck), für Kollisions-Checks oder Mausklick-Checks (bei `Tower` aus der Größe des Models übernommen)
 - `state`: Jedes `GameObject` hält eine Referenz zum passenden `GameState` für Zugriff auf spielspezifische Methoden
-Abstrakte Methoden (zugesichert)
+
+Abstrakte Methoden ("zugesichert")
 - `render`: Soll das jeweilige Objekt auf den übergebenen `GraphicsContext` zeichnen (also auf den Bildschrim)
 - `update`: Soll Spiellogik dieses Objekts berechnen (wie Bewegung, Schießen, ...)
+
 Hilfs-Methoden
 - `markForRemoval()`: Setzt dieses Objekt als "zu entfernen" und wird nach diesem `update`-Durchlauf entfernt
 - `distanceTo(...)`: Errechnet den Abstand zu einem anderen `GameObject` oder eine Position
@@ -100,12 +104,15 @@ Es sollte immer der Konstruktor der Form `(GameState, TowerType.Config, double, 
 - `TowerType.Config`: enthält die Daten aus der entsprechenden JSON-Konfiguration
 - `double`: die X-Position des zu platzierenden Turms
 - `double`: die Y-Position des zu platzierenden Turms
+
 dabei sollte einfach `super(...)` mit den übergebenen Parametern aufgerufen werden, da diese in `AbstractTower` dann gespeichert werden. Verschiedene Getter geben Zugriff auf alle benötigten Daten.
   
 Standartmäßig implementiert `AbstractTower` bereits `update` und `render`.  
 - `render` zeigt in dieser Implementation das Model (also das Bild) zum aktuell passenden Upgrade
 - `update` timed automatisch die Schüsse (je nach `speed` in der Konfiguration bzw. den der Upgrades) und ruft im passenden Interval `shoot()` aus
-*(können bei Bedarf auch erneut überschrieben werden)*
+
+*(können bei Bedarf auch erneut überschrieben werden)*  
+
 Die `shoot()` Methode (*abstract*) sollte `true` zurückgeben, wenn es einen Gegner in der Range gab und geschossen hat und der Countdown zum nächtsen Schuss wieder gestartet werden soll. Gibt sie `false` zurück wird der Countdown nicht zurückgesetzt und versucht `shoot()` im nächtsen `update` erneut bis ein Gegner gefunden wurde (also `true` zurück gegeben wurde).  
   
 `AbstractTower` speichert auch bereits das `level` (`int`) des Turms sowie welcher der beiden Upgrade-Optionen gewählt wurde (`upgradeTreeOne` als `boolean`: `true` -> Option 1)  
@@ -201,12 +208,12 @@ per `TowerType.Config.load(...)` geladen
 
     "models1": [ // Bilder für geupgradete Türme
         {
-            "img": "tower-level-1.png" // Dateiname in /assets/img/tower/...
+            "img": "tower-level-1.png", // Dateiname in /assets/img/tower/...
             "width": 50, // Größe des Bilds (interne Größe!)
             "height": 50,
         }
     ],
-    "models2" [
+    "models2": [
         // ...
     ]
 }
