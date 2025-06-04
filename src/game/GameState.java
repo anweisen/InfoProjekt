@@ -91,6 +91,7 @@ public class GameState extends State {
 
     @Override
     public void handleClick(double x, double y) {
+        System.out.println("GameState.hanleClick:"+ x+ ","+y);
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
