@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Copy assets",
+            "type": "shell",
+            "command": "xcopy src\\assets bin\\assets /E /I /Y",
+            "group": "build"
+        }
+    ]
+}
