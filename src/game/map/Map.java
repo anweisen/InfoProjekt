@@ -4,6 +4,7 @@ import game.Game;
 import game.engine.Model;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 
 public class Map {
@@ -14,24 +15,22 @@ public class Map {
     private final Waypoint start, end;
     private final boolean canPlace[][];
 
-    // boolean[][]: wo darf man platzieren? ableiten aus einem extra schwarz-weiß bild z.b.
 
-    public Map(String name, Image background, Waypoint[] waypoints, Waypoint start, Waypoint end, boolean canPlace[][]) {
+    public Map(String name, Image background, Waypoint[] waypoints, Waypoint start, Waypoint end, Image allowPlace) {
         this.name = name;
         this.background = background;
         this.waypoints = waypoints;
         this.start = start;
         this.end = end;
-        this.canPlace = canPlace;
-        
-    }
+        canPlace = new boolean[1600][900];
+        canPlace(allowPlace);
     }
 
     public static Map loadMap(String filename) {
         MapPojo map = Model.loadJson("map", filename, MapPojo.class);
         Image background = Model.loadImage("map", map.img);
         Image blackWhite = Model.loadImage("map", map.allowPlace);
-        return new Map(map.name, background, map.waypoints, map.start, map.end);
+        return new Map(map.name, background, map.waypoints, map.start, map.end, blackWhite);
     }
 
     public void render(GraphicsContext graphics) {
@@ -44,12 +43,24 @@ public class Map {
         }
     }
 
-    public boolean canPlace(int x, int y){
-        if(){}//Pixel schwarz ist){}
-        //dann ist ok zu platziren
-        //sonst return false
-        return false;}
+    public void canPlace(Image allowPlace){
+        PixelReader reader = allowPlace.getPixelReader();
+       for(int i = 0; i<1600;i++){
+        for(int j = 0; j<900;j++){
+            if(reader.getColor(i,j).equals(Color.BLACK)){
+               canPlace[i][j]=  true;
+            }
+        }
+       }  
+    }
 
+    public boolean getCanPlacePosi(int x, int y){
+        return canPlace[x][y];
+    }
+
+    public boolean[][] getCanPlace(){
+        return canPlace;
+    }
 
     public String getName() {
         return name;
