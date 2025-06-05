@@ -17,17 +17,18 @@ public class AuraTower extends AbstractTower {
 
     double enemiesX;
     double enemiesY;
+    double enemiesdistance;
 
     @Override
     public boolean shoot() {
         boolean anyHit = false;
         for (Enemy enemies : state.getEnemies()) {
-            this.enemiesX = enemies.getX();
-            this.enemiesY = enemies.getY();
-            double abstand = Math.sqrt((getX() - enemiesX) * (getX() - enemiesX)
-                    + (getY() - enemiesY) * (getY() - enemiesY));
+            enemiesX = enemies.getX();
+            enemiesY = enemies.getY();
+            enemiesdistance = Math
+                    .sqrt((getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
 
-            if (abstand < getRange()) {
+            if (enemiesdistance < getRange()) {
                 enemies.reduceHealth(getDamage());
                 anyHit = true;
             }
@@ -38,8 +39,12 @@ public class AuraTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
-        graphics.setStroke(Color.RED); // optional: change color
-        graphics.setLineWidth(2); // optional: change line width
+        if (enemiesdistance < getRange() && shoot()) {
+            graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
+            graphics.setStroke(Color.GREY); // optional: change color
+            graphics.setLineWidth(2); // optional: change line width
+        }
+        graphics.setFill(Color.rgb(128, 128, 128, 0.5)); // semi-transparent red
+        graphics.fillOval(getX() - getRange(), getY() - getRange(), 2 * getRange(), 2 * getRange()); // Draw aura effect
     }
 }

@@ -2,7 +2,7 @@
     "name": "Inferno Tower",
     "info": "Versengt Gegner mit Flammen",
     "price": 120,
-    "range": 180,
+    "range": 300,
     "damage": 25,
     "speed": 2.0,
     "targets": 1,
@@ -52,14 +52,14 @@
             "name": "Level II",
             "info": "Erhöht den Schaden deutlich",
             "price": 800,
-            "damage": 70
+            "damage": 20
         },
         {
             "name": "Level III",
             "info": "Erhöht Reichweite und Feuerschaden",
             "price": 1100,
             "range": 100,
-            "damage": 20
+            "damage": 10
         }
     ]
 }
