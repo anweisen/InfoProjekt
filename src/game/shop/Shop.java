@@ -6,7 +6,6 @@ import java.util.List;
 import game.GameState;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
