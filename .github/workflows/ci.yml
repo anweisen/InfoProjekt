@@ -1,0 +1,66 @@
+name: Build JAR for Windows (JavaFX)
+
+on:
+  push:
+    branches: [ main, ci-action ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Create output directories
+      run: |
+        mkdir out
+        mkdir out\bin
+        mkdir dist
+        mkdir dist\bin
+        mkdir dist\lib
+
+    - name: Compile Java sources (PowerShell)
+      run: |
+        $env:CLASSPATH = "lib\javafx\lib\*;lib\gson\lib\*"
+        $files = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName }
+        javac -cp $env:CLASSPATH -d out $files
+
+    - name: Create JAR file
+      run: |
+        jar --create --file=dist/MyApp.jar --main-class=game.Game -C out . -C src assets
+
+    - name: Copy JAR libraries
+      run: |
+        $Source = "lib"
+        $Target = "dist\lib"
+        New-Item -ItemType Directory -Force -Path $Target
+        Get-ChildItem -Path $Source -Recurse -Filter *.jar | ForEach-Object {
+          Copy-Item $_.FullName -Destination $Target
+        }
+
+    - name: Copy JavaFX DLLs
+      run: |
+        copy lib\javafx\bin\*.dll dist\bin
+
+    - name: Create run.bat
+      shell: cmd
+      run: |
+        echo java --module-path "lib" --add-modules javafx.controls,javafx.graphics -Djava.library.path=/bin -Dprism.verbose=true -Dprism.forceGPU=true -cp "MyApp.jar;lib\*" game.Game > dist\run.bat
+
+    - name: List dist folder contents
+      run: dir dist
+      shell: cmd
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: MyApp
+        path: dist

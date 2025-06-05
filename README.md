@@ -11,13 +11,13 @@ Nützliche Extentions:
 
 Die Hauptklasse `Game` ist der Startpunkt des Programms und startet das JavaFx-Programm.  
   
-Damit auf Bildschirmen verschiedener Größen immer ein gleichgroßes Spielfeld vorliegt, und nicht auf manchen mehr oder weniger Türme platziert werden können, nutzt das Spiel ein internes Koordinatensystem unabhängig von der Auflösung des Bildschirms.  
+Damit auf Bildschirmen verschiedener Größen immer ein gleich großes Spielfeld vorliegt, 
+und nicht auf manchen mehr oder weniger Türme platziert werden können, nutzt das Spiel ein internes Koordinatensystem unabhängig von der Auflösung des Bildschirms.  
 Diese ist mit `Game.VIRTUAL_WIDTH` und `Game.VIRTUAL_HEIGHT` festgelegt (derzeit: 1600x900).  
-Alle Positionen beziehen sich dann auf diese Größe. Es wird im nachhinein auf die passende Anzeigegröße skaliert.
+Alle Positionen beziehen sich dann auf diese Größe. Es wird im Nachhinein auf die passende Anzeigegröße skaliert.
   
 Da es ein JavaFx-Projekt ist, muss `Game` von `Application` erben. Dadurch sind die Methoden `init()` und `start(...)` verfügbar.  
-Zunächst werden in `init` die Resourcen geladen (also die JSON-Konfiguration ausge
-lesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).  
+Zunächst werden in `init` die Resourcen geladen (also die JSON-Konfiguration ausgelesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).  
 In `start` wird das Fenster sowie die Zeichenoberfläche erstellt und der GameLoop gestartet.
 
 ## GameLoop
@@ -44,7 +44,8 @@ Alle `render` Operationen beziehen sich immer auf ein übergebenes `GraphicsCont
 Auf dieses kann mit Methoden wie `fillRect`, `drawImage`, `fillText` gezeichnet werden.  
   
 Spielobjekte (`GameObject`) können die Vereinfachung über ein `Model` nutzten (wird für Türme bspw. automatisch geladen).
-Dabei genügt `model.render(x, y)` um das Model (also das Bild) des Objekt an der gewünschten Position zu rendern (es stehen weitere Model-Methoden zu Verfügung).
+Dabei genügt `model.render(graphics, x, y)` um das Model (also das Bild) des Objekt an der gewünschten Position zu rendern (es stehen weitere Model-Methoden zu Verfügung).
+`model.renderRotated(graphics, x, y, angle)` zeichnet das Model um den angegebenen Winkel in Grad, um bspw. Türme in die Richtung zu drehen in die sie schießen.
 
 ## State
 `Game` beinhaltet `currentState` (Typ: `State` *abstract*).  
@@ -52,14 +53,16 @@ Der GameLoop gibt die `render` und `update` Operationen an den derzeitigen State
 Es gibt dabei verschiedene Arten von States wie: 
 - `MenuState`: Zeigt das Hauptmenü an und hat Logik wie die Map-Auswahl 
 - `GameState`: das eigentliche Spiel
+   
 außerdem werden Mausklicks über `handleClick(x, y)` an den `State` weiter gegeben.  
+
 Wird der `currentState` per `setCurrentState` geändert wird `dispose()` des alten States aufgerufen. Dieser sollte gehaltene Resourcen freigeben (`render` oder `update` werden nicht mehr aufgerufen).
 
 ## GameState
 Der `GameState` ist der Ausgangspunkt für die eigentliche Spielprogrammierung. Dieser enthält alle Daten zum aktuellen Spielstand wie platzierte Türme, die derzeit gespielte Karte, übrige Leben, Geld usw...  
   
 Platzierte Türme, Gegner und andere Spielobjekte (Projektile) werden jeweils in einer Liste gespeichert.  
-Da während einem Listen-Durchlauf standartmäßig keine Elemente aus dieser entfernt werden können, müssen zu entfernende Spielobjekte `markForRemoval()` aufrufen. Nach dem `update`-Durchlauf werden alle zu entfernende Objekte aus den Listen entfernt. 
+Da während einem Listen-Durchlauf standardmäßig keine Elemente aus dieser entfernt werden können, müssen zu entfernende Spielobjekte `markForRemoval()` aufrufen. Nach dem `update`-Durchlauf werden alle zu entfernende Objekte aus den Listen entfernt. 
 
 Das Spiel wird nach folgender Reihenfolge gerendert (gezeichnet):
 - Map (Hintergrund)
@@ -87,7 +90,7 @@ Hilfs-Methoden
 
 ## Tower
 Jeder Tower-Typ hat seine eigene Klasse (`extends AbstractTower`) und eine passende JSON-Konfiguration (siehe unten!).  
-Die Klasse definiert dabei die Logik wie dieser jeweilige Turm funktionert (Schießlogik, Projektile, Boosts, ...).  
+Die Klasse definiert dabei die Logik wie dieser jeweilige Turm funktioniert (Schießlogik, Projektile, Boosts, ...).  
 In der JSON-Datei stehen Daten wie Name, Beschreibung, Preis, Schaden, Model, und auch Upgrades.  
 Jeder platzierte Turm ist ein Objekt seiner jeweiligen Tower-Klasse.  
   
@@ -96,6 +99,15 @@ Dafür gibt es die `TowerType` Klasse (jedes Objekt repräsentiert einen Turmtyp
 Die JSON-Konfiguration wird ausgelesen und ein `TowerType.Config` Objekt mit den entsprechenden Daten erstellt. 
 Um diese Daten mit der jeweiligen Turm-Klasse zu verknüpfen speichert sich jeder `TowerType` jeweils die `TowerType.Config` und die Tower-Klasse (bzw. den passenden Konstuktur dieser Klasse über eine `TowerConstructor` Instanz).  
 Ein neuer Turm dieses Typs (bzw. der entsprechenden Klasse) kann dann über den gespeicherten Konstruktor erzeugt werden.  
+
+Die Towertypen werden wie bereits erwähnt in `init` in `Game` geladen und registriert.
+Dies geschieht über die `registerTower`- Methode, ein Beispiel dafür sähe wie folgt aus:  
+(`towerName.json` ist die JSON-Konfiguration des Turmes (siehe weiter unten), befindet sich in `/assets/conf/tower/` und enthält jegliche Daten zum Typ.  
+`TowerKlasse` ist die Klasse des Turms, die von `AbstractTower` erbt. `TowerKlasse::new` ist der Konstruktor der Klasse, siehe unten für Details)
+```java
+registerTower(TowerType.Config.load("towerName.json"), TowerKlasse::new);
+```
+
 Alle verfügbaren Turmtypen werden in einer TowerType-List in Game gespeichert. (`Game#getTowerTypes()`)  
   
 Die jeweilige Turm-Klasse erhält Zugriff auf die Daten aus der JSON-Datei über ihren Konstruktor.  
@@ -107,7 +119,7 @@ Es sollte immer der Konstruktor der Form `(GameState, TowerType.Config, double, 
 
 dabei sollte einfach `super(...)` mit den übergebenen Parametern aufgerufen werden, da diese in `AbstractTower` dann gespeichert werden. Verschiedene Getter geben Zugriff auf alle benötigten Daten.
   
-Standartmäßig implementiert `AbstractTower` bereits `update` und `render`.  
+Standardmäßig implementiert `AbstractTower` bereits `update` und `render`.  
 - `render` zeigt in dieser Implementation das Model (also das Bild) zum aktuell passenden Upgrade
 - `update` timed automatisch die Schüsse (je nach `speed` in der Konfiguration bzw. den der Upgrades) und ruft im passenden Interval `shoot()` aus
 
@@ -134,7 +146,7 @@ assets
 ```
 Dabei werden die Bilddateien (`/img`) von den JSON-Konfigurationen (`/conf`) getrennt.  
 Diese werden dann jeweils noch nach Kategorie (wie tower oder map) sortiert.  
-Um ein Bild zu laden empfielt sich `Model.loadImage(category, filename)`, wobei `category` zweitere Kategorie (wie tower oder map) ist und `filename` der Name der Datei mit Endung (wie `test.png`).
+Um ein Bild zu laden empfiehlt sich `Model.loadImage(category, filename)`, wobei `category` zweitere Kategorie (wie tower oder map) ist und `filename` der Name der Datei mit Endung (wie `test.png`).
 
 ### Maps (JSON-Schema)
 in `/assets/conf/map/x.json`

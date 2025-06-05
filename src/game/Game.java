@@ -26,8 +26,9 @@ public class Game extends Application {
      * um eine gleichbleibende Spielfeldgröße auf verschiedenen Bildschirmen zu
      * ermöglichen.
      */
-    public static final int VIRTUAL_WIDTH = 1600,
-            VIRTUAL_HEIGHT = 900;
+    public static final int
+        VIRTUAL_WIDTH = 1600,
+        VIRTUAL_HEIGHT = 900;
 
     private final List<Map> maps = new ArrayList<>();
     private final List<TowerType> towers = new ArrayList<>();
@@ -41,9 +42,8 @@ public class Game extends Application {
     public void init() throws Exception {
         currentState = new MenuState(this);
 
-        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen
-        // (/assets/conf/)
-        registerMap(Map.loadMap("test.json"));
+        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
+        registerMap(Map.loadMap("map1.json"));
         registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
         registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
         registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);

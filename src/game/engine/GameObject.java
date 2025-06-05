@@ -67,16 +67,28 @@ public abstract class GameObject {
     }
 
     public double angleInDirection(double targetX, double targetY) {
-        return angleFromTo(x, y, targetX, targetY);
+        return calculateAngleFromTo(x, y, targetX, targetY);
     }
 
     public double angleInDirection(GameObject another) {
         return angleInDirection(another.getX(), another.getY());
     }
 
-    public static double angleFromTo(double fromX, double fromY, double toX, double toY) {
+    public static double calculateAngleFromTo(double fromX, double fromY, double toX, double toY) {
         double dx = toX - fromX;
         double dy = toY - fromY;
-        return Math.toDegrees(Math.atan2(dy, dx)) + 90; // Quelle: Copilot
+        return Math.toDegrees(calculateRadiansFor(dx, dy));
+    }
+
+    public static double calculateRadiansFor(double dx, double dy) {
+        return Math.atan2(dx, -dy); // Quelle: Copilot
+    }
+
+    public static double calculateRotatedOffsetX(double offsetX, double offsetY, double radians) {
+        return Math.cos(radians) * offsetX - Math.sin(radians) * offsetY;
+    }
+
+    public static double calculateRotatedOffsetY(double offsetX, double offsetY, double radians) {
+        return Math.sin(radians) * offsetX + Math.cos(radians) * offsetY;
     }
 }
