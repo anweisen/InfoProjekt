@@ -1,5 +1,7 @@
 package game.tower.impl;
 
+import java.util.ArrayList;
+
 import game.GameState;
 import game.enemy.Enemy;
 import game.tower.AbstractTower;
@@ -15,23 +17,20 @@ public class AuraTower extends AbstractTower {
         super(state, config, x, y);
     }
 
-    double enemiesX;
-    double enemiesY;
-    double enemiesdistance;
     boolean hasShot;
+    ArrayList<Enemy> currenttargets = new ArrayList<>();
 
     @Override
     public boolean shoot() {
         hasShot = false;
         for (Enemy enemies : state.getEnemies()) {
-            enemiesX = enemies.getX();
-            enemiesY = enemies.getY();
-            enemiesdistance = Math
-                    .sqrt((getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
-
-            if (enemiesdistance < getRange()) {
+            if (distanceTo(enemies) < getRange()) {
                 enemies.reduceHealth(getDamage());
+                currenttargets.add(enemies);
                 hasShot = true;
+            }
+            if (distanceTo(enemies) >= getRange() && currenttargets.contains(enemies)) {
+                currenttargets.remove(enemies); // Remove enemy if it goes out of range
             }
         }
         return hasShot;
@@ -40,12 +39,14 @@ public class AuraTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (enemiesdistance < getRange() && hasShot) {
-            graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
-            graphics.setStroke(Color.GREY); // optional: change color
-            graphics.setLineWidth(2); // optional: change line width
+        for (Enemy enemies : currenttargets) {
+            if (distanceTo(enemies) < getRange()) {
+                graphics.strokeLine(getX(), getY(), enemies.getX(), enemies.getY());
+                graphics.setStroke(Color.GREY); // optional: change color
+                graphics.setLineWidth(2); // optional: change line width
+            }
         }
-        graphics.setFill(Color.rgb(128, 128, 128, 0.5)); // semi-transparent red
+        graphics.setFill(Color.rgb(128, 128, 128, 0.2)); // semi-transparent red
         graphics.fillOval(getX() - getRange(), getY() - getRange(), 2 * getRange(), 2 * getRange()); // Draw aura effect
     }
 }
