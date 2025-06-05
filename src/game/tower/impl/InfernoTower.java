@@ -20,6 +20,8 @@ public class InfernoTower extends AbstractTower {
     double enemiesY;
     double enemiesDistance;
     Enemy targetEnemy;
+    Enemy lastEnemy = null;
+    int intensity = 1;
 
     @Override
     public boolean shoot() { // Update the target enemy before shooting
@@ -29,13 +31,18 @@ public class InfernoTower extends AbstractTower {
                 return false; // No enemy in range
             }
         }
+        if (lastEnemy != targetEnemy) {
+            intensity = 1;
+        }
         enemiesX = targetEnemy.getX();
         enemiesY = targetEnemy.getY();
         enemiesDistance = Math
                 .sqrt((getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
 
         if (enemiesDistance < getRange()) {
-            targetEnemy.reduceHealth(getDamage());
+            targetEnemy.reduceHealth(getDamage() * intensity);
+            intensity++;
+            lastEnemy = targetEnemy;
             return true;
         }
         return false; // Target enemy is out of range
@@ -64,7 +71,7 @@ public class InfernoTower extends AbstractTower {
         super.render(graphics);
         if (enemiesDistance < getRange()) {
             graphics.setStroke(Color.RED); // optional: change color
-            graphics.setLineWidth(4); // optional: change line width
+            graphics.setLineWidth(intensity); // optional: change line width
             graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
         }
     }

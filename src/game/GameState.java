@@ -83,6 +83,10 @@ public class GameState extends State {
         if (spawnInterval > 1) {
             spawnInterval = 0;
             enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y()));
+            enemies.add(new Enemy(this, 500, 500));
+            enemies.add(new Enemy(this, 550, 550));
+            enemies.add(new Enemy(this, 600, 600));
+            enemies.add(new Enemy(this, 650, 650));
         }
     }
 
@@ -92,6 +96,7 @@ public class GameState extends State {
 
     @Override
     public void handleClick(double x, double y) {
+        System.out.println("GameState.hanleClick:"+ x+ ","+y);
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
