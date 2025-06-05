@@ -1,5 +1,10 @@
 {
     "name": "Standard",
+    "model": {
+        "img": "standard.png",
+        "width": 64,
+        "height": 64
+    },
     "speed": "5.0",
     "damage": "1",
     "reward": "2",

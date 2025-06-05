@@ -82,7 +82,7 @@ public class GameState extends State {
         spawnInterval += deltaTime;
         if (spawnInterval > 1) {
             spawnInterval = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y()));
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
         }
     }
 
