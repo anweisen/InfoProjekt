@@ -40,10 +40,12 @@ public class AuraTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (enemiesdistance < getRange() && hasShot) {
-            graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
-            graphics.setStroke(Color.GREY); // optional: change color
-            graphics.setLineWidth(2); // optional: change line width
+        for (Enemy enemies : state.getEnemies()) {
+            if (distanceTo(enemies) <= getRange() && hasShot) {
+                graphics.strokeLine(getX(), getY(), enemies.getX(), enemies.getY());
+                graphics.setStroke(Color.GREY); // optional: change color
+                graphics.setLineWidth(2); // optional: change line width
+            }
         }
         graphics.setFill(Color.rgb(128, 128, 128, 0.5)); // semi-transparent red
         graphics.fillOval(getX() - getRange(), getY() - getRange(), 2 * getRange(), 2 * getRange()); // Draw aura effect
