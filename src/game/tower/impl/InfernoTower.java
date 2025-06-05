@@ -51,7 +51,7 @@ public class InfernoTower extends AbstractTower {
             double enemiesDistance = Math.sqrt(
                     (getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
 
-            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getEnemyHealth() > 0) {
+            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getHealth() > 0) {
                 closestDistance = enemiesDistance;
                 closestEnemy = enemies;
             }
