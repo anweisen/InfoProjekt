@@ -23,7 +23,7 @@ public class InfernoTower extends AbstractTower {
 
     @Override
     public boolean shoot() { // Update the target enemy before shooting
-        if (targetEnemy == null || targetEnemy.getEnemyHealth() <= 0) {
+        if (targetEnemy == null || targetEnemy.getHealth() <= 0) {
             targetEnemy = getTargetEnemy();
             if (targetEnemy == null) {
                 return false; // No enemy in range
@@ -51,7 +51,7 @@ public class InfernoTower extends AbstractTower {
             double enemiesDistance = Math.sqrt(
                     (getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
 
-            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getEnemyHealth() > 0) {
+            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getHealth() > 0) {
                 closestDistance = enemiesDistance;
                 closestEnemy = enemies;
             }
