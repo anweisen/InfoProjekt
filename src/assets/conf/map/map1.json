@@ -1,6 +1,7 @@
 {
-    "name": "Test-Map",
-    "img": "test.png",
+    "name": "1-Map",
+    "img": "map1.png",
+    "allowPlace": "map1_black.png",
     "start": {
         "x": 0,
         "y": 243
