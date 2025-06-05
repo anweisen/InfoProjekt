@@ -6,7 +6,6 @@ import game.Game;
 import game.GameState;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
 public class Shop {
