@@ -3,6 +3,9 @@ package game;
 import game.engine.State;
 import game.map.Map;
 import game.tower.TowerType;
+import game.tower.impl.AuraTower;
+import game.tower.impl.InfernoTower;
+import game.tower.impl.LaserTower;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -20,11 +23,11 @@ public class Game extends Application {
 
     /**
      * Die interne (virtuelle) Größe des Spielfeldes,
-     * um eine gleichbleibende Spielfeldgröße auf verschiedenen Bildschirmen zu ermöglichen.
+     * um eine gleichbleibende Spielfeldgröße auf verschiedenen Bildschirmen zu
+     * ermöglichen.
      */
-    public static final int
-        VIRTUAL_WIDTH = 1600,
-        VIRTUAL_HEIGHT = 900;
+    public static final int VIRTUAL_WIDTH = 1600,
+            VIRTUAL_HEIGHT = 900;
 
     private final List<Map> maps = new ArrayList<>();
     private final List<TowerType> towers = new ArrayList<>();
@@ -38,8 +41,12 @@ public class Game extends Application {
     public void init() throws Exception {
         currentState = new MenuState(this);
 
-        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
+        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen
+        // (/assets/conf/)
         registerMap(Map.loadMap("test.json"));
+        registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
+        registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
+        registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);
     }
 
     @Override
@@ -85,7 +92,8 @@ public class Game extends Application {
     }
 
     public void setState(State newState) {
-        if (newState == null) throw new IllegalArgumentException("State cannot be null");
+        if (newState == null)
+            throw new IllegalArgumentException("State cannot be null");
 
         currentState.dispose();
         currentState = newState;
@@ -130,7 +138,8 @@ public class Game extends Application {
 
         @Override
         public void handle(long now) {
-            if ((now - lastTime) < 1_000_000_000 / 1000) return;
+            if ((now - lastTime) < 1_000_000_000 / 1000)
+                return;
 
             // Provisorischer FPS-Zähler zur Performanceüberwachung
             frames++;

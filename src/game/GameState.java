@@ -42,8 +42,9 @@ public class GameState extends State {
 
         if (selectedTower != null) {
             graphics.setFill(Color.rgb(0, 0, 0, 0.2));
-            graphics.fillOval(selectedTower.getX() - selectedTower.getRange(), selectedTower.getY() - selectedTower.getRange(),
-                selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+            graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
+                    selectedTower.getY() - selectedTower.getRange(),
+                    selectedTower.getRange() * 2, selectedTower.getRange() * 2);
         }
 
         for (AbstractTower tower : towers) {
@@ -53,7 +54,8 @@ public class GameState extends State {
             enemy.render(graphics);
         }
         for (GameObject projectile : projectiles) {
-            if (projectile.isMarkedForRemoval()) continue;
+            if (projectile.isMarkedForRemoval())
+                continue;
             projectile.render(graphics);
         }
 
@@ -75,7 +77,6 @@ public class GameState extends State {
         towers.removeIf(GameObject::isMarkedForRemoval);
         enemies.removeIf(GameObject::isMarkedForRemoval);
         projectiles.removeIf(GameObject::isMarkedForRemoval);
-
 
         // Provisorische Gegner-Spawning-Logik zum Testen
         spawnInterval += deltaTime;
@@ -99,7 +100,7 @@ public class GameState extends State {
         }
 
         // Erstelle Turm beim Klicken zu Testzwecken!
-        // spawnTower(game.getTowerTypes().get(0), x, y);
+        spawnTower(game.getTowerTypes().get(0), x, y);
     }
 
     public void spawnTower(TowerType type, double x, double y) {

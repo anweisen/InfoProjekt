@@ -1,0 +1,65 @@
+{
+    "name": "Inferno Tower",
+    "info": "Versengt Gegner mit Flammen",
+    "price": 120,
+    "range": 180,
+    "damage": 25,
+    "speed": 2.0,
+    "targets": 1,
+    "model": {
+        "img": "InfernoTower.png",
+        "width": 64,
+        "height": 64,
+        "projectileX": 32,
+        "projectileY": 32
+    },
+    "models1": [
+        {
+            "img": "InfernoTower.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
+    "models2": [],
+    "upgrades1": [
+        {
+            "name": "Level 1",
+            "info": "Erhöht die Feuerrate des Infernos",
+            "price": 60,
+            "speed": 1.5
+        },
+        {
+            "name": "Level 2",
+            "info": "Erhöht den Schaden der Flammen",
+            "price": 90,
+            "damage": 40
+        },
+        {
+            "name": "Level 3",
+            "info": "Erhöht die Reichweite des Feuers",
+            "price": 110,
+            "range": 50
+        }
+    ],
+    "upgrades2": [
+        {
+            "name": "Level I",
+            "info": "Erhöht die Feuerrate weiter",
+            "price": 550,
+            "speed": 4
+        },
+        {
+            "name": "Level II",
+            "info": "Erhöht den Schaden deutlich",
+            "price": 800,
+            "damage": 70
+        },
+        {
+            "name": "Level III",
+            "info": "Erhöht Reichweite und Feuerschaden",
+            "price": 1100,
+            "range": 100,
+            "damage": 20
+        }
+    ]
+}

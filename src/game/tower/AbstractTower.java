@@ -17,7 +17,9 @@ public abstract class AbstractTower extends GameObject {
 
     /**
      * Diesen Constructor sollte jede Tower-Klasse in dieser Form haben
-     * @see TowerType.TowerConstructor#newTower(GameState, TowerType.Config, double, double)
+     * 
+     * @see TowerType.TowerConstructor#newTower(GameState, TowerType.Config, double,
+     *      double)
      * @see TowerType#create(GameState, double, double)
      */
     public AbstractTower(GameState state, TowerType.Config config, double x, double y) {
@@ -25,7 +27,8 @@ public abstract class AbstractTower extends GameObject {
         this.config = config;
     }
 
-    // Beim Überschreiben super.update(deltaTime) aufrufen! (außer shoot() wird nicht genutzt)
+    // Beim Überschreiben super.update(deltaTime) aufrufen! (außer shoot() wird
+    // nicht genutzt)
     @Override
     public void update(double deltaTime) {
         nextShotCounter += deltaTime;
