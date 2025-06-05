@@ -18,10 +18,11 @@ public class AuraTower extends AbstractTower {
     double enemiesX;
     double enemiesY;
     double enemiesdistance;
+    boolean hasShot;
 
     @Override
     public boolean shoot() {
-        boolean anyHit = false;
+        hasShot = false;
         for (Enemy enemies : state.getEnemies()) {
             enemiesX = enemies.getX();
             enemiesY = enemies.getY();
@@ -30,16 +31,16 @@ public class AuraTower extends AbstractTower {
 
             if (enemiesdistance < getRange()) {
                 enemies.reduceHealth(getDamage());
-                anyHit = true;
+                hasShot = true;
             }
         }
-        return anyHit;
+        return hasShot;
     }
 
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (enemiesdistance < getRange() && shoot()) {
+        if (enemiesdistance < getRange() && hasShot) {
             graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
             graphics.setStroke(Color.GREY); // optional: change color
             graphics.setLineWidth(2); // optional: change line width
