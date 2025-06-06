@@ -16,26 +16,26 @@ public class InfernoTower extends AbstractTower {
         super(state, config, x, y);
     }
 
-    double enemiesX;
-    double enemiesY;
-    double enemiesDistance;
     Enemy targetEnemy;
+    Enemy lastEnemy = null;
+    int intensity = 1;
 
     @Override
     public boolean shoot() { // Update the target enemy before shooting
-        if (targetEnemy == null || targetEnemy.getEnemyHealth() <= 0) {
+        if (targetEnemy == null || targetEnemy.getHealth() <= 0) {
             targetEnemy = getTargetEnemy();
             if (targetEnemy == null) {
                 return false; // No enemy in range
             }
         }
-        enemiesX = targetEnemy.getX();
-        enemiesY = targetEnemy.getY();
-        enemiesDistance = Math
-                .sqrt((getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
+        if (lastEnemy != targetEnemy) {
+            intensity = 1;
+        }
 
-        if (enemiesDistance < getRange()) {
-            targetEnemy.reduceHealth(getDamage());
+        if (distanceTo(targetEnemy) < getRange()) {
+            targetEnemy.reduceHealth(getDamage() * intensity);
+            intensity++;
+            lastEnemy = targetEnemy;
             return true;
         }
         return false; // Target enemy is out of range
@@ -46,12 +46,8 @@ public class InfernoTower extends AbstractTower {
         Enemy closestEnemy = null;
 
         for (Enemy enemies : state.getEnemies()) {
-            double enemiesX = enemies.getX();
-            double enemiesY = enemies.getY();
-            double enemiesDistance = Math.sqrt(
-                    (getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
-
-            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getEnemyHealth() > 0) {
+            double enemiesDistance = distanceTo(enemies);
+            if (distanceTo(enemies) < getRange() && enemiesDistance < closestDistance && enemies.getHealth() > 0) {
                 closestDistance = enemiesDistance;
                 closestEnemy = enemies;
             }
@@ -62,10 +58,10 @@ public class InfernoTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (enemiesDistance < getRange()) {
+        if (distanceTo(targetEnemy) < getRange()) {
             graphics.setStroke(Color.RED); // optional: change color
-            graphics.setLineWidth(4); // optional: change line width
-            graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
+            graphics.setLineWidth(intensity); // optional: change line width
+            graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
         }
     }
 }
