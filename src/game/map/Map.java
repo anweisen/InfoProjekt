@@ -13,7 +13,7 @@ public class Map {
     private final Image background;
     private final Waypoint[] waypoints;
     private final Waypoint start, end;
-    private final boolean canPlace[][];
+    private final boolean[][] canPlace;
 
 
     public Map(String name, Image background, Waypoint[] waypoints, Waypoint start, Waypoint end, Image allowPlace) {
@@ -22,8 +22,8 @@ public class Map {
         this.waypoints = waypoints;
         this.start = start;
         this.end = end;
-        canPlace = new boolean[1600][900];
-        canPlace(allowPlace);
+        this.canPlace = new boolean[Game.VIRTUAL_WIDTH][Game.VIRTUAL_HEIGHT];
+        calculateCanPlace(allowPlace);
     }
 
     public static Map loadMap(String filename) {
@@ -43,22 +43,22 @@ public class Map {
         }
     }
 
-    public void canPlace(Image allowPlace){
+    public void calculateCanPlace(Image allowPlace) {
         PixelReader reader = allowPlace.getPixelReader();
-       for(int i = 0; i<1600;i++){
-        for(int j = 0; j<900;j++){
-            if(reader.getColor(i,j).equals(Color.BLACK)){
-               canPlace[i][j]=  true;
+        for (int i = 0; i < canPlace.length; i++) {
+            for (int j = 0; j < canPlace[i].length; j++) {
+                if (reader.getColor(i, j).equals(Color.BLACK)) {
+                    canPlace[i][j] = true;
+                }
             }
         }
-       }  
     }
 
-    public boolean getCanPlacePosi(int x, int y){
+    public boolean getCanPlace(int x, int y) {
         return canPlace[x][y];
     }
 
-    public boolean[][] getCanPlace(){
+    public boolean[][] getCanPlace() {
         return canPlace;
     }
 
