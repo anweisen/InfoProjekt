@@ -68,6 +68,10 @@ public class Model {
         render(graphics, image, x, y, width, height);
     }
 
+    public void renderScaled(GraphicsContext graphics, double x, double y, double scale) {
+        render(graphics, image, x, y, width * scale, height * scale);
+    }
+
     public void renderRotated(GraphicsContext graphics, double x, double y, double rotation) {
         renderRotated(graphics, image, x, y, width, height, rotation);
     }

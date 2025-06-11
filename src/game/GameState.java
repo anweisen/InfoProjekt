@@ -2,6 +2,7 @@ package game;
 
 import game.enemy.Enemy;
 import game.engine.GameObject;
+import game.engine.Particle;
 import game.engine.State;
 import game.map.Map;
 import game.shop.Shop;
@@ -17,10 +18,10 @@ public class GameState extends State {
     private final Map map;
     private final Shop shop;
 
-    private final Collection<AbstractTower> towers;
-    private final Collection<Enemy> enemies;
-    // provisorische Projektil-Liste für Testzwecke
+    private final Collection<AbstractTower> towers = new ArrayList<>();
+    private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
+    private final Collection<Particle> particles = new ArrayList<>();
 
     // TODO: Leben, Geld, ...
 
@@ -32,8 +33,6 @@ public class GameState extends State {
         super(game);
         this.map = map;
         this.shop = new Shop(this);
-        this.towers = new ArrayList<>();
-        this.enemies = new ArrayList<>();
     }
 
     @Override
@@ -55,9 +54,10 @@ public class GameState extends State {
             enemy.render(graphics);
         }
         for (GameObject projectile : projectiles) {
-            if (projectile.isMarkedForRemoval())
-                continue;
             projectile.render(graphics);
+        }
+        for (Particle particle : particles) {
+            particle.render(graphics);
         }
 
         if (shop.isOpen()) {
@@ -76,10 +76,14 @@ public class GameState extends State {
         for (GameObject projectile : projectiles) {
             projectile.update(deltaTime);
         }
+        for (Particle particle : particles) {
+            particle.update(deltaTime);
+        }
 
         towers.removeIf(GameObject::isMarkedForRemoval);
         enemies.removeIf(GameObject::isMarkedForRemoval);
         projectiles.removeIf(GameObject::isMarkedForRemoval);
+        particles.removeIf(GameObject::isMarkedForRemoval);
 
         // Provisorische Gegner-Spawning-Logik zum Testen
         spawnInterval += deltaTime;
@@ -121,6 +125,10 @@ public class GameState extends State {
     // Provisorium
     public void registerProjectile(GameObject projectile) {
         projectiles.add(projectile);
+    }
+
+    public void registerParticle(Particle particle) {
+        particles.add(particle);
     }
 
     public AbstractTower getSelectedTower() {
