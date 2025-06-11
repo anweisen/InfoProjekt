@@ -17,7 +17,7 @@ Diese ist mit `Game.VIRTUAL_WIDTH` und `Game.VIRTUAL_HEIGHT` festgelegt (derzeit
 Alle Positionen beziehen sich dann auf diese Größe. Es wird im Nachhinein auf die passende Anzeigegröße skaliert.
   
 Da es ein JavaFx-Projekt ist, muss `Game` von `Application` erben. Dadurch sind die Methoden `init()` und `start(...)` verfügbar.  
-Zunächst werden in `init` die Resourcen geladen (also die JSON-Konfiguration ausgelesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).  
+Zunächst werden in `init` die Ressourcen geladen (also die JSON-Konfiguration ausgelesen und benötigte Bilder geladen) und die verfügbaren Maps und Towertypen registriert (also in einer Liste gespeichert).  
 In `start` wird das Fenster sowie die Zeichenoberfläche erstellt und der GameLoop gestartet.
 
 ## GameLoop
@@ -25,7 +25,7 @@ In `start` wird das Fenster sowie die Zeichenoberfläche erstellt und der GameLo
 Die Hauptklasse `Game` beinhaltet den sogenannten GameLoop, welcher sich um die regelmäßige Ausführung der Spiellogik und das Anzeigen des Spiels kümmert.  
 Dieser ist in 2 Phasen unterteilt:
 - `render`: Das eigentliche Spiel wird gezeichnet (gerendert), also z.B. die Türme/Gegner/Projektile an ihrer derzeitigen Position, sowie UI-Elemente werden gezeichnet
-- `update`: Die Spiellogik im Hintergrund wird ausgeführt (der Spielzustand wird aktualisiert): Gegner bewegen sich / spawnen, Projektile fliegen weiter, Leben werden abgezogen, ...
+- `update`: Die Spiellogik im Hintergrund wird ausgeführt (der Spielzustand, der später gezeichnet wird, wird aktualisiert): Gegner bewegen sich / spawnen, Projektile fliegen weiter, Leben werden abgezogen, ...
 
 Diese beiden Operationen werden immer abwechselnd ausgeführt um ein flüssiges Spielerlebnis zu erzeugen (zwischen jedem Zeichnen muss sich z.B. der Gegner ein Stück bewegen, dass es flüssig aussieht).  
 
@@ -62,15 +62,20 @@ Wird der `currentState` per `setCurrentState` geändert wird `dispose()` des alt
 Der `GameState` ist der Ausgangspunkt für die eigentliche Spielprogrammierung. Dieser enthält alle Daten zum aktuellen Spielstand wie platzierte Türme, die derzeit gespielte Karte, übrige Leben, Geld usw...  
   
 Platzierte Türme, Gegner und andere Spielobjekte (Projektile) werden jeweils in einer Liste gespeichert.  
-Da während einem Listen-Durchlauf standardmäßig keine Elemente aus dieser entfernt werden können, müssen zu entfernende Spielobjekte `markForRemoval()` aufrufen. Nach dem `update`-Durchlauf werden alle zu entfernende Objekte aus den Listen entfernt. 
+Da während einem Listen-Durchlauf standardmäßig keine Elemente aus dieser entfernt werden können, müssen zu entfernende Spielobjekte `markForRemoval()` aufrufen. 
+Nach dem `update`-Durchlauf werden alle zu entfernende Objekte aus den Listen entfernt. 
 
 Das Spiel wird nach folgender Reihenfolge gerendert (gezeichnet):
 - Map (Hintergrund)
 - Tower (platzierte Türme)
 - Enemies (derzeitige Gegner)
 - Projectiles (Projektile)
+- Particles (Partikel wie Explosionen)
 - Shop
 - UI (weitere Elemente wie Leben und Geld)
+
+*Die nach Typen getrennte Reihenfolge soll eine höhere Konsistenz sowohl in der Anzeige als auch in der Logik ermöglichen (Gegner immer über Türmen / Bewegung Gegner immer vor Schüssen / ...).
+Dafür ist eine je eigene Liste der Entitäten die wohl effizienteste und einfachste Lösung*
 
 ## GameObject
 Jedes Spielobjekt auf dem Bildschirm (z.B. Türme, Gegner, Projektile) sind auch je ein `GameObject`.  
@@ -84,9 +89,10 @@ Abstrakte Methoden ("zugesichert")
 - `update`: Soll Spiellogik dieses Objekts berechnen (wie Bewegung, Schießen, ...)
 
 Hilfs-Methoden
-- `markForRemoval()`: Setzt dieses Objekt als "zu entfernen" und wird nach diesem `update`-Durchlauf entfernt
+- `markForRemoval()`: Setzt dieses Objekt als "zu entfernen" und wird nach diesem `update`-Durchlauf entfernt (siehe `GameState` für Details)
 - `distanceTo(...)`: Errechnet den Abstand zu einem anderen `GameObject` oder eine Position
-- `angleInDirection(...)`: Errechnet den Winkel/Richtung zu einem anderen `GameObject` oder eine Position in die dieses Objekt "schauen" müsste
+- `angleInDirection(...)`: Errechnet den Winkel/Richtung zu einem anderen `GameObject` oder eine Position in die dieses Objekt "schauen" müsste.  
+  Dieser kann dann anschließend in `render` verwendet werden (via `model.renderRotated(...)`), um das Objekt auch wirklich in die Richtung gedreht anzuzeigen (z.B. bei Türmen in Richtung des Schusses).
 
 ## Tower
 Jeder Tower-Typ hat seine eigene Klasse (`extends AbstractTower`) und eine passende JSON-Konfiguration (siehe unten!).  
@@ -130,13 +136,52 @@ Die `shoot()` Methode (*abstract*) sollte `true` zurückgeben, wenn es einen Geg
 `AbstractTower` speichert auch bereits das `level` (`int`) des Turms sowie welcher der beiden Upgrade-Optionen gewählt wurde (`upgradeTreeOne` als `boolean`: `true` -> Option 1)  
 Es werden auch Getter für die zum aktuellen Upgrade passenden Attribute (Reichweite, Schaden, ...) gegeben, sowie Getter für Level, Config, usw.
 
+## Particle
+
+`Particle` ist eine `abstract` Klasse, die eine simple Grundlage für Partikel wie Explosionen oder andere einfache Animationen bilden soll.  
+Alle derzeitig sichtbaren Partikel werden in einer Liste im `GameState` gespeichert und können über `GameState#registerParticle(Particle)` hinzugefügt werden.
+Sie befolgen dieselbe Logik wie `GameObject` (es wird extended, also geerbt), also Methoden wie `render`, `update`, `markForRemoval` usw.  
+`Particle` implementiert bereits standardmäßig `render` und `update`
+- `update` zählt die interne Zeit (den Fortschritt der Animation) `progress` von 0 bis 1 hoch, wobei `1` das Ende der Animation ist.  
+  Dabei gibt `lifetime` die Zeit in Sekunden an, wie lange der Partikel sichtbar sein soll, also wie lange es dauert bis von `0` bis `1` hochzählt wurde.
+- `render` ruft die `abstract` Methode `render(GrahpicsContext, double)` auf, wobei der zusätzliche Parameter `time` (`double`) den Fortschritt der Partikel-Animation darstellt.  
+  Jedoch ist `time` nicht gleich `progress`, sondern errechnet sich anhand des vorgebenden `Timing` (via `Timing#translate(double)`), um eine nicht-lineare Animation zu ermöglichen.  
+  `Timing` stellt konstante Optionen wie `Timing.LINEAR` (linear), `Timing.EASE_OUT_CUBIC` (zum Ende hin langsamer) oder `Timing.EASE_IN_CUBIC` (am Anfang langsamer) bereit.
+
+Eine einfache Partikel Implementierung wird durch `Particle.Image` bereitgestellt, die ein übergebenes `Model` von Anfang bis Ende hochskaliert, 
+und somit eine simple Partikel-Animation erzeugen kann, wie eine Explosion (eigentlich ein 2D-Bild davon) die langsam entsteht und größer wird, anstatt einfach aus dem Nichts sichtbar zu werden und wieder zu verschwinden.  
+
+Es sind aber natürlich auch weitere Particle-Implementation denkbar, auch wenn so nur einfache Animationen möglich sind.
+
+## Map
+
+Eine Map-Instanz ist eine Karte, auf der das Spiel gespielt werden kann und hält alle Daten zu dieser.  
+Eine Liste an Maps wird in `Game` gespeichert und kann über `Game#getMaps()` abgerufen werden.  
+Maps werden in `init` geladen und registriert, ähnlich wie die Tower-Typen:
+```java
+registerMap(Map.loadMap("mapName.json"));
+```
+Aus der JSON-Konfiguration gehen bereits die relevanten Daten für diese hervor (siehe unten `Assets > Maps`).
+Diese werden in der `Map` Klasse gespeichert und können über Getter abgerufen werden:
+- `getName()`: `String`: Name der Map 
+- `getImage()`: `Image`: Hintergrundbild der Map (wird automatisch aus dem angegeben `img` Pfad geladen)
+- `getCanPlace(x, y)`: `boolean`: Gibt an, ob auf der Map an der Position `x, y` ein Turm platziert werden kann (oder ob es auf einem Pfad oder Hindernis liegt).  
+  Diese Informationen gehen aus einem Bild hervor (`allowPlace` Pfad in der JSON), welches erlaubte Positionen mit schwarzen Pixeln markiert.
+- `getStart()`: `Waypoint`: Startpunkt der Karte (Spawn-Punkt der Gegner)
+- `getEnd()`: `Waypoint`: Endpunkt der Karte (Ziel-Punkt der Gegner)
+- `getWaypoints()`: `Waypoint[]`: Punkte die, wenn verbunden, den Pfad der Karte erzeugen (für Wegfindung benötigt).  
+- `getSplinePoints()`: `List<Waypoint>`: Punkte die aus den Waypoints mithilfe *Catmull-Rom-Spline-Interpolation* errechnet werden (liegen näher zusammen).
+  Dabei liegen alle diese Punkte auf einer glatten Kurve ohne Knicke, die durch alle angegebenen Waypoints verläuft (für eine flüssige Bewegung der Gegner, die nicht abgehackt ist).  
+  (*sie werden im Vorhinein berechnet, um die Anzahl komplexer mathematischer Berechnungen pro update-Call zu minimieren*)
+
 ## Assets
-Alle Resourcen (Bilder und Konfigurationen) sind in `/assets` bzw. in den passenden Unterordnern, um eine bessere Übersicht zu haben.
+Alle Ressourcen (Bilder und Konfigurationen) sind in `/assets` bzw. in den passenden Unterordnern, um eine bessere Übersicht zu haben.
 ```
 assets
 ├── conf        -> JSON-Konfigurationen
 │   ├── tower
 │   ├── map
+│   └── ...
 └── img         -> Bilddateien
     ├── enemy
     ├── map
@@ -146,7 +191,7 @@ assets
 ```
 Dabei werden die Bilddateien (`/img`) von den JSON-Konfigurationen (`/conf`) getrennt.  
 Diese werden dann jeweils noch nach Kategorie (wie tower oder map) sortiert.  
-Um ein Bild zu laden empfiehlt sich `Model.loadImage(category, filename)`, wobei `category` zweitere Kategorie (wie tower oder map) ist und `filename` der Name der Datei mit Endung (wie `test.png`).
+Um ein Bild zu laden, empfiehlt sich `Model.loadImage(category, filename)`, wobei `category` zweitere Kategorie (wie tower oder map) ist und `filename` der Name der Datei mit Endung (wie `test.png`).
 
 ### Maps (JSON-Schema)
 in `/assets/conf/map/x.json`
@@ -154,6 +199,7 @@ in `/assets/conf/map/x.json`
 {
     "name": "Anzeigename der Karte",
     "img": "Dateiname des Hintergrundbildes, in /assets/img/map",
+    "allowPlace": "Bilddateiname: erlaubte Platzierungen, in /assets/img/map",
 
     "start": { // Startpunkt der Gegner
         "x": 123,
@@ -192,7 +238,7 @@ per `TowerType.Config.load(...)` geladen
     "damage": 10, // Schaden
     "speed": 1.5, // Schüsse pro Sekunde (Durchschnitt)
     "targets": 1, // Anzahl gleichzeitiger Ziele o.ä.
-    // die einzelnen Attribute können von der jweiligen Turm-Klasse auch anders interpretiert werden
+    // die einzelnen Attribute können von der jeweiligen Turm-Klasse auch anders interpretiert werden
 
     "upgrades1": [ // Upgrades: Upgrade-Pfad Möglichkeit 1
         {
