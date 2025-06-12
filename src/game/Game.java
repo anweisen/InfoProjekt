@@ -4,6 +4,7 @@ import game.engine.State;
 import game.map.Map;
 import game.tower.TowerType;
 import game.tower.impl.AuraTower;
+import game.tower.impl.CanonTower;
 import game.tower.impl.InfernoTower;
 import game.tower.impl.LaserTower;
 import javafx.animation.AnimationTimer;
@@ -44,6 +45,7 @@ public class Game extends Application {
 
         // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
         registerMap(Map.loadMap("map1.json"));
+        registerTower(TowerType.Config.load("canon.json"), CanonTower::new);
         registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
         registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
         registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);
