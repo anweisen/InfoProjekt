@@ -11,6 +11,8 @@ import java.util.List;
 
 public class Map {
 
+    private static final int DISTANCE_BETWEEN_SPLINE_SAMPLES = 18;
+
     private final String name;
     private final Image background;
     private final Waypoint[] waypoints;
@@ -24,10 +26,10 @@ public class Map {
         this.waypoints = waypoints;
         this.start = start;
         this.end = end;
-        this.splinePoints = new ArrayList<>(waypoints.length * 10 );
+        this.splinePoints = new ArrayList<>(waypoints.length * 10);
         this.canPlace = new boolean[Game.VIRTUAL_WIDTH][Game.VIRTUAL_HEIGHT];
         calculateCanPlace(allowPlace);
-        calculateSpline(10);
+        calculateSpline();
     }
 
     public static Map loadMap(String filename) {
@@ -67,18 +69,22 @@ public class Map {
      * Berechnet die "Spline"-Punkte zwischen den Wegpunkten,
      * um eine glatte Kurve ohne Abknicken/Ecken zu erzeugen.
      *
-     * @param samplesPerSegment Anzahl der Punkte zwischen je zwei Wegpunkten
      * @see #catmullRom(Waypoint, Waypoint, Waypoint, Waypoint, double)
      */
-    private void calculateSpline(int samplesPerSegment) {
+    private void calculateSpline() {
         for (int i = -1; i < waypoints.length; i++) { // -1: start
             Waypoint p0 = getWaypointSafely(i - 1);
             Waypoint p1 = getWaypointSafely(i);
             Waypoint p2 = getWaypointSafely(i + 1);
             Waypoint p3 = getWaypointSafely(i + 2);
 
-            for (int j = 0; j < samplesPerSegment; j++) {
-                double t = (double) j / samplesPerSegment;
+            double dx = p2.x - p1.x;
+            double dy = p2.y - p1.y;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            double sampleCount = Math.ceil(distance / DISTANCE_BETWEEN_SPLINE_SAMPLES); // aufrunden
+
+            for (int j = 0; j < sampleCount; j++) {
+                double t = (double) j / sampleCount;
                 splinePoints.add(catmullRom(p0, p1, p2, p3, t));
             }
         }
