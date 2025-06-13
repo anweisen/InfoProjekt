@@ -5,7 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Particle extends GameObject {
 
-    protected final double lifetime;
+    protected final double lifetimeSeconds;
     protected final Timing timing;
 
     protected double progress = 0;
@@ -16,13 +16,13 @@ public abstract class Particle extends GameObject {
 
     public Particle(GameState state, double x, double y, double width, double height, Timing timing, double lifetimeSeconds) {
         super(state, x, y, width, height);
-        this.lifetime = lifetimeSeconds;
+        this.lifetimeSeconds = lifetimeSeconds;
         this.timing = timing;
     }
 
     @Override
     public void update(double deltaTime) {
-        progress += deltaTime / lifetime;
+        progress += deltaTime / lifetimeSeconds;
 
         if (progress >= 1) {
             this.progress = 1; // clamp
@@ -39,8 +39,8 @@ public abstract class Particle extends GameObject {
         return progress;
     }
 
-    public double getLifetime() {
-        return lifetime;
+    public double getLifetimeSeconds() {
+        return lifetimeSeconds;
     }
 
     public Timing getTiming() {
@@ -57,6 +57,7 @@ public abstract class Particle extends GameObject {
         Timing EASE_OUT_CUBIC = time -> 1 - Math.pow(1 - time, 3);
         Timing EASE_IN_QUAD = time -> Math.pow(time, 2);
         Timing EASE_IN_CUBIC = time -> Math.pow(time, 3);
+        Timing EASE_IN_OUT_QUAD = time -> time < 0.5 ? 2 * Math.pow(time, 2) : 1 - Math.pow(-2 * time + 2, 2) / 2;
 
         double translate(double time);
     }

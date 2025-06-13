@@ -8,8 +8,8 @@
     "targets": 1,
     "model": {
         "img": "AuraTower.png",
-        "width": 64,
-        "height": 64,
+        "width": 96,
+        "height": 96,
         "projectileX": 32,
         "projectileY": 32
     },

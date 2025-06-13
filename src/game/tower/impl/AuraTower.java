@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import game.GameState;
 import game.enemy.Enemy;
+import game.engine.Model;
+import game.engine.Particle;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class AuraTower extends AbstractTower {
+
+    private static final Model auraModel = Model.loadModelWith("projectile", "aura.png", 1, 1);
 
     // A tower that emits a powerful aura, dealing the damage to nearby enemies
 
@@ -28,10 +32,12 @@ public class AuraTower extends AbstractTower {
                 doShoot(enemies);
                 hasShot = true; // Set hasShot to true if at least one enemy is in range
             }
-            if (distanceTo(enemies) >= getRange() && currenttargets.contains(enemies)) {
-                currenttargets.remove(enemies); // Remove enemy if it goes out of range
-            }
         }
+        if (hasShot) {
+            state.registerParticle(new Particle.Image(state, x, y, auraModel.withSize(getRange() * 2 + 10, getRange() * 2 + 10), Particle.Timing.EASE_OUT_QUAD, .25));
+        }
+        // Remove enemy if it goes out of range or is dead
+        currenttargets.removeIf(target -> distanceTo(target) >= getRange() || target.isMarkedForRemoval());
         return hasShot;
     }
 
@@ -52,7 +58,5 @@ public class AuraTower extends AbstractTower {
                 graphics.setLineWidth(2); // optional: change line width
             }
         }
-        graphics.setFill(Color.rgb(128, 128, 128, 0.2)); // semi-transparent grey for aura effect
-        graphics.fillOval(getX() - getRange(), getY() - getRange(), 2 * getRange(), 2 * getRange()); // Draw aura effect
     }
 }

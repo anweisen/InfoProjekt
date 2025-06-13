@@ -99,4 +99,8 @@ public class Model {
     public int getWidth() {
         return width;
     }
+
+    public Model withSize(int width, int height) {
+        return new Model(image, width, height);
+    }
 }
