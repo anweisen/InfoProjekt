@@ -16,22 +16,16 @@ public class LaserTower extends AbstractTower {
         super(state, config, x, y);
     }
 
-    double enemiesX;
-    double enemiesY;
-    double enemiesdistance;
     boolean hasShot = false;
+    Enemy targetEnemy;
 
     @Override
     public boolean shoot() {
         for (Enemy enemies : state.getEnemies()) {
-            enemiesX = enemies.getX();
-            enemiesY = enemies.getY();
-            enemiesdistance = Math
-                    .sqrt((getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
-
-            if (enemiesdistance < getRange()) {
+            if (distanceTo(enemies) < getRange()) {
                 enemies.reduceHealth(getDamage());
                 hasShot = true;
+                targetEnemy = enemies;
                 return true;
             }
         }
@@ -42,10 +36,12 @@ public class LaserTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (enemiesdistance < getRange() && hasShot) {
-            graphics.setStroke(Color.ORANGE); // optional: change color
-            graphics.setLineWidth(2); // optional: change line width
-            graphics.strokeLine(getX(), getY(), enemiesX, enemiesY);
+        if (distanceTo(targetEnemy) < getRange() && hasShot && targetEnemy != null) {
+
+            graphics.setStroke(Color.RED); // optional: change color
+            graphics.setLineWidth(4); // optional: change line width
+            graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
+
         }
     }
 

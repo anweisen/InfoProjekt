@@ -46,7 +46,7 @@ public class AuraTower extends AbstractTower {
                 graphics.setLineWidth(2); // optional: change line width
             }
         }
-        graphics.setFill(Color.rgb(128, 128, 128, 0.2)); // semi-transparent red
+        graphics.setFill(Color.rgb(128, 128, 128, 0.2)); // semi-transparent grey for aura effect
         graphics.fillOval(getX() - getRange(), getY() - getRange(), 2 * getRange(), 2 * getRange()); // Draw aura effect
     }
 }

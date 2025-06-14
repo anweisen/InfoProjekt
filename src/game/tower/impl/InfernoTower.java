@@ -46,14 +46,12 @@ public class InfernoTower extends AbstractTower {
         Enemy closestEnemy = null;
 
         for (Enemy enemies : state.getEnemies()) {
-            double enemiesX = enemies.getX();
-            double enemiesY = enemies.getY();
-            double enemiesDistance = Math.sqrt(
-                    (getX() - enemiesX) * (getX() - enemiesX) + (getY() - enemiesY) * (getY() - enemiesY));
-
-            if (enemiesDistance < getRange() && enemiesDistance < closestDistance && enemies.getHealth() > 0) {
-                closestDistance = enemiesDistance;
-                closestEnemy = enemies;
+            if (enemies != null) {
+                if (distanceTo(enemies) < getRange() && distanceTo(enemies) < closestDistance
+                        && enemies.getHealth() > 0) {
+                    closestDistance = distanceTo(enemies);
+                    closestEnemy = enemies;
+                }
             }
         }
         return closestEnemy; // Return the closest enemy within range
@@ -62,10 +60,15 @@ public class InfernoTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (distanceTo(targetEnemy) < getRange()) {
+        if (distanceTo(targetEnemy) < getRange() && targetEnemy != null) {
+            graphics.setStroke(Color.ORANGE); // optional: change color
+            graphics.setLineWidth(intensity*1.5); // optional: change line width
+            graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
+            
             graphics.setStroke(Color.RED); // optional: change color
             graphics.setLineWidth(intensity); // optional: change line width
             graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
+
         }
     }
 }
