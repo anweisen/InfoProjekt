@@ -25,15 +25,21 @@ public class AuraTower extends AbstractTower {
         hasShot = false;
         for (Enemy enemies : state.getEnemies()) {
             if (distanceTo(enemies) < getRange()) {
-                enemies.reduceHealth(getDamage());
-                currenttargets.add(enemies);
-                hasShot = true;
+                doShoot(enemies);
+                hasShot = true; // Set hasShot to true if at least one enemy is in range
             }
             if (distanceTo(enemies) >= getRange() && currenttargets.contains(enemies)) {
                 currenttargets.remove(enemies); // Remove enemy if it goes out of range
             }
         }
         return hasShot;
+    }
+
+    public void doShoot(Enemy enemy) {
+        if (distanceTo(enemy) < getRange()) {
+            enemy.reduceHealth(getDamage());
+            currenttargets.add(enemy);
+        }
     }
 
     @Override

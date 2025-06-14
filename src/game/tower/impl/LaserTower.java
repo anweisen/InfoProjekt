@@ -19,15 +19,22 @@ public class LaserTower extends AbstractTower {
     boolean hasShot = false;
     Enemy targetEnemy;
 
-    @Override
     public boolean shoot() {
-        for (Enemy enemies : state.getEnemies()) {
-            if (distanceTo(enemies) < getRange()) {
-                enemies.reduceHealth(getDamage());
-                hasShot = true;
-                targetEnemy = enemies;
+        for (Enemy enemy : state.getEnemies()) {
+            if (distanceTo(enemy) <= getRange()) {
+                doShoot(enemy);
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean doShoot(Enemy enemy) {
+        if (distanceTo(enemy) < getRange()) {
+            enemy.reduceHealth(getDamage());
+            hasShot = true;
+            targetEnemy = enemy;
+            return true;
         }
         hasShot = false;
         return false;
