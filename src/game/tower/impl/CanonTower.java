@@ -9,8 +9,6 @@ import game.engine.Particle;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CanonTower extends AbstractTower {
 
