@@ -14,9 +14,11 @@ import java.util.function.Function;
  * Die TowerType.Config enthält Daten wie Name, Preis, Bilder, Upgrades usw.
  * (angegeben in der jeweiligen JSON-Datei in /assets/conf/tower).
  * <p>
- * Jeder platzierte Turm ist eine Instanz von AbstractTower bzw. der jeweiligen Tower-Klasse.
+ * Jeder platzierte Turm ist eine Instanz von AbstractTower bzw. der jeweiligen
+ * Tower-Klasse.
  * Diese enthält Daten wie Position und Level dieses platzierten Turms.
- * Die jeweilige Tower-Klasse definiert dabei die Logik für den Turm wie das Schießen.
+ * Die jeweilige Tower-Klasse definiert dabei die Logik für den Turm wie das
+ * Schießen.
  */
 public final class TowerType {
 
@@ -46,13 +48,14 @@ public final class TowerType {
     }
 
     public record Upgrade(
-        String name, // Name des Upgrades
-        String info, // Beschreibung des Upgrades
-        int price, // Preis des Upgrades
-        int range, // Zusätzliche Reichweite
-        int damage, // Zusätzlicher Schaden
-        int targets, // Zusätzliche Anzahl an Zielen
-        double speed // Zusätzliche Schussgeschwindigkeit (in Schüssen pro Sekunde, Durchschnitt->Kommazahlen möglich)
+            String name, // Name des Upgrades
+            String info, // Beschreibung des Upgrades
+            int price, // Preis des Upgrades
+            int range, // Zusätzliche Reichweite
+            int damage, // Zusätzlicher Schaden
+            int targets, // Zusätzliche Anzahl an Zielen
+            double speed // Zusätzliche Schussgeschwindigkeit (in Schüssen pro Sekunde,
+                         // Durchschnitt->Kommazahlen möglich)
     ) {
     }
 
@@ -71,17 +74,18 @@ public final class TowerType {
 
         private final int price;
         private final int baseRange;
-        private final int baseDamage;
+        private final double baseDamage;
         private final int baseTargets;
-        private final double baseSpeed; // Schussgeschwindigkeit in Schüssen pro Sekunde (Durchschnitt, Kommazahlen möglich)
+        private final double baseSpeed; // Schussgeschwindigkeit in Schüssen pro Sekunde (Durchschnitt, Kommazahlen
+                                        // möglich)
 
         private final Upgrade[] upgrades1; // Upgrade-Pfad 1
         private final Upgrade[] upgrades2; // Upgrade-Pfad 2
 
         public Config(String name, String info, Model baseModel, Model[] models1, Model[] models2,
-                      int projectileOffsetX, int projectileOffsetY,
-                      int price, int baseRange, int baseDamage, int baseTargets, double baseSpeed,
-                      Upgrade[] upgrades1, Upgrade[] upgrades2) {
+                int projectileOffsetX, int projectileOffsetY,
+                int price, int baseRange, double baseDamage, int baseTargets, double baseSpeed,
+                Upgrade[] upgrades1, Upgrade[] upgrades2) {
             this.name = name;
             this.info = info;
             this.baseModel = baseModel;
@@ -106,20 +110,20 @@ public final class TowerType {
 
             // POJO?
             return new Config(
-                json.get("name").getAsString(),
-                json.get("info").getAsString(),
-                baseModel,
-                loadModelArray(json.getAsJsonArray("models1"), baseModel),
-                loadModelArray(json.getAsJsonArray("models2"), baseModel),
-                modelJson.get("projectileX").getAsInt(),
-                modelJson.get("projectileY").getAsInt(),
-                json.get("price").getAsInt(),
-                json.get("range").getAsInt(),
-                json.get("damage").getAsInt(),
-                json.get("targets").getAsInt(),
-                json.get("speed").getAsDouble(),
-                Model.GSON.fromJson(json.get("upgrades1"), Upgrade[].class),
-                Model.GSON.fromJson(json.get("upgrades2"), Upgrade[].class));
+                    json.get("name").getAsString(),
+                    json.get("info").getAsString(),
+                    baseModel,
+                    loadModelArray(json.getAsJsonArray("models1"), baseModel),
+                    loadModelArray(json.getAsJsonArray("models2"), baseModel),
+                    modelJson.get("projectileX").getAsInt(),
+                    modelJson.get("projectileY").getAsInt(),
+                    json.get("price").getAsInt(),
+                    json.get("range").getAsInt(),
+                    json.get("damage").getAsDouble(),
+                    json.get("targets").getAsInt(),
+                    json.get("speed").getAsDouble(),
+                    Model.GSON.fromJson(json.get("upgrades1"), Upgrade[].class),
+                    Model.GSON.fromJson(json.get("upgrades2"), Upgrade[].class));
         }
 
         private static Model[] loadModelArray(JsonArray json, Model baseModel) {
@@ -129,10 +133,13 @@ public final class TowerType {
             }
 
             for (int i = 0; i < json.size(); i++) {
-                if (json.get(i) == null || json.get(i).isJsonNull()) continue;
+                if (json.get(i) == null || json.get(i).isJsonNull())
+                    continue;
                 JsonObject obj = json.get(i).getAsJsonObject();
-                if (!obj.has("width")) obj.addProperty("width", baseModel.getWidth());
-                if (!obj.has("height")) obj.addProperty("height", baseModel.getHeight());
+                if (!obj.has("width"))
+                    obj.addProperty("width", baseModel.getWidth());
+                if (!obj.has("height"))
+                    obj.addProperty("height", baseModel.getHeight());
                 models[i] = Model.loadModelFrom("tower", obj);
             }
             return models;
@@ -174,7 +181,7 @@ public final class TowerType {
             return baseRange;
         }
 
-        public int getBaseDamage() {
+        public double getBaseDamage() {
             return baseDamage;
         }
 
@@ -195,19 +202,22 @@ public final class TowerType {
         }
 
         public Model getModelForLevel(int level, boolean upgradeTreeOne) {
-            if (level == 0) return baseModel;
+            if (level == 0)
+                return baseModel;
             Model[] models = upgradeTreeOne ? models1 : models2;
 
             for (int i = level; i >= 0; i--) {
-                if (i >= models.length) continue; // fail-safe
-                if (models[i] != null) return models[i];
+                if (i >= models.length)
+                    continue; // fail-safe
+                if (models[i] != null)
+                    return models[i];
             }
 
             return baseModel;
         }
 
-        public int getDamageAtLevel(int level, boolean upgradeTreeOne) {
-            return sumUpgradedStat(level, upgradeTreeOne, baseDamage, Upgrade::damage).intValue();
+        public double getDamageAtLevel(int level, boolean upgradeTreeOne) {
+            return sumUpgradedStat(level, upgradeTreeOne, baseDamage, Upgrade::damage).doubleValue();
         }
 
         public int getRangeAtLevel(int level, boolean upgradeTreeOne) {
@@ -222,7 +232,8 @@ public final class TowerType {
             return sumUpgradedStat(level, upgradeTreeOne, baseSpeed, Upgrade::speed).doubleValue();
         }
 
-        private Number sumUpgradedStat(int level, boolean upgradeTreeOne, Number baseStat, Function<Upgrade, Number> attribute) {
+        private Number sumUpgradedStat(int level, boolean upgradeTreeOne, Number baseStat,
+                Function<Upgrade, Number> attribute) {
             Number result = baseStat;
 
             TowerType.Upgrade[] upgrades = upgradeTreeOne ? upgrades1 : upgrades2;

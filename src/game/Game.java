@@ -7,6 +7,8 @@ import game.tower.impl.AuraTower;
 import game.tower.impl.CanonTower;
 import game.tower.impl.InfernoTower;
 import game.tower.impl.LaserTower;
+import game.tower.impl.BoostTower;
+import game.tower.impl.TrapTower;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -27,9 +29,8 @@ public class Game extends Application {
      * um eine gleichbleibende Spielfeldgröße auf verschiedenen Bildschirmen zu
      * ermöglichen.
      */
-    public static final int
-        VIRTUAL_WIDTH = 1600,
-        VIRTUAL_HEIGHT = 900;
+    public static final int VIRTUAL_WIDTH = 1600,
+            VIRTUAL_HEIGHT = 900;
 
     private final List<Map> maps = new ArrayList<>();
     private final List<TowerType> towers = new ArrayList<>();
@@ -43,12 +44,14 @@ public class Game extends Application {
     public void init() throws Exception {
         currentState = new MenuState(this);
 
-        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen (/assets/conf/)
+        // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen
+        // (/assets/conf/)
         registerMap(Map.loadMap("map1.json"));
         registerTower(TowerType.Config.load("canon.json"), CanonTower::new);
         registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
         registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
         registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);
+        registerTower(TowerType.Config.load("BoostTower.json"), BoostTower::new);
     }
 
     @Override

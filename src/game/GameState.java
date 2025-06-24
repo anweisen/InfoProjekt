@@ -27,7 +27,7 @@ public class GameState extends State {
 
     private double spawnInterval; // provisorische Gegner-Spawning-Logik
     private AbstractTower selectedTower;
-    private int selectedTowerIndex = 0; // Index des ausgewählten Turms, falls benötigt
+    private int selectedTowerIndex = 1; // Index des ausgewählten Turms, falls benötigt
 
     public GameState(Game game, Map map) {
         super(game);
@@ -99,7 +99,7 @@ public class GameState extends State {
 
     @Override
     public void handleClick(double x, double y) {
-        System.out.println("GameState.hanleClick:"+ x+ ","+y);
+        System.out.println("GameState.hanleClick:" + x + "," + y);
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
@@ -111,10 +111,13 @@ public class GameState extends State {
             return;
         }
 
-        if (shop.handleClick(x,y)!=-1) selectedTowerIndex = shop.handleClick(x,y);
-        else spawnTower(game.getTowerTypes().get(selectedTowerIndex), x, y);
+        if (shop.handleClick(x, y) != -1)
+            selectedTowerIndex = shop.handleClick(x, y);
+        else
+            spawnTower(game.getTowerTypes().get(selectedTowerIndex), x, y);
 
-        System.out.println(game.getTowerTypes().get((shop.handleClick(x,y)!=-1) ? shop.handleClick(x,y) : 0).getConfig().getName());
+        System.out.println(game.getTowerTypes().get((shop.handleClick(x, y) != -1) ? shop.handleClick(x, y) : 0)
+                .getConfig().getName());
         // Erstelle Turm beim Klicken zu Testzwecken!
     }
 

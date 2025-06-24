@@ -14,6 +14,11 @@ public class BoostTower extends AbstractTower {
 
     @Override
     public boolean shoot() {
+        for (AbstractTower tower : state.getTowers()) {
+            if (distanceTo(tower) < getRange()) {
+                tower.setDamageBoost(getDamage());// damage ist damageboost
+            }
+        }
         return false;
     }
 

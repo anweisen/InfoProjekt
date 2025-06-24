@@ -31,7 +31,7 @@ public class LaserTower extends AbstractTower {
 
     public boolean doShoot(Enemy enemy) {
         if (distanceTo(enemy) < getRange()) {
-            enemy.reduceHealth(getDamage());
+            enemy.reduceHealth(getDamage() * damageBoost);
             hasShot = true;
             targetEnemy = enemy;
             return true;
@@ -43,7 +43,7 @@ public class LaserTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (distanceTo(targetEnemy) < getRange() && hasShot && targetEnemy != null) {
+        if (targetEnemy != null && distanceTo(targetEnemy) < getRange() && hasShot) {
 
             graphics.setStroke(Color.RED); // optional: change color
             graphics.setLineWidth(4); // optional: change line width
