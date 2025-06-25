@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import game.GameState;
 import game.engine.GameObject;
 import game.engine.Model;
+import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
 
 public class Enemy extends GameObject {
@@ -16,9 +17,12 @@ public class Enemy extends GameObject {
     private String type;
     private Model model;
     private double speed;
-    private int damage;
+    private double damage;
     private int reward;
-    private int health;
+    private double health;
+    private Map myMap;
+    private int waypointNumber = myMap.getWaypoints().size() - 1; // Anzahl aller gespeicherter Wegpunkte
+    private int waypointCounter = 0; // abgegangene Wegpunkte
 
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
@@ -29,10 +33,35 @@ public class Enemy extends GameObject {
         this.damage = config.getDamage();
         this.reward = config.getReward();
         this.health = config.getHealth();
+        this.myMap = state.getMap();
+        
     }
+
+   //Was ist mit Klasse Waypoint?
 
     @Override
     public void update(double deltaTime) {
+       //Ende
+        if (waypointCounter == waypointNumber) { 
+            die(); // Gegner stirbt
+            return;
+        }
+
+        //Koordinaten des nächsten Wegpunkts
+        double nextWaypointX = myMap.getWaypointsSafely(waypointCounter).x; //bekommt man so die einzelnen koordinaten?
+        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y;
+
+        //Winkel
+        double angle = calculateRadiansFor(x, y, nextWaypointX, nextWaypointY);
+       
+        //Bewegungsänderung
+        x =  x +  speed * deltaTime * Math.cos(angle); // x-Koordinate
+        y = y + speed * deltaTime * Math.sin(angle); // y-Koordinate
+       
+        //nächster Wegpunkt erreicht
+        if(distanceTo(nextWaypointX, nextWaypointY)<= speed * deltaTime) {
+            waypointCounter++;
+        }
     }
 
     // public Map.Waypoint getNextWaypoint() {
@@ -51,7 +80,7 @@ public class Enemy extends GameObject {
         return speed;
     }
 
-    public int getDamage() {
+    public double getDamage() {
         return damage;
     }
 
@@ -59,12 +88,12 @@ public class Enemy extends GameObject {
         return reward;
     }
 
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
 
-    public void reduceHealth(int damage) {
-        health = health -= damage;
+    public void reduceHealth(double damage) {
+        health = health - damage;
         if (health <= 0) {
             die();
         }
@@ -82,9 +111,10 @@ public class Enemy extends GameObject {
         private final Model model; // Grafik Model
 
         private final double speed; // Geschwindigkeit, mit der sich der Gegner bewegt
-        private final int damage; // Schaden am Ende, wenn der Gegner nicht getötet wird
+        private final double damage; // Schaden am Ende, wenn der Gegner nicht getötet wird
         private final int reward; // Belohnung, wenn der Gegner getötet wird
-        private final int health; // Leben des Gegners
+        private final double health; // Leben des Gegners
+    
 
         public Config(String type, Model model, double speed, int damage, int reward, int health) {
             this.type = type;
@@ -93,6 +123,7 @@ public class Enemy extends GameObject {
             this.damage = damage;
             this.reward = reward;
             this.health = health;
+            
         }
 
         public static Config load(String filename) {
@@ -121,7 +152,7 @@ public class Enemy extends GameObject {
             return speed;
         }
 
-        public int getDamage() {
+        public double getDamage() {
             return damage;
         }
 
@@ -129,7 +160,7 @@ public class Enemy extends GameObject {
             return reward;
         }
 
-        public int getHealth() {
+        public double getHealth() {
             return health;
         }
     }

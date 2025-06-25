@@ -91,6 +91,12 @@ public class GameState extends State {
             spawnInterval = 0;
             enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
         }
+
+        for(Enemy enemy : enemies) {
+            if (enemy.isMarkedForRemoval()) {
+                enemies.remove(enemy);
+            }
+        }
     }
 
     @Override
