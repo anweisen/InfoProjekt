@@ -57,8 +57,12 @@ public abstract class AbstractTower extends GameObject {
         return config.getDamageAtLevel(level, upgradeTreeOne) * damageBoost;
     }
 
-    public void setDamageBoost(double damageBoost) {
-        this.damageBoost = damageBoost;
+    public double getDamageRaw() {
+        return config.getDamageAtLevel(level, upgradeTreeOne);
+    }
+
+    public void setDamageBoost(double dBoost) {
+        damageBoost = dBoost;
     }
 
     public int getTargets() {
