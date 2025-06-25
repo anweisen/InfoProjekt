@@ -156,11 +156,7 @@ public class Enemy extends GameObject {
         public int getReward() {
             return reward;
         }
-
-        public Shop getShop(){
-            return state.shop;
-        }
-
+        
         public double getHealth() {
             return health;
         }
