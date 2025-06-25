@@ -22,6 +22,7 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
+    private int gegneranzahlpros = 1;
 
     // TODO: Leben, Geld, ...
 
@@ -34,7 +35,7 @@ public class GameState extends State {
         this.map = map;
         this.shop = new Shop(this);
     }
-
+//keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
