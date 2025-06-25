@@ -27,8 +27,6 @@ public class GameState extends State {
 
     private double spawnInterval; // provisorische Gegner-Spawning-Logik
     private AbstractTower selectedTower;
-    private int selectedTowerIndex = 1; // Index des ausgewählten Turms, falls benötigt
-
     public GameState(Game game, Map map) {
         super(game);
         this.map = map;
