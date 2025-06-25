@@ -31,10 +31,11 @@ public class MenuState extends State {
         backgroundImage = Model.loadImage("menu", "background.jpg");
         // Nutze: Game#getMaps() Map#getName() Map#getImage()
         mapImages = new Image[] {
-            Model.loadImage("menu", "Map1.jpg"),
-            Model.loadImage("menu", "Map2.jpg")
+            Model.loadImage("map", "map1.png"),
+            Model.loadImage("map", "test.png"),
+            Model.loadImage("map", "test.png")
         };
-        mapNames = new String[] {"Map1", "Map2"};
+        mapNames = new String[] {"Map1", "Map2", "Map3"};
         arrowLeft = Model.loadImage("menu", "left_arrow.png");
         arrowRight = Model.loadImage("menu", "right_arrow.png");
         closeButton = Model.loadImage("menu", "close_button.png");
@@ -71,17 +72,38 @@ public class MenuState extends State {
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
 
         if (backgroundImage != null) {
-            double bgX = (Game.VIRTUAL_WIDTH - backgroundImage.getWidth()) / 2;
-            double bgY = (Game.VIRTUAL_HEIGHT - backgroundImage.getHeight()) / 2;
-            graphics.drawImage(backgroundImage, bgX, bgY);
+            graphics.drawImage(backgroundImage, 0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
         } else {
-            // Fallback-Hintergrund
             graphics.setFill(Color.LIGHTGRAY);
             graphics.fillRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
         }
 
+        double arc = 40;
+
+        double imgX = imageX;
+        double imgY = imageY;
+        double imgW = imageWidth;
+        double imgH = imageHeight;
+
+        // Map-Image mit abgerundeten Ecken zeichnen (Clipping)
+        graphics.save();
+        graphics.beginPath();
+        graphics.moveTo(imgX + arc, imgY);
+        graphics.lineTo(imgX + imgW - arc, imgY);
+        graphics.arcTo(imgX + imgW, imgY, imgX + imgW, imgY + arc, arc);
+        graphics.lineTo(imgX + imgW, imgY + imgH - arc);
+        graphics.arcTo(imgX + imgW, imgY + imgH, imgX + imgW - arc, imgY + imgH, arc);
+        graphics.lineTo(imgX + arc, imgY + imgH);
+        graphics.arcTo(imgX, imgY + imgH, imgX, imgY + imgH - arc, arc);
+        graphics.lineTo(imgX, imgY + arc);
+        graphics.arcTo(imgX, imgY, imgX + arc, imgY, arc);
+        graphics.closePath();
+        graphics.clip();
+
         Image currentMap = mapImages[currentMapIndex];
-        graphics.drawImage(currentMap, imageX, imageY, imageWidth, imageHeight);
+        graphics.drawImage(currentMap, imgX, imgY, imgW, imgH);
+
+        graphics.restore();
 
         graphics.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         graphics.setFill(Color.BLACK);
@@ -89,10 +111,10 @@ public class MenuState extends State {
 
         graphics.drawImage(arrowLeft, leftArrowX, leftArrowY, arrowWidth, arrowHeight);
         graphics.drawImage(arrowRight, rightArrowX, rightArrowY, arrowWidth, arrowHeight);
-
         graphics.drawImage(closeButton, closeX, closeY, closeWidth, closeHeight);
 
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
+        graphics.setFill(Color.BLACK);
         graphics.fillText("Klicke auf das Bild zum Starten", Game.VIRTUAL_WIDTH / 2d - 100, Game.VIRTUAL_HEIGHT - 50);
     }
 
@@ -126,14 +148,8 @@ public class MenuState extends State {
             return;
         }
 
-        /* 
-            Weiß nicht genau, wie Philipp das
-            mit den Maps machen will, wird entsprechend
-            später noch angepasst.
-         */
         if (x >= imageX && x <= imageX + imageWidth &&
             y >= imageY && y <= imageY + imageHeight) {
-//            game.setState(new GameState(game, new Map()));
             game.setState(new GameState(game, game.getMaps().get(currentMapIndex)));
         }
     }

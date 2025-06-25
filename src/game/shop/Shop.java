@@ -13,11 +13,15 @@ public class Shop {
 
     private boolean isOpen; // Track if the shop is open or closed
 
+    private int money; // Money available in the shop
+
     public Shop(GameState state) {
         this.state = state;
         this.WIDTH = Game.VIRTUAL_WIDTH * 0.25;
         this.HEIGHT = Game.VIRTUAL_HEIGHT;
         this.isOpen = false; // Initialize shop as open
+
+        this.money = 100;
     }
 
     public void render(GraphicsContext context) {
