@@ -34,21 +34,19 @@ public class Enemy extends GameObject {
         this.reward = config.getReward();
         this.health = config.getHealth();
         this.myMap = state.getMap();
-        this.waypointNumber= myMap.getWaypoints().length - 1;
+        this.waypointNumber = myMap.getWaypoints().length;
     }
-
-   //Was ist mit Klasse Waypoint?
 
     @Override
     public void update(double deltaTime) {
        //Ende
-        if (waypointCounter == waypointNumber) { 
-            markForRemoval(); // Gegner stirbt
+        if (waypointCounter == waypointNumber+1) { 
+            markForRemoval();; // Gegner stirbt
             return;
         }
 
         //Koordinaten des nächsten Wegpunkts
-        double nextWaypointX = myMap.getWaypointSafely(waypointCounter).x(); //bekommt man so die einzelnen koordinaten?
+        double nextWaypointX = myMap.getWaypointSafely(waypointCounter).x(); 
         double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y();
 
         //Winkel
@@ -57,15 +55,12 @@ public class Enemy extends GameObject {
         //Bewegungsänderung
         x =  x +  speed * deltaTime * Math.cos(angle); // x-Koordinate
         y = y + speed * deltaTime * Math.sin(angle); // y-Koordinate
-       
+
         //nächster Wegpunkt erreicht
         if(distanceTo(nextWaypointX, nextWaypointY)<= speed * deltaTime) {
             waypointCounter++;
         }
     }
-
-    // public Map.Waypoint getNextWaypoint() {
-    // }
 
     @Override
     public void render(GraphicsContext graphics) {
@@ -101,6 +96,7 @@ public class Enemy extends GameObject {
 
     private void die() {
         state.getShop().addMoney(getReward());
+        //Leben abziehen vom Spieler
         markForRemoval();
     }
 
@@ -160,7 +156,7 @@ public class Enemy extends GameObject {
         public int getReward() {
             return reward;
         }
-
+        
         public double getHealth() {
             return health;
         }
