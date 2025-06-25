@@ -152,4 +152,8 @@ public class GameState extends State {
     public Map getMap() {
         return map;
     }
+
+    public Shop getShop() {
+        return shop;
+    }
 }
