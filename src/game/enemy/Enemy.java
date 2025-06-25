@@ -21,7 +21,7 @@ public class Enemy extends GameObject {
     private int reward;
     private double health;
     private Map myMap;
-    private int waypointNumber = myMap.getWaypoints().size() - 1; // Anzahl aller gespeicherter Wegpunkte
+    private int waypointNumber; // Anzahl aller gespeicherter Wegpunkte
     private int waypointCounter = 0; // abgegangene Wegpunkte
 
     public Enemy(GameState state, double x, double y, String type) {
@@ -34,7 +34,7 @@ public class Enemy extends GameObject {
         this.reward = config.getReward();
         this.health = config.getHealth();
         this.myMap = state.getMap();
-        
+        this.waypointNumber = myMap.getWaypoints().length - 1;
     }
 
    //Was ist mit Klasse Waypoint?
@@ -48,15 +48,16 @@ public class Enemy extends GameObject {
         }
 
         //Koordinaten des nächsten Wegpunkts
-        double nextWaypointX = myMap.getWaypointsSafely(waypointCounter).x; //bekommt man so die einzelnen koordinaten?
-        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y;
+        double nextWaypointX = myMap.getWaypointSafely(waypointCounter).x(); //bekommt man so die einzelnen koordinaten?
+        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y();
 
         //Winkel
-        double angle = calculateRadiansFor(x, y, nextWaypointX, nextWaypointY);
+        double angle = calculateRadiansFor(x-nextWaypointX, y-nextWaypointY);
        
         //Bewegungsänderung
         x =  x +  speed * deltaTime * Math.cos(angle); // x-Koordinate
         y = y + speed * deltaTime * Math.sin(angle); // y-Koordinate
+
        
         //nächster Wegpunkt erreicht
         if(distanceTo(nextWaypointX, nextWaypointY)<= speed * deltaTime) {
