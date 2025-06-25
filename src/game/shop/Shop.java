@@ -24,7 +24,34 @@ public class Shop {
         this.money = 100;
     }
 
+    public void addMoney(int amount) {
+        money += amount;
+        System.out.println(amount + " added to shop");
+    }
+
+    public int getMoney() {
+        System.out.println(money);
+        return money;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void toggle() {
+        isOpen = !isOpen; // Toggle the shop's open state
+    }
+
+    public double getWidth() {
+        return WIDTH;
+    }
+
+    public double getHeight() {
+        return HEIGHT;
+    }
+
     public void render(GraphicsContext context) {
+
         context.setFill(Color.WHITE);
         context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, 0, WIDTH, HEIGHT);
         double padding = Game.VIRTUAL_WIDTH * 0.015;
@@ -57,46 +84,30 @@ public class Shop {
     }
 
     public int handleClick(double mouseX, double mouseY) {
-    // Check if click is inside the shop area
-    double shopX = Game.VIRTUAL_WIDTH - WIDTH;
-    if (mouseX < shopX || mouseX > Game.VIRTUAL_WIDTH || mouseY < 0 || mouseY > HEIGHT) {
-        return -1;
-    }
+        // Check if click is inside the shop area
+        double shopX = Game.VIRTUAL_WIDTH - WIDTH;
+        if (mouseX < shopX || mouseX > Game.VIRTUAL_WIDTH || mouseY < 0 || mouseY > HEIGHT) {
+            return -1;
+        }
 
-    if (isOpen) {
-        double padding = Game.VIRTUAL_WIDTH * 0.015;
-        int columns = 2;
-        double availableWidth = WIDTH - (columns + 1) * padding;
-        double squareSize = availableWidth / columns;
+        if (isOpen) {
+            double padding = Game.VIRTUAL_WIDTH * 0.015;
+            int columns = 2;
+            double availableWidth = WIDTH - (columns + 1) * padding;
+            double squareSize = availableWidth / columns;
 
-        for (int i = 0; i < state.getGame().getTowerTypes().size(); i++) {
-            int row = i / columns;
-            int col = i % columns;
-            double x = shopX + padding + col * (squareSize + padding);
-            double y = padding + row * (squareSize + padding);
+            for (int i = 0; i < state.getGame().getTowerTypes().size(); i++) {
+                int row = i / columns;
+                int col = i % columns;
+                double x = shopX + padding + col * (squareSize + padding);
+                double y = padding + row * (squareSize + padding);
 
-            if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
-                return i; // Return the index of the clicked tower type
+                if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
+                    return i; // Return the index of the clicked tower type
+                }
             }
         }
-    }
-    return -1;
-}
-
-    public boolean isOpen() {
-        return isOpen;
-    }
-
-    public void toggle() {
-        isOpen = !isOpen; // Toggle the shop's open state
-    }
-
-    public double getWidth() {
-        return WIDTH;
-    }
-
-    public double getHeight() {
-        return HEIGHT;
+        return -1;
     }
 
 }

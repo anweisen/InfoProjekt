@@ -14,6 +14,7 @@ public abstract class AbstractTower extends GameObject {
     // Level des Turms und Upgrade Baums des Turms (1 oder 2)
     protected int level;
     protected boolean upgradeTreeOne; // könnte auch ein Enum oder int sein -> mehr Upgrade-Bäume
+    protected double damageBoost = 1;
 
     /**
      * Diesen Constructor sollte jede Tower-Klasse in dieser Form haben
@@ -52,8 +53,16 @@ public abstract class AbstractTower extends GameObject {
         return config.getRangeAtLevel(level, upgradeTreeOne);
     }
 
-    public int getDamage() {
+    public double getDamage() {
+        return config.getDamageAtLevel(level, upgradeTreeOne) * damageBoost;
+    }
+
+    public double getDamageRaw() {
         return config.getDamageAtLevel(level, upgradeTreeOne);
+    }
+
+    public void setDamageBoost(double dBoost) {
+        damageBoost = dBoost;
     }
 
     public int getTargets() {

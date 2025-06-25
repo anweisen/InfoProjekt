@@ -34,10 +34,11 @@ public class AuraTower extends AbstractTower {
             }
         }
         if (hasShot) {
-            state.registerParticle(new Particle.Image(state, x, y, auraModel.withSize(getRange() * 2 + 10, getRange() * 2 + 10), Particle.Timing.EASE_OUT_QUAD, .25));
+            state.registerParticle(new Particle.Image(state, x, y,
+                    auraModel.withSize(getRange() * 2 + 10, getRange() * 2 + 10), Particle.Timing.EASE_OUT_QUAD, .25));
         }
         // Remove enemy if it goes out of range or is dead
-        currenttargets.removeIf(target -> distanceTo(target) >= getRange() || target.isMarkedForRemoval());
+        currenttargets.removeIf(target -> distanceTo(target) >= getRange() || target.isMarkedForRemoval()); // woher_target?
         return hasShot;
     }
 
@@ -53,9 +54,9 @@ public class AuraTower extends AbstractTower {
         super.render(graphics);
         for (Enemy enemies : currenttargets) {
             if (distanceTo(enemies) < getRange()) {
-                graphics.strokeLine(getX(), getY(), enemies.getX(), enemies.getY());
-                graphics.setStroke(Color.GREY); // optional: change color
+                graphics.setStroke(Color.GREEN); // optional: change color
                 graphics.setLineWidth(2); // optional: change line width
+                graphics.strokeLine(getX(), getY(), enemies.getX(), enemies.getY());
             }
         }
     }

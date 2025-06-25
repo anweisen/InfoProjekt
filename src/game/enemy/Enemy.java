@@ -50,7 +50,7 @@ public class Enemy extends GameObject {
         double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y();
 
         //Winkel
-        double angle = Math.atan((y-nextWaypointY)/(x-nextWaypointX)); 
+        double angle = Math.atan2(nextWaypointY - y, nextWaypointX - x); // Winkel zum nächsten Wegpunkt
        
         //Bewegungsänderung
         x =  x +  speed * deltaTime * Math.cos(angle); // x-Koordinate
@@ -97,6 +97,7 @@ public class Enemy extends GameObject {
     private void die() {
         state.getShop().addMoney(getReward());
         //Leben abziehen vom Spieler
+        markForRemoval();
     }
 
 

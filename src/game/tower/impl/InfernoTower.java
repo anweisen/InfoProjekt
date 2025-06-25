@@ -43,7 +43,7 @@ public class InfernoTower extends AbstractTower {
     }
 
     public boolean doShoot(Enemy enemy) { // Update the target enemy before shooting
-        if (targetEnemy == null || targetEnemy.getHealth() <= 0) {
+        if (targetEnemy == null || targetEnemy.getHealth() <= 0 || distanceTo(targetEnemy) < getRange()) {
             targetEnemy = getTargetEnemy();
             if (targetEnemy == null) {
                 return false; // No enemy in range
@@ -82,7 +82,7 @@ public class InfernoTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        if (distanceTo(targetEnemy) < getRange() && targetEnemy != null) {
+        if (targetEnemy != null && distanceTo(targetEnemy) < getRange()) {
             graphics.setStroke(Color.ORANGE); // optional: change color
             graphics.setLineWidth(intensity * 2); // optional: change line width
             graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
