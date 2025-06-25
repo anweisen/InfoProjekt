@@ -61,7 +61,7 @@ public class GameState extends State {
         }
 
         if (shop.isOpen()) {
-            shop.render(graphics);
+            shop.renderShopUI(graphics);
         }
     }
 
@@ -105,7 +105,7 @@ public class GameState extends State {
 
     @Override
     public void handleClick(double x, double y) {
-        System.out.println("GameState.hanleClick:" + x + "," + y);
+        System.out.println("GameState.handleClick:" + x + "," + y);
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
@@ -117,13 +117,7 @@ public class GameState extends State {
             return;
         }
 
-        if (shop.handleClick(x, y) != -1)
-            selectedTowerIndex = shop.handleClick(x, y);
-        else
-            spawnTower(game.getTowerTypes().get(selectedTowerIndex), x, y);
-
-        System.out.println(game.getTowerTypes().get((shop.handleClick(x, y) != -1) ? shop.handleClick(x, y) : 0)
-                .getConfig().getName());
+        shop.handleClick(x, y);
         // Erstelle Turm beim Klicken zu Testzwecken!
     }
 
