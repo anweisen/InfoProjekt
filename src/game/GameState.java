@@ -4,6 +4,7 @@ import game.enemy.Enemy;
 import game.engine.GameObject;
 import game.engine.Particle;
 import game.engine.State;
+import game.hud.Hud;
 import game.map.Map;
 import game.shop.Shop;
 import game.tower.AbstractTower;
@@ -17,12 +18,16 @@ public class GameState extends State {
 
     private final Map map;
     private final Shop shop;
+    private final Hud hud;
 
     private final Collection<AbstractTower> towers = new ArrayList<>();
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
     private int gegneranzahlpros = 1;
+    private int spieldauer = 180;
+    
+
 
     // TODO: Leben, Geld, ...
 
@@ -32,6 +37,7 @@ public class GameState extends State {
     public GameState(Game game, Map map) {
         super(game);
         this.map = map;
+        this.hud = new Hud(this);
         this.shop = new Shop(this);
     }
 //keine Runden, Zeit zb 5 Minuten zum übereben
@@ -60,8 +66,23 @@ public class GameState extends State {
             particle.render(graphics);
         }
 
+        hud.render(graphics);
+
         if (shop.isOpen()) {
-            shop.renderShopUI(graphics);
+            shop.render(graphics);
+        }
+    }
+
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
+        spieldauer = spieldauer-1;
+        if(spieldauer%30== 0){
+            gegneranzahlpros= gegneranzahlpros+2;
+        }
+        for(int i=0;i<gegneranzahlpros;i++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        }
+        for(int j=0;j<gegneranzahlpros-1;j++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
         }
     }
 
@@ -125,7 +146,8 @@ public class GameState extends State {
                 return;
             }
         }
-        if (x == 0 && y == 0) {
+
+        if (hud.isShopButtonClicked(x, y)) {
             shop.toggle();
             return;
         }
@@ -165,5 +187,9 @@ public class GameState extends State {
 
     public Shop getShop() {
         return shop;
+    }
+
+    public Hud getHud() {
+        return hud;
     }
 }

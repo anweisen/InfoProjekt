@@ -85,8 +85,8 @@ public abstract class AbstractTower extends GameObject {
         return level;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void upgradeLevel() {
+        level++;
     }
 
     public boolean getUpgradeTree() {

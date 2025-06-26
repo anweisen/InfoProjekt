@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import game.Game;
 import game.GameState;
+import game.hud.Hud;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -22,7 +23,7 @@ public class Shop {
     private ArrayList<TowerType> towerTypes;
     private int selectedTowerIndex;
     private boolean isOpen;
-    private int money;
+    private final Hud hud;
 
     public Shop(GameState state) {
         this.state = state;
@@ -33,22 +34,22 @@ public class Shop {
         this.towerTypes.sort(java.util.Comparator.comparingInt(t -> t.getConfig().getPrice()));
         this.selectedTowerIndex = 0;
         this.isOpen = false;
-        this.money = 100;
+        this.hud = state.getHud();
     }
 
     public void addMoney(int amount) {
-        money += amount;
+        hud.addMoney(amount);
         System.out.println(amount + " added to shop");
     }
 
     public int getMoney() {
-        System.out.println(money);
-        return money;
+        System.out.println(hud.getMoney());
+        return hud.getMoney();
     }
 
     public void buy(TowerType towerType, double x, double y) {
-        if (money >= towerType.getConfig().getPrice()) {
-            money -= towerType.getConfig().getPrice();
+        if (hud.getMoney() >= towerType.getConfig().getPrice()) {
+            hud.removeMoney(towerType.getConfig().getPrice());
             state.spawnTower(towerType, x, y);
             System.out.println("Tower placed: " + towerType.getConfig().getName());
         } else {
@@ -72,7 +73,7 @@ public class Shop {
         return HEIGHT;
     }
 
-    public void renderShopUI(GraphicsContext context) {
+    public void render(GraphicsContext context) {
         context.setFill(Color.WHITE);
         context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, 0, WIDTH, HEIGHT);
 
@@ -95,7 +96,7 @@ public class Shop {
 
             // Grey out if not enough money
             int cost = towerTypes.get(i).getConfig().getPrice();
-            if (money < cost) {
+            if (hud.getMoney() < cost) {
                 context.setFill(Color.rgb(128, 128, 128, 0.5));
                 context.fillRect(x, y, squareSize, squareSize);
             }
@@ -132,7 +133,6 @@ public class Shop {
                 return;
             }
         }
-        return;
     }
 
 }

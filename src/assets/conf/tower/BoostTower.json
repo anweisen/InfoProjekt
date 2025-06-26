@@ -24,42 +24,41 @@
     "upgrades1": [
         {
             "name": "Level 1",
-            "info": "Erhöht die Feuerrate des Lasers",
-            "price": 50,
-            "speed": 1
+            "info": "Erhöht den Damageboost",
+            "price": 80,
+            "damage": 1.10
         },
         {
             "name": "Level 2",
-            "info": "Erhöht den Schaden des Lasers",
-            "price": 75,
-            "damage": 0.05
+            "info": "Erhöht die Reichweite des Damageboosts",
+            "price": 100,
+            "range": 250
         },
         {
             "name": "Level 3",
-            "info": "Erhöht die Reichweite des Lasers",
-            "price": 100,
-            "range": 50
+            "info": "Erhöht den Damageboost",
+            "price": 120,
+            "damage": 1.15
         }
     ],
     "upgrades2": [
         {
             "name": "Level I",
-            "info": "Erhöht die Feuerrate des Lasers weiter",
-            "price": 500,
-            "speed": 5
+            "info": "Erhöht die Reichweite des Damageboosts",
+            "price": 100,
+            "range": 260
         },
         {
             "name": "Level II",
-            "info": "Erhöht den Schaden des Lasers weiter",
+            "info": "Erhöht den Damageboost",
             "price": 750,
-            "range": 250
+            "damage": 1.1
         },
         {
             "name": "Level III",
-            "info": "Erhöht die Reichweite des Lasers weiter",
+            "info": "Erhöht die Reichweite des Damageboosts",
             "price": 1000,
-            "range": 100,
-            "damage": 0.05
+            "range": 280
         }
     ]
 }
