@@ -4,6 +4,7 @@ import game.enemy.Enemy;
 import game.engine.GameObject;
 import game.engine.Particle;
 import game.engine.State;
+import game.hud.Hud;
 import game.map.Map;
 import game.shop.Shop;
 import game.tower.AbstractTower;
@@ -17,6 +18,7 @@ public class GameState extends State {
 
     private final Map map;
     private final Shop shop;
+    private final Hud hud;
 
     private final Collection<AbstractTower> towers = new ArrayList<>();
     private final Collection<Enemy> enemies = new ArrayList<>();
@@ -30,6 +32,7 @@ public class GameState extends State {
     public GameState(Game game, Map map) {
         super(game);
         this.map = map;
+        this.hud = new Hud(this);
         this.shop = new Shop(this);
     }
 
@@ -58,8 +61,10 @@ public class GameState extends State {
             particle.render(graphics);
         }
 
+        hud.render(graphics);
+
         if (shop.isOpen()) {
-            shop.renderShopUI(graphics);
+            shop.render(graphics);
         }
     }
 
@@ -110,7 +115,8 @@ public class GameState extends State {
                 return;
             }
         }
-        if (x == 0 && y == 0) {
+
+        if (hud.isShopButtonClicked(x, y)) {
             shop.toggle();
             return;
         }
@@ -150,5 +156,9 @@ public class GameState extends State {
 
     public Shop getShop() {
         return shop;
+    }
+
+    public Hud getHud() {
+        return hud;
     }
 }
