@@ -22,19 +22,22 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
+    private int gegneranzahlpros = 1;
+    private int spieldauer = 180;
+    
+
 
     // TODO: Leben, Geld, ...
 
-    private double spawnInterval; // provisorische Gegner-Spawning-Logik
+    private double spawnInterval; // für Standard-Enemy
+    private double spawnIntervalStandard; //für Type1-Enemy
     private AbstractTower selectedTower;
-    private int selectedTowerIndex = 1; // Index des ausgewählten Turms, falls benötigt
-
     public GameState(Game game, Map map) {
         super(game);
         this.map = map;
         this.shop = new Shop(this);
     }
-
+//keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
@@ -61,7 +64,20 @@ public class GameState extends State {
         }
 
         if (shop.isOpen()) {
-            shop.render(graphics);
+            shop.renderShopUI(graphics);
+        }
+    }
+
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
+        spieldauer = spieldauer-1;
+        if(spieldauer%30== 0){
+            gegneranzahlpros= gegneranzahlpros+2;
+        }
+        for(int i=0;i<gegneranzahlpros;i++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        }
+        for(int j=0;j<gegneranzahlpros-1;j++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
         }
     }
 
@@ -85,12 +101,7 @@ public class GameState extends State {
         projectiles.removeIf(GameObject::isMarkedForRemoval);
         particles.removeIf(GameObject::isMarkedForRemoval);
 
-        // Provisorische Gegner-Spawning-Logik zum Testen
-        spawnInterval += deltaTime;
-        if (spawnInterval > 1) {
-            spawnInterval = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
-        }
+        spawnEnemies(deltaTime);
 
         for(Enemy enemy : enemies) {
             if (enemy.isMarkedForRemoval()) {
@@ -99,13 +110,31 @@ public class GameState extends State {
         }
     }
 
+    public void spawnEnemies(double deltaTime){
+        // Provisorische Gegner-Spawning-Logik zum Testen
+        spawnIntervalStandard += deltaTime; //für Standard-Enemy
+        if (spawnIntervalStandard > 0.7) {
+            spawnIntervalStandard = 0;
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
+        }
+
+        if(shop.getMoney()>=300){
+                spawnInterval += deltaTime; //für Type1-Enemy
+            if (spawnInterval > 1.5) {
+                spawnInterval = 0;
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
+            }
+        }
+        
+    }
+
     @Override
     public void dispose() {
     }
 
     @Override
     public void handleClick(double x, double y) {
-        System.out.println("GameState.hanleClick:" + x + "," + y);
+        System.out.println("GameState.handleClick:" + x + "," + y);
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
@@ -117,13 +146,7 @@ public class GameState extends State {
             return;
         }
 
-        if (shop.handleClick(x, y) != -1)
-            selectedTowerIndex = shop.handleClick(x, y);
-        else
-            spawnTower(game.getTowerTypes().get(selectedTowerIndex), x, y);
-
-        System.out.println(game.getTowerTypes().get((shop.handleClick(x, y) != -1) ? shop.handleClick(x, y) : 0)
-                .getConfig().getName());
+        shop.handleClick(x, y);
         // Erstelle Turm beim Klicken zu Testzwecken!
     }
 
@@ -154,5 +177,9 @@ public class GameState extends State {
 
     public Map getMap() {
         return map;
+    }
+
+    public Shop getShop() {
+        return shop;
     }
 }

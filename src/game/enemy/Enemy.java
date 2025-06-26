@@ -21,51 +21,52 @@ public class Enemy extends GameObject {
     private int reward;
     private double health;
     private Map myMap;
-    private int waypointNumber = myMap.getWaypoints().size() - 1; // Anzahl aller gespeicherter Wegpunkte
+    private int waypointNumber; // Anzahl aller gespeicherter Wegpunkte
     private int waypointCounter = 0; // abgegangene Wegpunkte
 
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
         this.type = type;
-        this.config = Config.load("enemy.json");
+        if(type.equals("Standard")){
+            this.config = Config.load("enemy.json");
+        }
+        else{
+            this.config = Config.load("enemy1.json");
+        }
+        
         this.model = config.getModel();
         this.speed = config.getSpeed();
         this.damage = config.getDamage();
         this.reward = config.getReward();
         this.health = config.getHealth();
         this.myMap = state.getMap();
-        
+        this.waypointNumber = myMap.getWaypoints().length;
     }
-
-   //Was ist mit Klasse Waypoint?
 
     @Override
     public void update(double deltaTime) {
        //Ende
-        if (waypointCounter == waypointNumber) { 
-            die(); // Gegner stirbt
+        if (waypointCounter == waypointNumber+1) { 
+            markForRemoval();; // Gegner stirbt
             return;
         }
 
         //Koordinaten des nächsten Wegpunkts
-        double nextWaypointX = myMap.getWaypointsSafely(waypointCounter).x; //bekommt man so die einzelnen koordinaten?
-        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y;
+        double nextWaypointX = myMap.getWaypointSafely(waypointCounter).x(); 
+        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y();
 
         //Winkel
-        double angle = calculateRadiansFor(x, y, nextWaypointX, nextWaypointY);
+        double angle = Math.atan2(nextWaypointY - y, nextWaypointX - x); // Winkel zum nächsten Wegpunkt
        
         //Bewegungsänderung
         x =  x +  speed * deltaTime * Math.cos(angle); // x-Koordinate
         y = y + speed * deltaTime * Math.sin(angle); // y-Koordinate
-       
+
         //nächster Wegpunkt erreicht
         if(distanceTo(nextWaypointX, nextWaypointY)<= speed * deltaTime) {
             waypointCounter++;
         }
     }
-
-    // public Map.Waypoint getNextWaypoint() {
-    // }
 
     @Override
     public void render(GraphicsContext graphics) {
@@ -100,6 +101,8 @@ public class Enemy extends GameObject {
     }
 
     private void die() {
+        state.getShop().addMoney(getReward());
+        //Leben abziehen vom Spieler
         markForRemoval();
     }
 
