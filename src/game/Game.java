@@ -42,16 +42,20 @@ public class Game extends Application {
 
     @Override
     public void init() throws Exception {
-        currentState = new MenuState(this);
 
         // Lade die verschiedenen Maps und Turmtypen aus den JSON-Konfigurationen
         // (/assets/conf/)
         registerMap(Map.loadMap("map1.json"));
+        registerMap(Map.loadMap("map2.json"));
+
+
         registerTower(TowerType.Config.load("canon.json"), CanonTower::new);
         registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
         registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
         registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);
         registerTower(TowerType.Config.load("BoostTower.json"), BoostTower::new);
+        
+        currentState = new MenuState(this);
     }
 
     @Override

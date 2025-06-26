@@ -24,10 +24,15 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
+    private int gegneranzahlpros = 1;
+    private int spieldauer = 180;
+    
+
 
     // TODO: Leben, Geld, ...
 
-    private double spawnInterval; // provisorische Gegner-Spawning-Logik
+    private double spawnInterval; // für Standard-Enemy
+    private double spawnIntervalStandard; //für Type1-Enemy
     private AbstractTower selectedTower;
     public GameState(Game game, Map map) {
         super(game);
@@ -35,7 +40,7 @@ public class GameState extends State {
         this.hud = new Hud(this);
         this.shop = new Shop(this);
     }
-
+//keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
@@ -68,6 +73,19 @@ public class GameState extends State {
         }
     }
 
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
+        spieldauer = spieldauer-1;
+        if(spieldauer%30== 0){
+            gegneranzahlpros= gegneranzahlpros+2;
+        }
+        for(int i=0;i<gegneranzahlpros;i++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        }
+        for(int j=0;j<gegneranzahlpros-1;j++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
+        }
+    }
+
     @Override
     public void update(double deltaTime) {
         for (AbstractTower tower : towers) {
@@ -88,18 +106,31 @@ public class GameState extends State {
         projectiles.removeIf(GameObject::isMarkedForRemoval);
         particles.removeIf(GameObject::isMarkedForRemoval);
 
-        // Provisorische Gegner-Spawning-Logik zum Testen
-        spawnInterval += deltaTime;
-        if (spawnInterval > 1) {
-            spawnInterval = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
-        }
+        spawnEnemies(deltaTime);
 
         for(Enemy enemy : enemies) {
             if (enemy.isMarkedForRemoval()) {
                 enemies.remove(enemy);
             }
         }
+    }
+
+    public void spawnEnemies(double deltaTime){
+        // Provisorische Gegner-Spawning-Logik zum Testen
+        spawnIntervalStandard += deltaTime; //für Standard-Enemy
+        if (spawnIntervalStandard > 0.7) {
+            spawnIntervalStandard = 0;
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
+        }
+
+        if(shop.getMoney()>=300){
+                spawnInterval += deltaTime; //für Type1-Enemy
+            if (spawnInterval > 1.5) {
+                spawnInterval = 0;
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
+            }
+        }
+        
     }
 
     @Override

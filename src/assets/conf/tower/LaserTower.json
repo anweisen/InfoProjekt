@@ -4,7 +4,7 @@
     "price": 100,
     "range": 200,
     "damage": 20,
-    "speed": 1.5,
+    "speed": 1,
     "targets": 1,
     "model": {
         "img": "LaserTower.png",
@@ -25,41 +25,40 @@
         {
             "name": "Level 1",
             "info": "Erhöht die Feuerrate des Lasers",
-            "price": 50,
-            "speed": 1
+            "price": 60,
+            "speed": 1.3
         },
         {
             "name": "Level 2",
             "info": "Erhöht den Schaden des Lasers",
-            "price": 75,
-            "damage": 50
+            "price": 90,
+            "damage": 40
         },
         {
             "name": "Level 3",
             "info": "Erhöht die Reichweite des Lasers",
-            "price": 100,
-            "range": 50
+            "price": 110,
+            "range": 250
         }
     ],
     "upgrades2": [
         {
-            "name": "Level I",
-            "info": "Erhöht die Feuerrate des Lasers weiter",
-            "price": 500,
-            "speed": 5
+            "name": "Level II",
+            "info": "Erhöht den Schaden des Lasers",
+            "price": 80,
+            "range": 35
         },
         {
-            "name": "Level II",
-            "info": "Erhöht den Schaden des Lasers weiter",
-            "price": 750,
-            "range": 250
+            "name": "Level I",
+            "info": "Erhöht die Feuerrate des Lasers weiter",
+            "price": 100,
+            "speed": 1.4
         },
         {
             "name": "Level III",
             "info": "Erhöht die Reichweite des Lasers weiter",
-            "price": 1000,
-            "range": 100,
-            "damage": 0
+            "price": 130,
+            "range": 250
         }
     ]
 }

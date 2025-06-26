@@ -32,6 +32,7 @@ public class LaserTower extends AbstractTower {
     public boolean doShoot(Enemy enemy) {
         if (distanceTo(enemy) < getRange()) {
             enemy.reduceHealth(getDamage() * damageBoost);
+            System.out.println(damageBoost);
             hasShot = true;
             targetEnemy = enemy;
             return true;

@@ -117,6 +117,10 @@ public class Map {
         return waypoints;
     }
 
+    public Image getImage() {
+        return background;
+    }
+
     // Verhindert IndexOutOfBoundsException und vereinfacht Logik (-> start, end)
     public Waypoint getWaypointSafely(int index) {
         if (index >= waypoints.length) return end;
