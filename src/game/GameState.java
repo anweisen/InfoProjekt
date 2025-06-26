@@ -23,6 +23,9 @@ public class GameState extends State {
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
     private int gegneranzahlpros = 1;
+    private int spieldauer = 180;
+    
+
 
     // TODO: Leben, Geld, ...
 
@@ -62,6 +65,19 @@ public class GameState extends State {
 
         if (shop.isOpen()) {
             shop.renderShopUI(graphics);
+        }
+    }
+
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
+        spieldauer = spieldauer-1;
+        if(spieldauer%30== 0){
+            gegneranzahlpros= gegneranzahlpros+2;
+        }
+        for(int i=0;i<gegneranzahlpros;i++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        }
+        for(int j=0;j<gegneranzahlpros-1;j++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
         }
     }
 
