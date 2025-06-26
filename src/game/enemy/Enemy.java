@@ -27,7 +27,13 @@ public class Enemy extends GameObject {
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
         this.type = type;
-        this.config = Config.load("enemy.json");
+        if(type.equals("Standard")){
+            this.config = Config.load("enemy.json");
+        }
+        else{
+            this.config = Config.load("enemy1.json");
+        }
+        
         this.model = config.getModel();
         this.speed = config.getSpeed();
         this.damage = config.getDamage();
@@ -156,7 +162,7 @@ public class Enemy extends GameObject {
         public int getReward() {
             return reward;
         }
-        
+
         public double getHealth() {
             return health;
         }

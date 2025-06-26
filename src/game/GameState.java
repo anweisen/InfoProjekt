@@ -25,7 +25,8 @@ public class GameState extends State {
 
     // TODO: Leben, Geld, ...
 
-    private double spawnInterval; // provisorische Gegner-Spawning-Logik
+    private double spawnInterval; // für Standard-Enemy
+    private double spawnIntervalStandard; //für Type1-Enemy
     private AbstractTower selectedTower;
     private int selectedTowerIndex = 1; // Index des ausgewählten Turms, falls benötigt
 
@@ -85,18 +86,31 @@ public class GameState extends State {
         projectiles.removeIf(GameObject::isMarkedForRemoval);
         particles.removeIf(GameObject::isMarkedForRemoval);
 
-        // Provisorische Gegner-Spawning-Logik zum Testen
-        spawnInterval += deltaTime;
-        if (spawnInterval > 1) {
-            spawnInterval = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
-        }
+        spawnEnemies(deltaTime);
 
         for(Enemy enemy : enemies) {
             if (enemy.isMarkedForRemoval()) {
                 enemies.remove(enemy);
             }
         }
+    }
+
+    public void spawnEnemies(double deltaTime){
+        // Provisorische Gegner-Spawning-Logik zum Testen
+        spawnIntervalStandard += deltaTime; //für Standard-Enemy
+        if (spawnIntervalStandard > 0.7) {
+            spawnIntervalStandard = 0;
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
+        }
+
+        if(shop.getMoney()>=300){
+                spawnInterval += deltaTime; //für Type1-Enemy
+            if (spawnInterval > 1.5) {
+                spawnInterval = 0;
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
+            }
+        }
+        
     }
 
     @Override
