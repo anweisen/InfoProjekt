@@ -1,5 +1,7 @@
 package game;
 
+import java.util.ArrayList;
+
 import game.engine.Model;
 import game.engine.State;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,8 +13,8 @@ import javafx.scene.text.FontWeight;
 public class MenuState extends State {
 
     private Image backgroundImage;
-    private Image[] mapImages;
-    private String[] mapNames;
+    private ArrayList<Image> mapImages = new ArrayList<>();
+    private ArrayList<String> mapNames = new ArrayList<>();
     private int currentMapIndex;
     private Image arrowLeft, arrowRight, closeButton;
 
@@ -29,24 +31,16 @@ public class MenuState extends State {
         super(game);
 
         backgroundImage = Model.loadImage("menu", "background.jpg");
-        // Nutze: Game#getMaps() Map#getName() Map#getImage()
-        mapImages = new Image[] {
-            Model.loadImage("map", "map1.png"),
-            Model.loadImage("map", "test.png"),
-            Model.loadImage("map", "test.png")
-        };
-        mapNames = new String[] {"Map1", "Map2", "Map3"};
+        for (int i = 0; i < game.getMaps().size(); i++) {
+            mapImages.add(game.getMaps().get(i).getImage());
+            mapNames.add(game.getMaps().get(i).getName());
+        }
         arrowLeft = Model.loadImage("menu", "left_arrow.png");
         arrowRight = Model.loadImage("menu", "right_arrow.png");
         closeButton = Model.loadImage("menu", "close_button.png");
 
         currentMapIndex = 0;
 
-        /* 
-            Mit Hilfe von ChatGPT, muss aber sowieso
-            umgeschrieben werden, weil unsere Maps
-            ein ganz anderes Format haben.
-        */
         imageMargin = Game.VIRTUAL_HEIGHT * 0.15;
         imageX = Game.VIRTUAL_WIDTH * 0.1;
         imageY = imageMargin;
@@ -100,14 +94,14 @@ public class MenuState extends State {
         graphics.closePath();
         graphics.clip();
 
-        Image currentMap = mapImages[currentMapIndex];
+        Image currentMap = mapImages.get(currentMapIndex);
         graphics.drawImage(currentMap, imgX, imgY, imgW, imgH);
 
         graphics.restore();
 
         graphics.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         graphics.setFill(Color.BLACK);
-        graphics.fillText(mapNames[currentMapIndex], Game.VIRTUAL_WIDTH / 2d - 30, imageY + imageHeight + 30);
+        graphics.fillText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d - 30, imageY + imageHeight + 30);
 
         graphics.drawImage(arrowLeft, leftArrowX, leftArrowY, arrowWidth, arrowHeight);
         graphics.drawImage(arrowRight, rightArrowX, rightArrowY, arrowWidth, arrowHeight);
@@ -132,13 +126,13 @@ public class MenuState extends State {
     public void handleClick(double x, double y) {
         if (x >= leftArrowX && x <= leftArrowX + arrowWidth &&
             y >= leftArrowY && y <= leftArrowY + arrowHeight) {
-            currentMapIndex = (currentMapIndex - 1 + mapImages.length) % mapImages.length;
+            currentMapIndex = (currentMapIndex - 1 + mapImages.size()) % mapImages.size();
             return;
         }
 
         if (x >= rightArrowX && x <= rightArrowX + arrowWidth &&
             y >= rightArrowY && y <= rightArrowY + arrowHeight) {
-            currentMapIndex = (currentMapIndex + 1) % mapImages.length;
+            currentMapIndex = (currentMapIndex + 1) % mapImages.size();
             return;
         }
 
