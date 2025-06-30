@@ -11,6 +11,7 @@ import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -26,13 +27,14 @@ public class GameState extends State {
     private final Collection<Particle> particles = new ArrayList<>();
     private int gegneranzahlpros = 1;
     private int spieldauer = 180;
+
+    private boolean gameOver = false; //Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel angekommen sind
     
 
 
     // TODO: Leben, Geld, ...
-
-    private double spawnInterval; // für Standard-Enemy
-    private double spawnIntervalStandard; //für Type1-Enemy
+    private double spawnIntervalStandard; // für Standard-Enemy
+    private double spawnInterval; //für Type1-Enemy
     private AbstractTower selectedTower;
     public GameState(Game game, Map map) {
         super(game);
@@ -43,6 +45,14 @@ public class GameState extends State {
 //keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
+        if(gameOver()==true) {
+            //Spiel zu Ende-Text
+            graphics.setFill(Color.RED);
+            graphics.setLineWidth(10);
+            graphics.fillText("Game Over, start again!", Game.VIRTUAL_WIDTH -1000, Game.VIRTUAL_HEIGHT -600);
+            return;
+        }
+
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
         map.render(graphics);
 
@@ -73,20 +83,7 @@ public class GameState extends State {
         }
     }
 
-    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
-        spieldauer = spieldauer-1;
-        if(spieldauer%30== 0){
-            gegneranzahlpros= gegneranzahlpros+2;
-        }
-        for(int i=0;i<gegneranzahlpros;i++){
-            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
-        }
-        for(int j=0;j<gegneranzahlpros-1;j++){
-            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
-        }
-    }
-
-    @Override
+      @Override
     public void update(double deltaTime) {
         for (AbstractTower tower : towers) {
             tower.update(deltaTime);
@@ -113,10 +110,27 @@ public class GameState extends State {
                 enemies.remove(enemy);
             }
         }
+
+        if(gameOver()==true) {
+            return;
+        }
+    }
+
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
+        spieldauer = spieldauer-1;
+        if(spieldauer%30== 0){
+            gegneranzahlpros= gegneranzahlpros+2;
+        }
+        for(int i=0;i<gegneranzahlpros;i++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        }
+        for(int j=0;j<gegneranzahlpros-1;j++){
+            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
+        }
     }
 
     public void spawnEnemies(double deltaTime){
-        // Provisorische Gegner-Spawning-Logik zum Testen
+        // endgültige Gegner-Spawning-Logik für zwei versch. Gegner typen
         spawnIntervalStandard += deltaTime; //für Standard-Enemy
         if (spawnIntervalStandard > 0.7) {
             spawnIntervalStandard = 0;
@@ -154,6 +168,13 @@ public class GameState extends State {
 
         shop.handleClick(x, y);
         // Erstelle Turm beim Klicken zu Testzwecken!
+    }
+
+    public boolean gameOver(){
+        if(hud.getLives() <= 0) {
+            gameOver = true;
+        }
+        return gameOver;
     }
 
     public void spawnTower(TowerType type, double x, double y) {

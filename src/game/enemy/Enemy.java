@@ -7,6 +7,7 @@ import game.engine.GameObject;
 import game.engine.Model;
 import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.shape.Rectangle;
 
 public class Enemy extends GameObject {
 
@@ -19,10 +20,18 @@ public class Enemy extends GameObject {
     private double speed;
     private double damage;
     private int reward;
-    private double health;
     private Map myMap;
     private int waypointNumber; // Anzahl aller gespeicherter Wegpunkte
     private int waypointCounter = 0; // abgegangene Wegpunkte
+
+    private double maxHealth; //Macht noch keinen Sinn --> werde ich ausbessern
+    private double currentHealth;
+    
+
+    //Lebenslinie
+    private Rectangle healthBar;
+    private double healthBarWidth = 50;
+    private double healthBarHeight = 4;
 
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
@@ -38,16 +47,23 @@ public class Enemy extends GameObject {
         this.speed = config.getSpeed();
         this.damage = config.getDamage();
         this.reward = config.getReward();
-        this.health = config.getHealth();
+        this.currentHealth = config.getMaxHealth();
+        this.maxHealth = config.getMaxHealth();
         this.myMap = state.getMap();
         this.waypointNumber = myMap.getWaypoints().length;
+
+        //Lebenslinie
+        this.healthBar = new Rectangle(healthBarWidth, healthBarHeight);
+        this.healthBar.setFill(javafx.scene.paint.Color.GREEN); 
+
     }
 
     @Override
     public void update(double deltaTime) {
        //Ende
         if (waypointCounter == waypointNumber+1) { 
-            markForRemoval();; // Gegner stirbt
+            markForRemoval(); // Gegner stirbt
+            state.getShop().getHud().loseLife(); //Leben abziehen vom Spieler
             return;
         }
 
@@ -66,11 +82,27 @@ public class Enemy extends GameObject {
         if(distanceTo(nextWaypointX, nextWaypointY)<= speed * deltaTime) {
             waypointCounter++;
         }
+
+        updateHealthBar();
+    }
+
+    public void updateHealthBar() {
+        double percentage = currentHealth / maxHealth;
+        healthBar.setWidth(healthBarWidth * percentage);
+        if (percentage > 0.65) {
+            healthBar.setFill(javafx.scene.paint.Color.GREEN);}
+        else if (percentage <= 0.65 && percentage > 0.35) {
+            healthBar.setFill(javafx.scene.paint.Color.ORANGE);
+        } else if (percentage <= 0.35) {
+            healthBar.setFill(javafx.scene.paint.Color.RED);
+        }
     }
 
     @Override
     public void render(GraphicsContext graphics) {
         model.render(graphics, x, y);
+        graphics.setFill(healthBar.getFill());
+        graphics.fillRect(x-27, y +30, healthBar.getWidth(), healthBar.getHeight());
     }
 
     public String getType() {
@@ -90,19 +122,22 @@ public class Enemy extends GameObject {
     }
 
     public double getHealth() {
-        return health;
+        return currentHealth;
+    }
+
+    public double getMaxHealth() {
+        return maxHealth;
     }
 
     public void reduceHealth(double damage) {
-        health = health - damage;
-        if (health <= 0) {
+        currentHealth = currentHealth - damage;
+        if (currentHealth <= 0) {
             die();
         }
     }
 
     private void die() {
         state.getShop().addMoney(getReward());
-        //Leben abziehen vom Spieler
         markForRemoval();
     }
 
@@ -116,16 +151,18 @@ public class Enemy extends GameObject {
         private final double speed; // Geschwindigkeit, mit der sich der Gegner bewegt
         private final double damage; // Schaden am Ende, wenn der Gegner nicht getötet wird
         private final int reward; // Belohnung, wenn der Gegner getötet wird
-        private final double health; // Leben des Gegners
+        private final double currentHealth; // Leben des Gegners, momentan
+        private final double maxHealth; // Maximales Leben des Gegners
     
 
-        public Config(String type, Model model, double speed, int damage, int reward, int health) {
+        public Config(String type, Model model, double speed, int damage, int reward, double health, double maxhealth) {
             this.type = type;
             this.model = model;
             this.speed = speed;
             this.damage = damage;
             this.reward = reward;
-            this.health = health;
+            this.currentHealth = health;
+            this.maxHealth = maxhealth;
             
         }
 
@@ -140,7 +177,8 @@ public class Enemy extends GameObject {
                 json.get("speed").getAsDouble(),
                 json.get("damage").getAsInt(),
                 json.get("reward").getAsInt(),
-                json.get("health").getAsInt());
+                json.get("health").getAsDouble(),
+                json.get("maxHealth").getAsDouble());
         }
 
         public String getType() {
@@ -164,7 +202,11 @@ public class Enemy extends GameObject {
         }
 
         public double getHealth() {
-            return health;
+            return currentHealth;
+        }
+
+        public double getMaxHealth() {
+            return maxHealth;
         }
     }
 }

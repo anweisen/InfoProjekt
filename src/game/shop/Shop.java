@@ -73,6 +73,10 @@ public class Shop {
         return HEIGHT;
     }
 
+    public Hud getHud() {
+        return hud;
+    }
+
     public void render(GraphicsContext context) {
         context.setFill(Color.WHITE);
         context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, 0, WIDTH, HEIGHT);
