@@ -35,24 +35,32 @@ public class Hud {
     }
 
     public void render(GraphicsContext graphics) {
-        graphics.setFill(Color.BLACK);
+        // Draw semi-transparent dark rounded background
+        graphics.setFill(Color.rgb(30, 30, 30, 0.85));
+        // graphics.fillRoundRect(0, 0, WIDTH, HEIGHT, HEIGHT * 0.4, HEIGHT * 0.4);
         graphics.fillRect(0, 0, WIDTH, HEIGHT);
 
+        // Set font and color for text
         graphics.setFill(Color.WHITE);
         graphics.setFont(new Font("Arial", HEIGHT * 0.28));
-        graphics.fillText("Money: " + money, WIDTH * 0.02, HEIGHT * 0.38);
-        graphics.fillText("Lives: " + lives, WIDTH * 0.02, HEIGHT * 0.78);
+        double textPadding = WIDTH * 0.02;
+        graphics.fillText("Money: " + money, textPadding, HEIGHT * 0.38);
+        graphics.fillText("Lives: " + lives, textPadding, HEIGHT * 0.78);
 
+        // Draw Shop button background (shadow)
         graphics.setFill(Color.rgb(30, 30, 30, 0.5));
         graphics.fillRoundRect(buttonX + buttonWidth * 0.03, buttonY + buttonHeight * 0.05, buttonWidth, buttonHeight, buttonHeight * 0.3, buttonHeight * 0.3);
 
+        // Draw Shop button (main)
         graphics.setFill(Color.DARKGRAY);
         graphics.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, buttonHeight * 0.3, buttonHeight * 0.3);
 
+        // Draw Shop button border
         graphics.setStroke(Color.WHITE);
         graphics.setLineWidth(buttonHeight * 0.07);
         graphics.strokeRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, buttonHeight * 0.3, buttonHeight * 0.3);
 
+        // Draw Shop button text
         graphics.setFill(Color.WHITE);
         graphics.setFont(new Font("Arial", buttonHeight * 0.5));
         String buttonText = "Shop";
@@ -85,6 +93,10 @@ public class Hud {
 
     public int getLives() {
         return lives;
+    }
+
+    public double getHeight() {
+        return HEIGHT;
     }
 
 }
