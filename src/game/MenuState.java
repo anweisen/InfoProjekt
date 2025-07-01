@@ -16,14 +16,10 @@ public class MenuState extends State {
     private ArrayList<Image> mapImages = new ArrayList<>();
     private ArrayList<String> mapNames = new ArrayList<>();
     private int currentMapIndex;
-    private Image arrowLeft, arrowRight, closeButton;
 
     // Layout
     private double imageMargin;
     private double imageX, imageY, imageWidth, imageHeight;
-
-    private double leftArrowX, leftArrowY, arrowWidth, arrowHeight;
-    private double rightArrowX, rightArrowY;
 
     private double closeX, closeY, closeWidth, closeHeight;
 
@@ -35,9 +31,6 @@ public class MenuState extends State {
             mapImages.add(game.getMaps().get(i).getImage());
             mapNames.add(game.getMaps().get(i).getName());
         }
-        /* arrowLeft = Model.loadImage("menu", "left_arrow.png");
-        arrowRight = Model.loadImage("menu", "right_arrow.png");
-        closeButton = Model.loadImage("menu", "close_button.png"); */
 
         currentMapIndex = 0;
 
@@ -47,16 +40,8 @@ public class MenuState extends State {
         imageWidth = Game.VIRTUAL_WIDTH * 0.8;
         imageHeight = Game.VIRTUAL_HEIGHT * 0.7;
 
-        arrowWidth = 40;
-        arrowHeight = 40;
-        leftArrowX = imageX - arrowWidth - 20;
-        leftArrowY = imageY + imageHeight / 2 - arrowHeight / 2;
-
-        rightArrowX = imageX + imageWidth + 20;
-        rightArrowY = leftArrowY;
-
-        closeWidth = 40;
-        closeHeight = 40;
+        closeWidth = 80;
+        closeHeight = 80;
         closeX = Game.VIRTUAL_WIDTH - closeWidth - 20;
         closeY = Game.VIRTUAL_HEIGHT - closeHeight - 20;
     }
@@ -103,10 +88,6 @@ public class MenuState extends State {
         graphics.setFill(Color.BLACK);
         graphics.fillText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d - 30, imageY + imageHeight + 30);
 
-        /* graphics.drawImage(arrowLeft, leftArrowX, leftArrowY, arrowWidth, arrowHeight);
-        graphics.drawImage(arrowRight, rightArrowX, rightArrowY, arrowWidth, arrowHeight);
-        graphics.drawImage(closeButton, closeX, closeY, closeWidth, closeHeight); */
-
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
         graphics.setFill(Color.BLACK);
         graphics.fillText("Klicke auf das Bild zum Starten", Game.VIRTUAL_WIDTH / 2d - 100, Game.VIRTUAL_HEIGHT - 50);
@@ -124,14 +105,14 @@ public class MenuState extends State {
 
     @Override
     public void handleClick(double x, double y) {
-        if (x >= leftArrowX && x <= leftArrowX + arrowWidth &&
-            y >= leftArrowY && y <= leftArrowY + arrowHeight) {
+        if (x >= 0 && x < imageX &&
+            y >= imageY && y <= imageY + imageHeight) {
             currentMapIndex = (currentMapIndex - 1 + mapImages.size()) % mapImages.size();
             return;
         }
 
-        if (x >= rightArrowX && x <= rightArrowX + arrowWidth &&
-            y >= rightArrowY && y <= rightArrowY + arrowHeight) {
+        if (x > imageX + imageWidth && x <= Game.VIRTUAL_WIDTH &&
+            y >= imageY && y <= imageY + imageHeight) {
             currentMapIndex = (currentMapIndex + 1) % mapImages.size();
             return;
         }
