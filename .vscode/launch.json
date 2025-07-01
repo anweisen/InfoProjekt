@@ -3,6 +3,14 @@
   "configurations": [
     {
       "type": "java",
+      "name": "HighScoreManager",
+      "request": "launch",
+      "mainClass": "HighScoreManager",
+      "projectName": "InfoProjekt_21a69171",
+      "vmArgs": "--module-path \"${workspaceFolder}/lib/javafx/lib\" --add-modules javafx.controls,javafx.graphics -Dprism.verbose=true -Dprism.forceGPU=true -Djava.library.path=\"${workspaceFolder}/lib/javafx/bin\""
+    },
+    {
+      "type": "java",
       "name": "Game (JavaFX)",
       "request": "launch",
       "mainClass": "game.Game",
