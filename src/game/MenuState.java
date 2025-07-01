@@ -30,14 +30,14 @@ public class MenuState extends State {
     public MenuState(Game game) {
         super(game);
 
-        backgroundImage = Model.loadImage("menu", "background.jpg");
+        backgroundImage = Model.loadImage("menu", "background.png");
         for (int i = 0; i < game.getMaps().size(); i++) {
             mapImages.add(game.getMaps().get(i).getImage());
             mapNames.add(game.getMaps().get(i).getName());
         }
-        arrowLeft = Model.loadImage("menu", "left_arrow.png");
+        /* arrowLeft = Model.loadImage("menu", "left_arrow.png");
         arrowRight = Model.loadImage("menu", "right_arrow.png");
-        closeButton = Model.loadImage("menu", "close_button.png");
+        closeButton = Model.loadImage("menu", "close_button.png"); */
 
         currentMapIndex = 0;
 
@@ -103,9 +103,9 @@ public class MenuState extends State {
         graphics.setFill(Color.BLACK);
         graphics.fillText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d - 30, imageY + imageHeight + 30);
 
-        graphics.drawImage(arrowLeft, leftArrowX, leftArrowY, arrowWidth, arrowHeight);
+        /* graphics.drawImage(arrowLeft, leftArrowX, leftArrowY, arrowWidth, arrowHeight);
         graphics.drawImage(arrowRight, rightArrowX, rightArrowY, arrowWidth, arrowHeight);
-        graphics.drawImage(closeButton, closeX, closeY, closeWidth, closeHeight);
+        graphics.drawImage(closeButton, closeX, closeY, closeWidth, closeHeight); */
 
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
         graphics.setFill(Color.BLACK);
