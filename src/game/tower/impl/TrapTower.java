@@ -6,6 +6,7 @@ import java.util.Random;
 
 import game.Game;
 import game.GameState;
+import game.enemy.Enemy;
 import game.engine.GameObject;
 import game.engine.Model;
 import game.map.Map;
@@ -18,7 +19,7 @@ public class TrapTower extends AbstractTower {
 
     // A spike thrower that sets a trap that slows down or damages enemies
     List<Map> maps = new ArrayList<>();
-    List<int[]> possible = new ArrayList<>();
+    List<double[]> possible = new ArrayList<>();
     Random r = new Random();
 
     public TrapTower(GameState state, TowerType.Config config, double x, double y) {
@@ -27,13 +28,12 @@ public class TrapTower extends AbstractTower {
     }
 
     private void calculatePossible() {
-        for (int i = 0; i < Game.VIRTUAL_WIDTH; i++) {
-            for (int k = 0; k < Game.VIRTUAL_HEIGHT; k++) {
-                if (state.getMap().getCanPlace()[i][k] && distanceTo(i, k) <= getRange()) {
-                    possible.add(new int[] { i, k });
-                }
+        for (Map.Waypoint waypoint : state.getMap().getSplinePoints()) {
+            if (distanceTo(waypoint.x(), waypoint.y()) <= getRange()) {
+                possible.add(new double[] { waypoint.x(), waypoint.y() });
             }
         }
+
     }
 
     @Override
@@ -44,26 +44,32 @@ public class TrapTower extends AbstractTower {
 
     @Override
     public boolean shoot() {
-        int[] Koordinate = possible.get(r.nextInt(possible.size()));
+        double[] Koordinate = possible.get(r.nextInt(possible.size()));
         doshoot(Koordinate[0], Koordinate[1]);
         return true;
     }
 
-    public void doshoot(int x, int y) {
+    public void doshoot(double x, double y) {
         state.registerProjectile(new Projectile(state, x, y));
-
     }
 
     public class Projectile extends GameObject {
         private static final Model projectileModel = Model.loadModelWith("projectile", "kugel.png", 32, 32);
 
-        public Projectile(GameState state, int x, int y) {
+        public Projectile(GameState state, double x, double y) {
             super(state, x, y, projectileModel.getWidth(), projectileModel.getHeight());
         }
 
+        double range = 50;
+
         @Override
         public void update(double deltaTime) {
-
+            for (Enemy enemy : state.getEnemies()) {
+                if (distanceTo(enemy) <= range) {
+                    enemy.reduceHealth(getDamage());
+                    this.markForRemoval();
+                }
+            }
         }
 
         @Override

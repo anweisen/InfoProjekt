@@ -48,13 +48,13 @@ public class Game extends Application {
         registerMap(Map.loadMap("map1.json"));
         registerMap(Map.loadMap("map2.json"));
 
-
         registerTower(TowerType.Config.load("canon.json"), CanonTower::new);
         registerTower(TowerType.Config.load("AuraTower.json"), AuraTower::new);
         registerTower(TowerType.Config.load("LaserTower.json"), LaserTower::new);
         registerTower(TowerType.Config.load("InfernoTower.json"), InfernoTower::new);
         registerTower(TowerType.Config.load("BoostTower.json"), BoostTower::new);
-        
+        registerTower(TowerType.Config.load("TrapTower.json"), TrapTower::new);
+
         currentState = new MenuState(this);
     }
 

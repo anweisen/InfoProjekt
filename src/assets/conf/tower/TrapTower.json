@@ -1,0 +1,65 @@
+{
+    "name": "TrapTower",
+    "info": "Wirft Bomben aus",
+    "price": 120,
+    "range": 180,
+    "damage": 20,
+    "speed": 1,
+    "targets": 1,
+    "model": {
+        "img": "TrapTower.png",
+        "width": 96,
+        "height": 96,
+        "projectileX": 32,
+        "projectileY": 32
+    },
+    "models1": [
+        {
+            "img": "TrapTower.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
+    "models2": [],
+    "upgrades1": [
+        {
+            "name": "Level 1",
+            "info": "Erhöht die Feuerrate des Traptowers",
+            "price": 60,
+            "speed": 1.3
+        },
+        {
+            "name": "Level 2",
+            "info": "Erhöht den Schaden der Bomben",
+            "price": 90,
+            "damage": 30
+        },
+        {
+            "name": "Level 3",
+            "info": "Erhöht die Reichweite des Werfers",
+            "price": 110,
+            "range": 200
+        }
+    ],
+    "upgrades2": [
+        {
+            "name": "Level I",
+            "info": "Erhöht Reichweite und Bombenschaden",
+            "price": 200,
+            "range": 200,
+            "damage": 25
+        },
+        {
+            "name": "Level II",
+            "info": "Erhöht den Schaden deutlich",
+            "price": 150,
+            "damage": 40
+        },
+        {
+            "name": "Level III",
+            "info": "Erhöht die Feuerrate des Werfers",
+            "price": 140,
+            "speed": 2
+        }
+    ]
+}
