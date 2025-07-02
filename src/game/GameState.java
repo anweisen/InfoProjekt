@@ -15,6 +15,10 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
+
 public class GameState extends State {
 
     private final Map map;
@@ -30,7 +34,7 @@ public class GameState extends State {
 
     private boolean gameOver = false; //Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel angekommen sind
     
-
+     private MediaPlayer mediaPlayer;
 
     // TODO: Leben, Geld, ...
     private double spawnIntervalStandard; // für Standard-Enemy
@@ -41,15 +45,30 @@ public class GameState extends State {
         this.map = map;
         this.hud = new Hud(this);
         this.shop = new Shop(this);
+        //playSound(); 
     }
+
+    /* 
+ public void playSound() {
+    try {
+        String path = getClass().getResource("/assets/sounds/Applaus.wav").toExternalForm();
+        Media sound = new Media(path);
+        mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
+    } catch (Exception e) {
+        System.out.println("Sound konnte nicht abgespielt werden: " );
+        e.printStackTrace();
+    }
+    }
+*/
 //keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         if(gameOver()==true) {
             //Spiel zu Ende-Text
             graphics.setFill(Color.RED);
-            graphics.setLineWidth(10);
-            graphics.fillText("Game Over, start again!", Game.VIRTUAL_WIDTH -1000, Game.VIRTUAL_HEIGHT -600);
+            graphics.setLineWidth(100);
+            graphics.fillText("Game Over, start again!", Game.VIRTUAL_WIDTH -1000, Game.VIRTUAL_HEIGHT -500);
             return;
         }
 
@@ -132,7 +151,7 @@ public class GameState extends State {
     public void spawnEnemies(double deltaTime){
         // endgültige Gegner-Spawning-Logik für zwei versch. Gegner typen
         spawnIntervalStandard += deltaTime; //für Standard-Enemy
-        if (spawnIntervalStandard > 0.7) {
+        if (spawnIntervalStandard > 1.1) {
             spawnIntervalStandard = 0;
             enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
         }
