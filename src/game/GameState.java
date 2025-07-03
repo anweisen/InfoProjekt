@@ -10,13 +10,16 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 
 
 public class GameState extends State {
@@ -48,19 +51,25 @@ public class GameState extends State {
         //playSound(); 
     }
 
-    /* 
- public void playSound() {
+    public void playSound(String file) {
+        if (file == null || file.isEmpty()) {
+            System.out.println("Sound Datei nicht vorhanden.");
+            return;
+        }
     try {
-        String path = getClass().getResource("/assets/sounds/Applaus.wav").toExternalForm();
-        Media sound = new Media(path);
-        mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
+        // Hole den Sound als InputStream aus dem Ressourcenpfad
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+            getClass().getResource("/assets/sounds/"+file)
+        );
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+        clip.start();
     } catch (Exception e) {
-        System.out.println("Sound konnte nicht abgespielt werden: " );
+        System.out.println("Sound konnte nicht abgespielt werden: ");
         e.printStackTrace();
     }
-    }
-*/
+}
+
 //keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {

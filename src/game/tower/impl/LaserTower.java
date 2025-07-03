@@ -23,6 +23,7 @@ public class LaserTower extends AbstractTower {
         for (Enemy enemy : state.getEnemies()) {
             if (distanceTo(enemy) <= getRange()) {
                 doShoot(enemy);
+                state.playSound("pew.wav");
                 return true;
             }
         }
