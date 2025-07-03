@@ -79,7 +79,7 @@ public class Shop {
         return hud;
     }
 
-    public void render(GraphicsContext context) {
+    public void renderShop(GraphicsContext context) {
         // Draw semi-transparent dark background
         context.setFill(Color.rgb(30, 30, 30, 0.85));
         // context.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT, 30, 30);
@@ -88,14 +88,73 @@ public class Shop {
         double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
         double availableWidth = WIDTH - (COLUMNS + 1) * padding;
         double squareSize = availableWidth / COLUMNS;
-        double titleHeight = 50;
 
-        // Draw Shop title
-        /* context.setFill(Color.WHITE);
-        context.setFont(new javafx.scene.text.Font("Arial", 32));
-        context.setTextAlign(TextAlignment.CENTER);
-        context.setTextBaseline(VPos.TOP);
-        context.fillText("Shop", Game.VIRTUAL_WIDTH - WIDTH / 2, HUD_HEIGHT + padding); */
+        // Draw tower slots
+        for (int i = 0; i < towerTypes.size(); i++) {
+            int row = i / COLUMNS;
+            int col = i % COLUMNS;
+            double x = Game.VIRTUAL_WIDTH - WIDTH + padding + col * (squareSize + padding);
+            // double y = HUD_HEIGHT + padding + titleHeight + row * (squareSize + padding);
+            double y = HUD_HEIGHT + padding + row * (squareSize + padding);
+
+            // Highlight selected tower
+            if (i == selectedTowerIndex) {
+                context.setFill(Color.rgb(70, 130, 180, 0.7)); // Soft blue highlight
+                context.fillRoundRect(x - 4, y - 4, squareSize + 8, squareSize + 8, 18, 18);
+            }
+
+            // Draw slot background
+            context.setFill(Color.DARKGRAY);
+            context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
+
+            // Draw border
+            context.setStroke(Color.WHITE);
+            context.setLineWidth(2);
+            context.strokeRoundRect(x, y, squareSize, squareSize, 16, 16);
+
+            // Draw tower image
+            context.drawImage(
+                towerTypes.get(i).getConfig().getBaseModel().getImage(),
+                x + 6, y + 6, squareSize - 12, squareSize - 12
+            );
+
+            // Grey out if not enough money
+            int cost = towerTypes.get(i).getConfig().getPrice();
+            if (hud.getMoney() < cost) {
+                context.setFill(Color.rgb(0, 0, 0, 0.5));
+                context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
+            }
+
+            // Draw semi-transparent background for text at bottom of slot
+            double textBgHeight = 36;
+            context.setFill(Color.rgb(30, 30, 30, 0.7));
+            context.fillRoundRect(x, y + squareSize - textBgHeight, squareSize, textBgHeight, 0, 0);
+
+            // Draw tower name and price inside the slot
+            String name = towerTypes.get(i).getConfig().getName();
+            String price = "$" + cost;
+            context.setFill(Color.WHITE);
+            context.setFont(new javafx.scene.text.Font("Arial", 16));
+            context.setTextAlign(TextAlignment.CENTER);
+            context.setTextBaseline(VPos.TOP);
+            context.fillText(name, x + squareSize / 2, y + squareSize - textBgHeight + 4);
+            context.setFill(Color.LIGHTGREEN);
+            context.setFont(new javafx.scene.text.Font("Arial", 14));
+            context.fillText(price, x + squareSize / 2, y + squareSize - textBgHeight + 20);
+        }
+        context.setTextAlign(TextAlignment.LEFT);
+        context.setTextBaseline(VPos.BASELINE);
+    }
+
+    public void renderUpgrades(GraphicsContext context) {
+        // Draw semi-transparent dark background
+        context.setFill(Color.rgb(30, 30, 30, 0.85));
+        // context.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT, 30, 30);
+        context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT);
+
+        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
+        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
+        double squareSize = availableWidth / COLUMNS;
 
         // Draw tower slots
         for (int i = 0; i < towerTypes.size(); i++) {
