@@ -23,6 +23,7 @@ public class LaserTower extends AbstractTower {
         for (Enemy enemy : state.getEnemies()) {
             if (distanceTo(enemy) <= getRange()) {
                 doShoot(enemy);
+                state.playSound("pew.wav");
                 return true;
             }
         }
@@ -46,9 +47,9 @@ public class LaserTower extends AbstractTower {
         super.render(graphics);
         if (targetEnemy != null && distanceTo(targetEnemy) < getRange() && hasShot) {
 
-            graphics.setStroke(Color.RED); // optional: change color
+            graphics.setStroke(Color.ORANGE); // optional: change color
             graphics.setLineWidth(4); // optional: change line width
-            graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
+            graphics.strokeLine(getX(), getY() - 20, targetEnemy.getX(), targetEnemy.getY()); // -20 für offset
 
         }
     }

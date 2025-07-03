@@ -10,13 +10,15 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 
 public class GameState extends State {
@@ -32,43 +34,49 @@ public class GameState extends State {
     private int gegneranzahlpros = 1;
     private int spieldauer = 180;
 
-    private boolean gameOver = false; //Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel angekommen sind
-    
-     private MediaPlayer mediaPlayer;
+    private boolean gameOver = false; // Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel
+                                      // angekommen sind
+
+ 
 
     // TODO: Leben, Geld, ...
     private double spawnIntervalStandard; // für Standard-Enemy
-    private double spawnInterval; //für Type1-Enemy
+    private double spawnInterval; // für Type1-Enemy
     private AbstractTower selectedTower;
+
     public GameState(Game game, Map map) {
         super(game);
         this.map = map;
         this.hud = new Hud(this);
         this.shop = new Shop(this);
-        //playSound(); 
+        // playSound();
     }
 
-    /* 
- public void playSound() {
+    public void playSound(String file) {
+        if (file == null || file.isEmpty()) {
+            System.out.println("Sound Datei nicht vorhanden.");
+            return;
+        }
     try {
-        String path = getClass().getResource("/assets/sounds/Applaus.wav").toExternalForm();
-        Media sound = new Media(path);
-        mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
+        // Hole den Sound als InputStream aus dem Ressourcenpfad
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+            getClass().getResource("/assets/sounds/"+file)
+        );
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+        clip.start();
     } catch (Exception e) {
-        System.out.println("Sound konnte nicht abgespielt werden: " );
+        System.out.println("Sound konnte nicht abgespielt werden: ");
         e.printStackTrace();
     }
-    }
-*/
+}
+
 //keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
-        if(gameOver()==true) {
-            //Spiel zu Ende-Text
-            graphics.setFill(Color.RED);
-            graphics.setLineWidth(100);
-            graphics.fillText("Game Over, start again!", Game.VIRTUAL_WIDTH -1000, Game.VIRTUAL_HEIGHT -500);
+        if (gameOver() == true) {
+            // Spiel zu Ende-Text
+            game.setState(new DeathState(game, map));
             return;
         }
 
@@ -80,6 +88,7 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+            shop.renderUpgrades(graphics);
         }
 
         for (AbstractTower tower : towers) {
@@ -98,11 +107,11 @@ public class GameState extends State {
         hud.render(graphics);
 
         if (shop.isOpen()) {
-            shop.render(graphics);
+            shop.renderShop(graphics);
         }
     }
 
-      @Override
+    @Override
     public void update(double deltaTime) {
         for (AbstractTower tower : towers) {
             tower.update(deltaTime);
@@ -124,46 +133,46 @@ public class GameState extends State {
 
         spawnEnemies(deltaTime);
 
-        for(Enemy enemy : enemies) {
+        for (Enemy enemy : enemies) {
             if (enemy.isMarkedForRemoval()) {
                 enemies.remove(enemy);
             }
         }
 
-        if(gameOver()==true) {
+        if (gameOver() == true) {
             return;
         }
     }
 
-    public void gegneranzahl(int spieldauer, int gegneranzahlpros){
-        spieldauer = spieldauer-1;
-        if(spieldauer%30== 0){
-            gegneranzahlpros= gegneranzahlpros+2;
+    public void gegneranzahl(int spieldauer, int gegneranzahlpros) {
+        spieldauer = spieldauer - 1;
+        if (spieldauer % 30 == 0) {
+            gegneranzahlpros = gegneranzahlpros + 2;
         }
-        for(int i=0;i<gegneranzahlpros;i++){
-            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Standard"));
+        for (int i = 0; i < gegneranzahlpros; i++) {
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
         }
-        for(int j=0;j<gegneranzahlpros-1;j++){
-            enemies.add(new Enemy(this, map.getStart().x(),map.getStart().y() , "Type1"));
+        for (int j = 0; j < gegneranzahlpros - 1; j++) {
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
         }
     }
 
-    public void spawnEnemies(double deltaTime){
+    public void spawnEnemies(double deltaTime) {
         // endgültige Gegner-Spawning-Logik für zwei versch. Gegner typen
-        spawnIntervalStandard += deltaTime; //für Standard-Enemy
+        spawnIntervalStandard += deltaTime; // für Standard-Enemy
         if (spawnIntervalStandard > 1.1) {
             spawnIntervalStandard = 0;
             enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
         }
 
-        if(shop.getMoney()>=300){
-                spawnInterval += deltaTime; //für Type1-Enemy
+        if (shop.getMoney() >= 300) {
+            spawnInterval += deltaTime; // für Type1-Enemy
             if (spawnInterval > 1.5) {
                 spawnInterval = 0;
                 enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
             }
         }
-        
+
     }
 
     @Override
@@ -189,8 +198,8 @@ public class GameState extends State {
         // Erstelle Turm beim Klicken zu Testzwecken!
     }
 
-    public boolean gameOver(){
-        if(hud.getLives() <= 0) {
+    public boolean gameOver() {
+        if (hud.getLives() <= 0) {
             gameOver = true;
         }
         return gameOver;
