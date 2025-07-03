@@ -8,6 +8,6 @@
     "speed": "100.0",
     "damage": "5",
     "reward": "30",
-    "health": "60",
-    "maxHealth": "90"
+    "health": "10",
+    "maxHealth": "80"
 }

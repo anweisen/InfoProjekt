@@ -91,18 +91,19 @@ public class Shop {
         double titleHeight = 50;
 
         // Draw Shop title
-        context.setFill(Color.WHITE);
+        /* context.setFill(Color.WHITE);
         context.setFont(new javafx.scene.text.Font("Arial", 32));
         context.setTextAlign(TextAlignment.CENTER);
         context.setTextBaseline(VPos.TOP);
-        context.fillText("Shop", Game.VIRTUAL_WIDTH - WIDTH / 2, HUD_HEIGHT + padding);
+        context.fillText("Shop", Game.VIRTUAL_WIDTH - WIDTH / 2, HUD_HEIGHT + padding); */
 
         // Draw tower slots
         for (int i = 0; i < towerTypes.size(); i++) {
             int row = i / COLUMNS;
             int col = i % COLUMNS;
             double x = Game.VIRTUAL_WIDTH - WIDTH + padding + col * (squareSize + padding);
-            double y = HUD_HEIGHT + padding + titleHeight + row * (squareSize + padding);
+            // double y = HUD_HEIGHT + padding + titleHeight + row * (squareSize + padding);
+            double y = HUD_HEIGHT + padding + row * (squareSize + padding);
 
             // Highlight selected tower
             if (i == selectedTowerIndex) {
