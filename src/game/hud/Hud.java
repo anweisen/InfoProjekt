@@ -23,14 +23,14 @@ public class Hud {
     public Hud(GameState state) {
         this.state = state;
         this.WIDTH = state.getGame().VIRTUAL_WIDTH;
-        this.HEIGHT = state.getGame().VIRTUAL_HEIGHT/10;
+        this.HEIGHT = state.getGame().VIRTUAL_HEIGHT / 10;
 
         this.buttonWidth = WIDTH / 6;
         this.buttonHeight = HEIGHT * 0.6;
         this.buttonX = WIDTH - buttonWidth - WIDTH * 0.03;
         this.buttonY = HEIGHT * 0.2;
 
-        this.money = 100; // Startgeld
+        this.money = 1000; // Startgeld
         this.lives = 20; // Startleben
     }
 
@@ -49,7 +49,8 @@ public class Hud {
 
         // Draw Shop button background (shadow)
         graphics.setFill(Color.rgb(30, 30, 30, 0.5));
-        graphics.fillRoundRect(buttonX + buttonWidth * 0.03, buttonY + buttonHeight * 0.05, buttonWidth, buttonHeight, buttonHeight * 0.3, buttonHeight * 0.3);
+        graphics.fillRoundRect(buttonX + buttonWidth * 0.03, buttonY + buttonHeight * 0.05, buttonWidth, buttonHeight,
+                buttonHeight * 0.3, buttonHeight * 0.3);
 
         // Draw Shop button (main)
         graphics.setFill(Color.DARKGRAY);
@@ -72,7 +73,7 @@ public class Hud {
 
     public boolean isShopButtonClicked(double x, double y) {
         return x >= buttonX && x <= buttonX + buttonWidth &&
-               y >= buttonY && y <= buttonY + buttonHeight;
+                y >= buttonY && y <= buttonY + buttonHeight;
     }
 
     public void addMoney(int amount) {
