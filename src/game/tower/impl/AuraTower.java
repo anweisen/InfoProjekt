@@ -56,7 +56,7 @@ public class AuraTower extends AbstractTower {
             if (distanceTo(enemies) < getRange()) {
                 graphics.setStroke(Color.GREEN); // optional: change color
                 graphics.setLineWidth(2); // optional: change line width
-                graphics.strokeLine(getX(), getY(), enemies.getX(), enemies.getY());
+                graphics.strokeLine(getX(), getY() - 20, enemies.getX(), enemies.getY()); // -20 für offset
             }
         }
     }
