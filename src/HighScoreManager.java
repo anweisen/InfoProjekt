@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class HighScoreManager {
@@ -18,8 +19,8 @@ private static final String DB_URL = "jdbc:mysql://www.gmg-info.de/wa839_db1";
     public static List<String> getHighscores() {
         List<String> highscores = new ArrayList<>();
 
-        //String sql = "SELECT player_name, score FROM highscores ORDER BY score DESC LIMIT 10";
-         String sql = "SELECT * FROM Person";
+        String sql = "SELECT player_name, score, date, time FROM highscores ORDER BY score DESC LIMIT 10";
+         //String sql = "SELECT * FROM Person";
 
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -27,10 +28,13 @@ private static final String DB_URL = "jdbc:mysql://www.gmg-info.de/wa839_db1";
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                String name = rs.getString("Vorname");
-                //int score = rs.getInt("score");
-               // highscores.add(name + " - " + score);
-               System.out.println(name);
+                String name = rs.getString("player_name");
+                int score = rs.getInt("score");
+                Date date = rs.getDate("date"); 
+                highscores.add(name + " - " + score);
+               System.out.println(name + "-" +score + " / " + date);
+               
+               
             }
 
         } catch (SQLException e) {

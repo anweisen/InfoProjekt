@@ -88,7 +88,8 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.renderUpgrades(graphics);
+            shop.setOpen(false);
+            shop.renderUpgrades(graphics, selectedTower);
         }
 
         for (AbstractTower tower : towers) {
