@@ -21,7 +21,7 @@ public class Enemy extends GameObject {
     private double damage;
     private int reward;
     private Map myMap;
-    private int waypointNumber; // Anzahl aller gespeicherter Wegpunkte
+    private int numberOfWaypoints; // Anzahl aller gespeicherter Wegpunkte
     private int waypointCounter = 0; // abgegangene Wegpunkte
 
     private double maxHealth; //Macht noch keinen Sinn --> werde ich ausbessern
@@ -50,7 +50,7 @@ public class Enemy extends GameObject {
         this.currentHealth = config.getMaxHealth();
         this.maxHealth = config.getMaxHealth();
         this.myMap = state.getMap();
-        this.waypointNumber = myMap.getWaypoints().length;
+        this.numberOfWaypoints = myMap.getSplinePoints().size();
 
         //Lebenslinie
         this.healthBar = new Rectangle(healthBarWidth, healthBarHeight);
@@ -61,15 +61,15 @@ public class Enemy extends GameObject {
     @Override
     public void update(double deltaTime) {
        //Ende
-        if (waypointCounter == waypointNumber+1) { 
+        if (waypointCounter >= numberOfWaypoints) { 
             markForRemoval(); // Gegner stirbt
             state.getShop().getHud().loseLife(); //Leben abziehen vom Spieler
             return;
         }
 
         //Koordinaten des nächsten Wegpunkts
-        double nextWaypointX = myMap.getWaypointSafely(waypointCounter).x(); 
-        double nextWaypointY = myMap.getWaypointSafely(waypointCounter).y();
+        double nextWaypointX = myMap.getSplinePoints().get(waypointCounter).x(); 
+        double nextWaypointY = myMap.getSplinePoints().get(waypointCounter).y();
 
         //Winkel
         double angle = Math.atan2(nextWaypointY - y, nextWaypointX - x); // Winkel zum nächsten Wegpunkt
