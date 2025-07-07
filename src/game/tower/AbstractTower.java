@@ -18,9 +18,8 @@ public abstract class AbstractTower extends GameObject {
 
     /**
      * Diesen Constructor sollte jede Tower-Klasse in dieser Form haben
-     * 
-     * @see TowerType.TowerConstructor#newTower(GameState, TowerType.Config, double,
-     *      double)
+     *
+     * @see TowerType.TowerConstructor#newTower(GameState, TowerType.Config, double, double)
      * @see TowerType#create(GameState, double, double)
      */
     public AbstractTower(GameState state, TowerType.Config config, double x, double y) {
@@ -99,6 +98,14 @@ public abstract class AbstractTower extends GameObject {
 
     public Model getModel() {
         return config.getModelForLevel(level, upgradeTreeOne);
+    }
+
+    public double calculateRotatedOffsetX(double radians) {
+        return calculateRotatedOffsetX(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians);
+    }
+
+    public double calculateRotatedOffsetY(double radians) {
+        return calculateRotatedOffsetY(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians);
     }
 
 }

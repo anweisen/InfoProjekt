@@ -10,7 +10,6 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.renderUpgrades(graphics);
+            shop.renderUpgrades(graphics, selectedTower);
         }
 
         for (AbstractTower tower : towers) {

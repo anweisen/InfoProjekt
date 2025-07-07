@@ -42,8 +42,8 @@ public class CanonTower extends AbstractTower {
         double radians = calculateRadiansFor(dx, dy);
         angle = Math.toDegrees(radians);
 
-        double originX = x + calculateRotatedOffsetX(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians);
-        double originY = y + calculateRotatedOffsetY(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians);
+        double originX = x + calculateRotatedOffsetX(radians);
+        double originY = y + calculateRotatedOffsetY(radians);
 
         state.registerProjectile(new Projectile(state, originX, originY, nx, ny));
     }
