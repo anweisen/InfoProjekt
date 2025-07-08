@@ -18,6 +18,7 @@ import java.util.Collection;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 
 public class GameState extends State {
@@ -52,7 +53,7 @@ public class GameState extends State {
         // playSound();
     }
 
-    public void playSound(String file) {
+    public void playSound(String file,float volume) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
             return;
@@ -64,6 +65,11 @@ public class GameState extends State {
         );
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
+
+        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float dB = (float) (Math.log10(volume)*20);
+        gainControl.setValue(dB);
+
         clip.start();
     } catch (Exception e) {
         System.out.println("Sound konnte nicht abgespielt werden: ");
