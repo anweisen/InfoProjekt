@@ -220,29 +220,93 @@ public class Shop {
         context.setTextBaseline(VPos.BASELINE);
     }
 
+    /**
+     * Handles clicks in the shop area (for buying towers).
+     */
     public void handleClick(double mouseX, double mouseY) {
         double shopX = Game.VIRTUAL_WIDTH - WIDTH;
-        if (mouseX < shopX || mouseX > Game.VIRTUAL_WIDTH || mouseY < HUD_HEIGHT || mouseY > HUD_HEIGHT + HEIGHT
-                || !isOpen) {
+        boolean insideShop = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
+                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT && isOpen;
+
+        if (!insideShop) {
+            // Click outside shop: try to buy selected tower
             buy(towerTypes.get(selectedTowerIndex), mouseX, mouseY);
             return;
         }
+
+        int clickedIndex = getSlotIndex(mouseX, mouseY, shopX, HUD_HEIGHT, towerTypes.size());
+        if (clickedIndex != -1) {
+            selectedTowerIndex = clickedIndex;
+        }
+    }
+
+    /**
+     * Handles clicks in the upgrades area (for upgrading a selected tower).
+     */
+    public void handleUpgradeClick(double mouseX, double mouseY, AbstractTower selectedTower) {
+        double shopX = Game.VIRTUAL_WIDTH - WIDTH;
+        boolean insideUpgrades = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
+                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT;
+
+        if (!insideUpgrades || selectedTower == null)
+            return;
+
+        // Get upgrades for both paths
+        TowerType.Upgrade[] upgrades1 = selectedTower.getConfig().getUpgrades1();
+        TowerType.Upgrade[] upgrades2 = selectedTower.getConfig().getUpgrades2();
+        int maxUpgrades = Math.max(upgrades1.length, upgrades2.length);
 
         double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
         double availableWidth = WIDTH - (COLUMNS + 1) * padding;
         double squareSize = availableWidth / COLUMNS;
 
-        for (int i = 0; i < towerTypes.size(); i++) {
-            int row = i / COLUMNS;
-            int col = i % COLUMNS;
-            double x = shopX + padding + col * (squareSize + padding);
-            double y = HUD_HEIGHT + padding + 50 + row * (squareSize + padding);
+        for (int row = 0; row < maxUpgrades; row++) {
+            for (int col = 0; col < COLUMNS; col++) {
+                TowerType.Upgrade upgrade = (col == 0) ? (row < upgrades1.length ? upgrades1[row] : null)
+                        : (row < upgrades2.length ? upgrades2[row] : null);
 
-            if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
-                selectedTowerIndex = i;
-                return;
+                if (upgrade == null)
+                    continue;
+
+                double x = shopX + padding + col * (squareSize + padding);
+                double y = HUD_HEIGHT + padding + row * (squareSize + padding);
+
+                if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
+                    // Only allow upgrade if enough money and not already applied
+                    if (hud.getMoney() >= upgrade.price() /* && !selectedTower.hasUpgrade(upgrade) */) {
+                        hud.removeMoney(upgrade.price());
+                        // Set upgrade tree and level
+                        selectedTower.setUpgradeTree(col == 0); // true for path 1, false for path 2
+                        selectedTower.upgradeLevel();
+                        System.out.println("Upgrade applied: " + upgrade.name());
+                    } else {
+                        System.out.println("Cannot apply upgrade: " + upgrade.name());
+                    }
+                    return;
+                }
             }
         }
+    }
+
+    /**
+     * Utility to get the slot index for a click in the shop area.
+     */
+    private int getSlotIndex(double mouseX, double mouseY, double baseX, double baseY, int itemCount) {
+        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
+        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
+        double squareSize = availableWidth / COLUMNS;
+
+        for (int i = 0; i < itemCount; i++) {
+            int row = i / COLUMNS;
+            int col = i % COLUMNS;
+            double x = baseX + padding + col * (squareSize + padding);
+            double y = baseY + padding + row * (squareSize + padding);
+
+            if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }
