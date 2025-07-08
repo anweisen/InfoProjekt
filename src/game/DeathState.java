@@ -1,5 +1,9 @@
 package game;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 import game.engine.State;
 import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,6 +18,7 @@ public class DeathState extends State {
 
     public DeathState(Game game, Map map) {
         super(game);
+        playSound("gameover.wav", 1.0f);
     }
 
     @Override
@@ -36,6 +41,7 @@ public class DeathState extends State {
         // Anweisungen für den Spieler
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
         graphics.fillText("Klicke um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT / 2.0 + 80);
+        
     }
 
     @Override
@@ -51,6 +57,25 @@ public class DeathState extends State {
     @Override
     public void handleClick(double x, double y) {
         
+    }
+
+     public void playSound(String file,float volume) {
+            if (file == null || file.isEmpty()) {
+                System.out.println("Sound Datei nicht vorhanden.");
+                return;
+            }
+        try {
+            // Hole den Sound als InputStream aus dem Ressourcenpfad
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                getClass().getResource("/assets/sounds/"+file)
+            );
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("Sound konnte nicht abgespielt werden: ");
+            e.printStackTrace();
+        }
     }
     
 }
