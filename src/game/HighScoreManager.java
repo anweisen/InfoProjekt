@@ -21,6 +21,7 @@ private static final String DB_URL = "jdbc:mysql://www.gmg-info.de/wa839_db1";
 
         String sql = "SELECT player_name, score, date, time FROM highscores ORDER BY score DESC LIMIT 10";
          //String sql = "SELECT * FROM Person";
+         //String sql = "SELECT * FROM Person";
 
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);

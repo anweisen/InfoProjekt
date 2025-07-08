@@ -12,8 +12,9 @@ public class DeathState extends State {
     
     private int highscore;
 
-    public DeathState(Game game, Map map) {
+    public DeathState(Game game, Map map, int seconds) {
         super(game);
+        highscore = seconds;
     }
 
     @Override
