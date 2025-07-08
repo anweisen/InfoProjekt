@@ -10,7 +10,6 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
+    private double seconds = 0;
     private int gegneranzahlpros = 1;
     private int spieldauer = 180;
 
@@ -82,7 +82,7 @@ public class GameState extends State {
     public void render(GraphicsContext graphics) {
         if (gameOver() == true) {
             // Spiel zu Ende-Text
-            game.setState(new DeathState(game, map));
+            game.setState(new DeathState(game, map, (int) seconds));
             return;
         }
 
@@ -94,7 +94,7 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.renderUpgrades(graphics);
+            shop.renderUpgrades(graphics, selectedTower);
         }
 
         for (AbstractTower tower : towers) {
@@ -119,6 +119,8 @@ public class GameState extends State {
 
     @Override
     public void update(double deltaTime) {
+        seconds += deltaTime;
+
         for (AbstractTower tower : towers) {
             tower.update(deltaTime);
         }
