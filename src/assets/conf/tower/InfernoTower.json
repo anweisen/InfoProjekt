@@ -15,12 +15,38 @@
     },
     "models1": [
         {
-            "img": "InfernoTower.png",
+            "img": "InfernoTower1.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "InfernoTower2.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "InfernoTower3.png",
             "width": 64,
             "height": 64
         }
     ],
-    "models2": [],
+    "models2": [
+        {
+            "img": "InfernoTowerI.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "InfernoTowerII.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "InfernoTowerIII.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
     "upgrades1": [
         {
             "name": "Level 1",

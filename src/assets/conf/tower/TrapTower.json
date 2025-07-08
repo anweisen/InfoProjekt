@@ -13,13 +13,7 @@
         "projectileX": 32,
         "projectileY": 32
     },
-    "models1": [
-        {
-            "img": "TrapTower.png",
-            "width": 64,
-            "height": 64
-        }
-    ],
+    "models1": [],
     "models2": [],
     "upgrades1": [
         {
