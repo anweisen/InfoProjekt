@@ -19,7 +19,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-
+import javax.sound.sampled.FloatControl;
 
 public class GameState extends State {
 
@@ -31,13 +31,12 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
+    private double seconds = 0;
     private int gegneranzahlpros = 1;
     private int spieldauer = 180;
 
     private boolean gameOver = false; // Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel
                                       // angekommen sind
-
- 
 
     // TODO: Leben, Geld, ...
     private double spawnIntervalStandard; // für Standard-Enemy
@@ -54,6 +53,7 @@ public class GameState extends State {
 
     /**
      * Plays a sound from the assets/sounds directory with adjustable volume.
+     * 
      * @param file   The filename (e.g., "pew.wav").
      * @param volume The volume (0.0 = mute, 1.0 = full, typical range 0.0-1.0)
      */
@@ -64,8 +64,7 @@ public class GameState extends State {
         }
         try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-                getClass().getResource("/assets/sounds/" + file)
-            );
+                    getClass().getResource("/assets/sounds/" + file));
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
             // Set volume if supported
@@ -86,12 +85,12 @@ public class GameState extends State {
         }
     }
 
-//keine Runden, Zeit zb 5 Minuten zum übereben
+    // keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         if (gameOver() == true) {
             // Spiel zu Ende-Text
-            game.setState(new DeathState(game, map));
+            game.setState(new DeathState(game, map, (int) seconds));
             return;
         }
 
@@ -129,6 +128,8 @@ public class GameState extends State {
 
     @Override
     public void update(double deltaTime) {
+        seconds += deltaTime;
+
         for (AbstractTower tower : towers) {
             tower.update(deltaTime);
         }

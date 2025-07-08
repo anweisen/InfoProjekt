@@ -15,12 +15,38 @@
     },
     "models1": [
         {
-            "img": "AuraTower.png",
+            "img": "AuraTower1.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "AuraTower2.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "AuraTower3.png",
             "width": 64,
             "height": 64
         }
     ],
-    "models2": [],
+    "models2": [
+        {
+            "img": "AuraTowerI.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "AuraTowerII.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "AuraTowerIII.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
     "upgrades1": [
         {
             "name": "Level 1",

@@ -19,6 +19,7 @@ public class InfernoTower extends AbstractTower {
     Enemy targetEnemy;
     Enemy lastEnemy = null;
     int intensity = 1;
+    double cooloff = 0;
 
     @Override
     public boolean shoot() {
@@ -58,6 +59,7 @@ public class InfernoTower extends AbstractTower {
             targetEnemy.reduceHealth(getDamage() * intensity);
             intensity++;
             lastEnemy = targetEnemy;
+            cooloff = 1;
             return true;
         }
         return false; // Target enemy is out of range
@@ -80,17 +82,26 @@ public class InfernoTower extends AbstractTower {
     }
 
     @Override
+    public void update(double deltaTime) {
+        super.update(deltaTime);
+        if (targetEnemy != null && targetEnemy.isMarkedForRemoval()) {
+            cooloff -= 5 * deltaTime;
+            if (cooloff < 0)
+                cooloff = 0;
+        }
+    }
+
+    @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
         if (targetEnemy != null && distanceTo(targetEnemy) < getRange()) {
-            graphics.setStroke(Color.ORANGE); // optional: change color
+            graphics.setStroke(Color.ORANGE.deriveColor(1, 1, 1, cooloff)); // optional: change color
             graphics.setLineWidth(intensity * 2); // optional: change line width
             graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
 
-            graphics.setStroke(Color.RED); // optional: change color
+            graphics.setStroke(Color.RED.deriveColor(1, 1, 1, cooloff)); // optional: change color
             graphics.setLineWidth(intensity); // optional: change line width
             graphics.strokeLine(getX(), getY(), targetEnemy.getX(), targetEnemy.getY());
-
         }
     }
 }
