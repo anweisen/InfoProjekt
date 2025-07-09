@@ -102,9 +102,10 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.renderUpgrades(graphics, selectedTower);
+            shop.setOpenUpgrades(true);
             shop.setOpen(false);
-        }
+        } else
+            shop.setOpenUpgrades(false);
 
         for (AbstractTower tower : towers) {
             tower.render(graphics);
@@ -121,9 +122,11 @@ public class GameState extends State {
 
         hud.render(graphics);
 
-        if (shop.isOpen()) {
+        if (shop.isOpen())
             shop.renderShop(graphics);
-        }
+
+        if (shop.isOpenUpgrades())
+            shop.renderUpgrades(graphics, selectedTower);
     }
 
     @Override
@@ -212,6 +215,7 @@ public class GameState extends State {
         }
 
         shop.handleClick(x, y);
+        shop.handleUpgradeClick(x, y, selectedTower);
         // Erstelle Turm beim Klicken zu Testzwecken!
     }
 

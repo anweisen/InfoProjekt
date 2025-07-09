@@ -24,7 +24,7 @@ public class Shop {
 
     private ArrayList<TowerType> towerTypes;
     private int selectedTowerIndex;
-    private boolean isOpen;
+    private boolean isOpen, isOpenUpgrades;
     private final Hud hud;
 
     public Shop(GameState state) {
@@ -38,6 +38,7 @@ public class Shop {
         this.towerTypes.sort(java.util.Comparator.comparingInt(t -> t.getConfig().getPrice()));
         this.selectedTowerIndex = 0;
         this.isOpen = false;
+        this.isOpenUpgrades = false;
     }
 
     public void addMoney(int amount) {
@@ -46,7 +47,6 @@ public class Shop {
     }
 
     public int getMoney() {
-        System.out.println(hud.getMoney());
         return hud.getMoney();
     }
 
@@ -64,12 +64,24 @@ public class Shop {
         return isOpen;
     }
 
+    public boolean isOpenUpgrades() {
+        return isOpenUpgrades;
+    }
+
     public void toggle() {
         isOpen = !isOpen;
     }
 
+    public void toggleUpgrades() {
+        isOpenUpgrades = !isOpenUpgrades;
+    }
+
     public void setOpen(boolean open) {
         isOpen = open;
+    }
+
+    public void setOpenUpgrades(boolean openU) {
+        isOpenUpgrades = openU;
     }
 
     public double getWidth() {
@@ -184,6 +196,11 @@ public class Shop {
                 context.strokeRoundRect(x, y, squareSize, squareSize, 16, 16);
 
                 if (upgrade != null) {
+                    // Draw the correct upgraded tower image for this slot
+                    context.drawImage(
+                            selectedTower.getConfig().getModelForLevel(row + 1, col == 0).getImage(),
+                            x + 6, y + 6, squareSize - 12, squareSize - 12);
+
                     // Grey out if not enough money
                     if (hud.getMoney() < upgrade.price()) {
                         context.setFill(Color.rgb(0, 0, 0, 0.5));
@@ -218,12 +235,25 @@ public class Shop {
         }
         context.setTextAlign(TextAlignment.LEFT);
         context.setTextBaseline(VPos.BASELINE);
+
+        /*
+         * for (int i = 0; i <= 3; i++) {
+         * context.drawImage(selectedTower.getConfig().getModelForLevel(i,
+         * true).getImage(),
+         * i * squareSize + 6, 120 + 6, squareSize - 12, squareSize - 12);
+         * }
+         */
+
     }
 
     /**
      * Handles clicks in the shop area (for buying towers).
      */
     public void handleClick(double mouseX, double mouseY) {
+        // Only allow placing towers if upgrades menu is NOT open
+        if (isOpenUpgrades)
+            return;
+
         double shopX = Game.VIRTUAL_WIDTH - WIDTH;
         boolean insideShop = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
                 && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT && isOpen;
@@ -244,9 +274,13 @@ public class Shop {
      * Handles clicks in the upgrades area (for upgrading a selected tower).
      */
     public void handleUpgradeClick(double mouseX, double mouseY, AbstractTower selectedTower) {
+        // Only allow upgrading if shop menu is NOT open
+        if (isOpen)
+            return;
+
         double shopX = Game.VIRTUAL_WIDTH - WIDTH;
         boolean insideUpgrades = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
-                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT;
+                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT && isOpenUpgrades;
 
         if (!insideUpgrades || selectedTower == null)
             return;
@@ -278,6 +312,7 @@ public class Shop {
                         // Set upgrade tree and level
                         selectedTower.setUpgradeTree(col == 0); // true for path 1, false for path 2
                         selectedTower.upgradeLevel();
+                        toggleUpgrades();
                         System.out.println("Upgrade applied: " + upgrade.name());
                     } else {
                         System.out.println("Cannot apply upgrade: " + upgrade.name());

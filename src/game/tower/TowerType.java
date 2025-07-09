@@ -209,8 +209,8 @@ public final class TowerType {
             for (int i = level; i >= 0; i--) {
                 if (i >= models.length)
                     continue; // fail-safe
-                if (models[i] != null)
-                    return models[i];
+                if (models[i - 1] != null)
+                    return models[i - 1];
             }
 
             return baseModel;
