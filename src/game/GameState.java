@@ -10,6 +10,7 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -90,9 +91,10 @@ public class GameState extends State {
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.renderUpgrades(graphics, selectedTower);
+            shop.setOpenUpgrades(true);
             shop.setOpen(false);
-        }
+        } else
+            shop.setOpenUpgrades(false);
 
         for (AbstractTower tower : towers) {
             tower.render(graphics);
@@ -109,9 +111,11 @@ public class GameState extends State {
 
         hud.render(graphics);
 
-        if (shop.isOpen()) {
+        if (shop.isOpen())
             shop.renderShop(graphics);
-        }
+
+        if (shop.isOpenUpgrades())
+            shop.renderUpgrades(graphics, selectedTower);
     }
 
     @Override
@@ -200,7 +204,13 @@ public class GameState extends State {
         }
 
         shop.handleClick(x, y);
+        shop.handleUpgradeClick(x, y, selectedTower);
         // Erstelle Turm beim Klicken zu Testzwecken!
+    }
+
+    @Override
+    public void handleKeyPressed(KeyEvent event) {
+        // wird nicht verwendet
     }
 
     public boolean gameOver() {

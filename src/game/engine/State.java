@@ -2,6 +2,7 @@ package game.engine;
 
 import game.Game;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 
 public abstract class State {
 
@@ -34,5 +35,12 @@ public abstract class State {
     public abstract void dispose();
 
     public abstract void handleClick(double x, double y);
+
+    /**
+     * Diese Methode wird aufgerufen, wenn eine Taste gedrückt wird.
+     *
+     * @param event Das KeyEvent, das die gedrückte Taste enthält
+     */
+    public abstract void handleKeyPressed(KeyEvent event);
 
 }

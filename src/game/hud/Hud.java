@@ -1,13 +1,12 @@
 package game.hud;
 
+import game.Game;
 import game.GameState;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 public class Hud {
-
-    private final GameState state;
 
     private final double WIDTH;
     private final double HEIGHT;
@@ -21,9 +20,8 @@ public class Hud {
     private int lives;
 
     public Hud(GameState state) {
-        this.state = state;
-        this.WIDTH = state.getGame().VIRTUAL_WIDTH;
-        this.HEIGHT = state.getGame().VIRTUAL_HEIGHT / 10;
+        this.WIDTH = Game.VIRTUAL_WIDTH;
+        this.HEIGHT = Game.VIRTUAL_HEIGHT / 10;
 
         this.buttonWidth = WIDTH / 6;
         this.buttonHeight = HEIGHT * 0.6;

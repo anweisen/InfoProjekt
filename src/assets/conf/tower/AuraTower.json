@@ -3,7 +3,7 @@
     "info": "Versengt Gegner mit Flammen",
     "price": 120,
     "range": 180,
-    "damage": 25,
+    "damage": 10,
     "speed": 1,
     "targets": 1,
     "model": {
@@ -58,7 +58,7 @@
             "name": "Level 2",
             "info": "Erhöht den Schaden der Aura",
             "price": 90,
-            "damage": 40
+            "damage": 15
         },
         {
             "name": "Level 3",
@@ -73,13 +73,13 @@
             "info": "Erhöht Reichweite und Feuerschaden",
             "price": 200,
             "range": 100,
-            "damage": 20
+            "damage": 17
         },
         {
             "name": "Level II",
             "info": "Erhöht den Schaden deutlich",
             "price": 150,
-            "damage": 50
+            "damage": 20
         },
         {
             "name": "Level III",

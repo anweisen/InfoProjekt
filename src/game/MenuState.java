@@ -12,6 +12,7 @@ import game.engine.Model;
 import game.engine.State;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -143,6 +144,11 @@ public class MenuState extends State {
         }
     }
 
+    @Override
+    public void handleKeyPressed(KeyEvent event) {
+        // wird nicht verwendet
+    }
+
     public void playSound(String file,float volume) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
@@ -161,7 +167,7 @@ public class MenuState extends State {
         gainControl.setValue(dB);
 
         clip.start();
-        
+
         menuClip = clip;
     } catch (Exception e) {
         System.out.println("Sound konnte nicht abgespielt werden: ");

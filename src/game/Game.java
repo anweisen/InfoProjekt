@@ -88,6 +88,13 @@ public class Game extends Application {
             currentState.handleClick(x, y);
         });
 
+        scene.setOnKeyPressed(event -> {
+            currentState.handleKeyPressed(event);
+        });
+
+        scene.getRoot().setFocusTraversable(true);
+        scene.getRoot().requestFocus();
+
         GameLoopTimer loop = new GameLoopTimer(graphics);
         loop.start();
     }

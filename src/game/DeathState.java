@@ -8,6 +8,7 @@ import javax.sound.sampled.FloatControl;
 import game.engine.State;
 import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -149,8 +150,14 @@ public class DeathState extends State {
         graphics.setFill(Color.LIGHTGRAY);
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
         graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.fillText("Klicke um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 50);
-        graphics.fillText("Klicke auf das Textfeld um deinen Namen einzugeben", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 30);
+        graphics.fillText("Klicke um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 70);
+        
+        if (!scoreSaved) {
+            graphics.fillText("Klicke auf das Textfeld und gib deinen Namen ein", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 50);
+            graphics.fillText("Drücke ENTER zum Speichern oder ESC zum Abbrechen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 30);
+        } else {
+            graphics.fillText("Klicke irgendwo um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 50);
+        }
     }
 
     @Override
@@ -201,6 +208,53 @@ public class DeathState extends State {
             game.setState(new MenuState(game));
         } else {
             isEnteringName = false;
+        }
+    }
+
+    @Override
+    public void handleKeyPressed(KeyEvent event) {
+        // Nur Tastatureingaben verarbeiten wenn Name eingegeben wird und Score noch nicht gespeichert
+        if (isEnteringName && !scoreSaved) {
+            String keyText = event.getText();
+            
+            switch (event.getCode()) {
+                case BACK_SPACE:
+                    // Backspace: letztes Zeichen entfernen
+                    if (!playerName.isEmpty()) {
+                        playerName = playerName.substring(0, playerName.length() - 1);
+                    }
+                    break;
+                    
+                case ENTER:
+                    // Enter: Name speichern (wenn nicht leer)
+                    if (!playerName.trim().isEmpty()) {
+                        HighScoreManager.addHighscore(playerName.trim(), highscore);
+                        scoreSaved = true;
+                        isEnteringName = false;
+                        
+                        // Highscores neu laden
+                        topScores = HighScoreManager.getHighscores();
+                        if (topScores == null) {
+                            topScores = new ArrayList<>();
+                        }
+                    }
+                    break;
+                    
+                case ESCAPE:
+                    // Escape: Eingabe abbrechen
+                    isEnteringName = false;
+                    break;
+                    
+                default:
+                    // Normale Zeichen hinzufügen (nur Buchstaben, Zahlen und Leerzeichen)
+                    if (keyText != null && !keyText.isEmpty() && playerName.length() < 20) {
+                        char c = keyText.charAt(0);
+                        if (Character.isLetterOrDigit(c) || Character.isWhitespace(c)) {
+                            playerName += c;
+                        }
+                    }
+                    break;
+            }
         }
     }
 

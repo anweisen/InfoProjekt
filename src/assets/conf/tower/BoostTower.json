@@ -7,17 +7,17 @@
     "speed": 1.5,
     "targets": 1,
     "model": {
-        "img": "LaserTower.png",
-        "width": 64,
-        "height": 64,
+        "img": "BoostTower.png",
+        "width": 70,
+        "height": 70,
         "projectileX": 32,
         "projectileY": 32
     },
     "models1": [
         {
-            "img": "LaserTower.png",
-            "width": 64,
-            "height": 64
+            "img": "BoostTower.png",
+            "width": 70,
+            "height": 70
         }
     ],
     "models2": [],

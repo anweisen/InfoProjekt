@@ -69,16 +69,16 @@
     ],
     "upgrades2": [
         {
-            "name": "Level II",
-            "info": "Erhöht den Schaden des Lasers",
-            "price": 80,
-            "range": 35
-        },
-        {
             "name": "Level I",
             "info": "Erhöht die Feuerrate des Lasers weiter",
             "price": 100,
             "speed": 1.4
+        },
+        {
+            "name": "Level II",
+            "info": "Erhöht den Schaden des Lasers",
+            "price": 80,
+            "range": 35
         },
         {
             "name": "Level III",

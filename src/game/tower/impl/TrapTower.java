@@ -40,6 +40,7 @@ public class TrapTower extends AbstractTower {
 
     @Override
     public boolean shoot() {
+        if (possible.isEmpty()) return true;
         Map.Waypoint spawn = possible.get(random.nextInt(possible.size()));
         doShoot(spawn);
         return true;

@@ -78,7 +78,6 @@ public class CanonTower extends AbstractTower {
                     enemy.reduceHealth(CanonTower.super.getDamage());
                     this.markForRemoval();
                     state.registerParticle(new Particle.Image(state, x, y, explosionModel, Particle.Timing.LINEAR, 0.15));
-                    return;
                 }
             }
 
