@@ -10,6 +10,7 @@ import game.shop.Shop;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -217,6 +218,11 @@ public class GameState extends State {
         shop.handleClick(x, y);
         shop.handleUpgradeClick(x, y, selectedTower);
         // Erstelle Turm beim Klicken zu Testzwecken!
+    }
+
+    @Override
+    public void handleKeyPressed(KeyEvent event) {
+        // wird nicht verwendet
     }
 
     public boolean gameOver() {

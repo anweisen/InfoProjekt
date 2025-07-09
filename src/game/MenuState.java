@@ -11,6 +11,7 @@ import game.engine.Model;
 import game.engine.State;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -140,6 +141,11 @@ public class MenuState extends State {
             y >= imageY && y <= imageY + imageHeight) {
             game.setState(new GameState(game, game.getMaps().get(currentMapIndex)));
         }
+    }
+
+    @Override
+    public void handleKeyPressed(KeyEvent event) {
+        // wird nicht verwendet
     }
 
     public void playSound(String file,float volume, boolean loop) {
