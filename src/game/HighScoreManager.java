@@ -23,21 +23,22 @@ private static final String DB_URL = "jdbc:mysql://www.gmg-info.de/wa839_db1";
         String sql = "SELECT player_name, score, date, time FROM highscores ORDER BY score DESC LIMIT 5";
 
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try {
+            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
-                String name = rs.getString("player_name");
-                int score = rs.getInt("score");
-                Date date = rs.getDate("date"); 
-                highscores.add(name + " - " + score);
-               System.out.println(name + "-" +score + " / " + date);
-               
-               
+                while (rs.next()) {
+                    String name = rs.getString("player_name");
+                    int score = rs.getInt("score");
+                    Date date = rs.getDate("date"); 
+                    highscores.add(name + " - " + score);
+                    System.out.println(name + "-" +score + " / " + date);
+                }
+
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println("Fehler beim Abrufen der Highscores: " + e.getMessage());
         }
 
