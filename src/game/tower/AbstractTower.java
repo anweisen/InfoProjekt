@@ -1,8 +1,8 @@
 package game.tower;
 
-import game.GameState;
+import game.state.GameState;
 import game.engine.GameObject;
-import game.engine.Model;
+import game.engine.assets.Model;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class AbstractTower extends GameObject {

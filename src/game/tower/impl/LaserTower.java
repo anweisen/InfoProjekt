@@ -1,6 +1,7 @@
 package game.tower.impl;
 
-import game.GameState;
+import game.engine.assets.Sound;
+import game.state.GameState;
 import game.enemy.Enemy;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
@@ -8,6 +9,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class LaserTower extends AbstractTower {
+
+    private static final Sound shootSound = Sound.loadSound("tower", "pew.wav", 0.3f);
 
     // A tower that shoots a fast laser projectile, dealing damage over time to
     // enemies
@@ -18,13 +21,12 @@ public class LaserTower extends AbstractTower {
 
     boolean hasShot = false;
     Enemy targetEnemy;
-    int cooloff = 0;
+    double cooloff = 0;
 
     public boolean shoot() {
         for (Enemy enemy : state.getEnemies()) {
             if (distanceTo(enemy) <= getRange()) {
                 doShoot(enemy);
-                state.playSound("pew.wav",0.3f);
                 return true;
             }
         }
@@ -33,8 +35,8 @@ public class LaserTower extends AbstractTower {
 
     public boolean doShoot(Enemy enemy) {
         if (distanceTo(enemy) < getRange()) {
-            enemy.reduceHealth(getDamage() * damageBoost);
-            System.out.println(damageBoost);
+            enemy.reduceHealth(getDamage());
+            shootSound.playSound();
             hasShot = true;
             targetEnemy = enemy;
             cooloff = 1;
@@ -48,7 +50,7 @@ public class LaserTower extends AbstractTower {
     public void update(double deltaTime) {
         super.update(deltaTime);
         if (targetEnemy != null && targetEnemy.isMarkedForRemoval()) {
-            cooloff -= 5 * deltaTime;
+            cooloff -= 5d * deltaTime;
             if (cooloff < 0)
                 cooloff = 0;
         }

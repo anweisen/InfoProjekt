@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import game.GameState;
+import game.state.GameState;
 import game.enemy.Enemy;
 import game.engine.GameObject;
-import game.engine.Model;
+import game.engine.assets.Model;
 import game.map.Map;
 import game.tower.AbstractTower;
 import game.tower.TowerType;

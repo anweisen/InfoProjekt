@@ -1,9 +1,11 @@
-package game;
+package game.state;
 
+import game.Game;
 import game.enemy.Enemy;
 import game.engine.GameObject;
 import game.engine.Particle;
 import game.engine.State;
+import game.engine.assets.Sound;
 import game.hud.Hud;
 import game.map.Map;
 import game.shop.Shop;
@@ -12,15 +14,8 @@ import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.FloatControl;
 
 public class GameState extends State {
 
@@ -32,12 +27,12 @@ public class GameState extends State {
     private final Collection<Enemy> enemies = new ArrayList<>();
     private final Collection<GameObject> projectiles = new ArrayList<>();
     private final Collection<Particle> particles = new ArrayList<>();
-    private double seconds = 0;
-    private int gegneranzahlpros = 1;
-    private int spieldauer = 180;
 
-    private boolean gameOver = false; // Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel
-                                      // angekommen sind
+    private final int startLives = 20;
+    private int lives = startLives;
+    private int money = 1000;
+
+    private double seconds = 0;
 
     // TODO: Leben, Geld, ...
     private double spawnIntervalStandard; // für Standard-Enemy
@@ -51,50 +46,18 @@ public class GameState extends State {
         this.shop = new Shop(this);
     }
 
-
-    public void playSound(String file,float volume) {
-        if (file == null || file.isEmpty()) {
-            System.out.println("Sound Datei nicht vorhanden.");
-            return;
-        }
-        try {
-        // Hole den Sound als InputStream aus dem Ressourcenpfad
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource("/assets/sounds/"+file));
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioIn);
-
-        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float dB = (float) (Math.log10(volume)*20);
-        gainControl.setValue(dB);
-
-        clip.start();
-        } catch (Exception e) {
-            System.out.println("Sound konnte nicht abgespielt werden: ");
-            e.printStackTrace();
-        }
-    }
-
     // keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
-        if (gameOver() == true) {
-            // Spiel zu Ende-Text
-            game.setState(new DeathState(game, map, (int) seconds));
-            return;
-        }
-
         graphics.clearRect(0, 0, Game.VIRTUAL_WIDTH, Game.VIRTUAL_HEIGHT);
         map.render(graphics);
 
         if (selectedTower != null) {
             graphics.setFill(Color.rgb(0, 0, 0, 0.2));
             graphics.fillOval(selectedTower.getX() - selectedTower.getRange(),
-                    selectedTower.getY() - selectedTower.getRange(),
-                    selectedTower.getRange() * 2, selectedTower.getRange() * 2);
-            shop.setOpenUpgrades(true);
-            shop.setOpen(false);
-        } else
-            shop.setOpenUpgrades(false);
+                selectedTower.getY() - selectedTower.getRange(),
+                selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+        }
 
         for (AbstractTower tower : towers) {
             tower.render(graphics);
@@ -110,17 +73,20 @@ public class GameState extends State {
         }
 
         hud.render(graphics);
-
-        if (shop.isOpen())
-            shop.renderShop(graphics);
-
-        if (shop.isOpenUpgrades())
-            shop.renderUpgrades(graphics, selectedTower);
+        shop.render(graphics);
     }
 
     @Override
     public void update(double deltaTime) {
+        if (isGameOver()) {
+            // Spiel zu Ende-Text
+            game.setState(new DeathState(game, map, (int) seconds));
+            return;
+        }
+
         seconds += deltaTime;
+
+        shop.update(deltaTime);
 
         for (AbstractTower tower : towers) {
             tower.update(deltaTime);
@@ -141,29 +107,6 @@ public class GameState extends State {
         particles.removeIf(GameObject::isMarkedForRemoval);
 
         spawnEnemies(deltaTime);
-
-        for (Enemy enemy : enemies) {
-            if (enemy.isMarkedForRemoval()) {
-                enemies.remove(enemy);
-            }
-        }
-
-        if (gameOver() == true) {
-            return;
-        }
-    }
-
-    public void gegneranzahl(int spieldauer, int gegneranzahlpros) {
-        spieldauer = spieldauer - 1;
-        if (spieldauer % 30 == 0) {
-            gegneranzahlpros = gegneranzahlpros + 2;
-        }
-        for (int i = 0; i < gegneranzahlpros; i++) {
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
-        }
-        for (int j = 0; j < gegneranzahlpros - 1; j++) {
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
-        }
     }
 
     public void spawnEnemies(double deltaTime) {
@@ -171,14 +114,14 @@ public class GameState extends State {
         spawnIntervalStandard += deltaTime; // für Standard-Enemy
         if (spawnIntervalStandard > 1.1) {
             spawnIntervalStandard = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Standard"));
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().getFirst()));
         }
 
-        if (shop.getMoney() >= 300) {
+        if (money >= 300) {
             spawnInterval += deltaTime; // für Type1-Enemy
             if (spawnInterval > 1.5) {
                 spawnInterval = 0;
-                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), "Type1"));
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().get(1)));
             }
         }
 
@@ -190,22 +133,24 @@ public class GameState extends State {
 
     @Override
     public void handleClick(double x, double y) {
-        System.out.println("GameState.handleClick:" + x + "," + y);
+        if (shop.handleClick(x, y)) {
+            return;
+        }
+
         for (AbstractTower tower : towers) {
             if (tower.containsPoint(x, y)) {
                 selectedTower = tower == selectedTower ? null : tower;
+                Sound.CLICK.playSound();
                 return;
             }
         }
 
-        if (hud.isShopButtonClicked(x, y)) {
-            shop.toggle();
+        if (selectedTower != null) {
+            selectedTower = null;
             return;
         }
 
-        shop.handleClick(x, y);
-        shop.handleUpgradeClick(x, y, selectedTower);
-        // Erstelle Turm beim Klicken zu Testzwecken!
+        shop.handlePlacementClick(x, y);
     }
 
     @Override
@@ -213,18 +158,38 @@ public class GameState extends State {
         // wird nicht verwendet
     }
 
-    public boolean gameOver() {
-        if (hud.getLives() <= 0) {
-            gameOver = true;
-        }
-        return gameOver;
+    public boolean isGameOver() {
+        return lives < 1;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void addMoney(int amount) {
+        money += amount;
+    }
+
+    public void removeMoney(int amount) {
+        money -= amount;
+    }
+
+    public int getStartLives() {
+        return startLives;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void loseLife() {
+        lives--;
     }
 
     public void spawnTower(TowerType type, double x, double y) {
         towers.add(type.create(this, x, y));
     }
 
-    // Provisorium
     public void registerProjectile(GameObject projectile) {
         projectiles.add(projectile);
     }
@@ -237,12 +202,24 @@ public class GameState extends State {
         return selectedTower;
     }
 
+    public void setSelectedTower(AbstractTower selectedTower) {
+        this.selectedTower = selectedTower;
+    }
+
     public Collection<AbstractTower> getTowers() {
         return towers;
     }
 
     public Collection<Enemy> getEnemies() {
         return enemies;
+    }
+
+    public Collection<GameObject> getProjectiles() {
+        return projectiles;
+    }
+
+    public Collection<Particle> getParticles() {
+        return particles;
     }
 
     public Map getMap() {

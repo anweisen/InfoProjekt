@@ -1,7 +1,8 @@
 package game.map;
 
 import game.Game;
-import game.engine.Model;
+import game.engine.assets.Model;
+import game.engine.assets.Assets;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -33,7 +34,7 @@ public class Map {
     }
 
     public static Map loadMap(String filename) {
-        MapPojo map = Model.loadJson("map", filename, MapPojo.class);
+        MapPojo map = Assets.loadJson("map", filename, MapPojo.class);
         Image background = Model.loadImage("map", map.img);
         Image blackWhite = Model.loadImage("map", map.allowPlace);
         return new Map(map.name, background, map.waypoints, map.start, map.end, blackWhite);

@@ -1,21 +1,17 @@
-package game;
+package game.state;
 
-import java.util.ArrayList;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-
-import game.engine.Model;
+import game.Game;
 import game.engine.State;
+import game.engine.assets.Model;
+import game.engine.assets.Sound;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javax.sound.sampled.Clip;
+import java.util.ArrayList;
 
 public class MenuState extends State {
 
@@ -54,7 +50,7 @@ public class MenuState extends State {
         closeX = Game.VIRTUAL_WIDTH - closeWidth - 20;
         closeY = Game.VIRTUAL_HEIGHT - closeHeight - 20;
 
-        playSound("main.wav", 1f);
+        playMusic();
     }
 
     @Override
@@ -106,12 +102,12 @@ public class MenuState extends State {
 
     @Override
     public void update(double deltaTime) {
-        
+
     }
 
     @Override
     public void dispose() {
-            if(menuClip != null && menuClip.isRunning()) {
+        if (menuClip != null && menuClip.isRunning()) {
             menuClip.stop();
             menuClip.close();
             menuClip = null;
@@ -123,12 +119,14 @@ public class MenuState extends State {
         if (x >= 0 && x < imageX &&
             y >= imageY && y <= imageY + imageHeight) {
             currentMapIndex = (currentMapIndex - 1 + mapImages.size()) % mapImages.size();
+            Sound.SWOOSH.playSound();
             return;
         }
 
         if (x > imageX + imageWidth && x <= Game.VIRTUAL_WIDTH &&
             y >= imageY && y <= imageY + imageHeight) {
             currentMapIndex = (currentMapIndex + 1) % mapImages.size();
+            Sound.SWOOSH.playSound();
             return;
         }
 
@@ -140,6 +138,7 @@ public class MenuState extends State {
 
         if (x >= imageX && x <= imageX + imageWidth &&
             y >= imageY && y <= imageY + imageHeight) {
+            Sound.POP.playSound();
             game.setState(new GameState(game, game.getMaps().get(currentMapIndex)));
         }
     }
@@ -149,29 +148,10 @@ public class MenuState extends State {
         // wird nicht verwendet
     }
 
-    public void playSound(String file,float volume) {
-        if (file == null || file.isEmpty()) {
-            System.out.println("Sound Datei nicht vorhanden.");
-            return;
+    private void playMusic() {
+        menuClip = Sound.loadClip("menu", "main.wav", 0.4f);
+        if (menuClip != null) {
+            menuClip.loop(Clip.LOOP_CONTINUOUSLY);
         }
-    try {
-        // Hole den Sound als InputStream aus dem Ressourcenpfad
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-            getClass().getResource("/assets/sounds/"+file)
-        );
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioIn);
-
-        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float dB = (float) (Math.log10(volume)*20);
-        gainControl.setValue(dB);
-
-        clip.start();
-
-        menuClip = clip;
-    } catch (Exception e) {
-        System.out.println("Sound konnte nicht abgespielt werden: ");
-        e.printStackTrace();
     }
-}
 }

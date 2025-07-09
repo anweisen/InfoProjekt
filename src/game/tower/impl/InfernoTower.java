@@ -1,6 +1,6 @@
 package game.tower.impl;
 
-import game.GameState;
+import game.state.GameState;
 import game.enemy.Enemy;
 import game.tower.AbstractTower;
 import game.tower.TowerType;

@@ -1,16 +1,19 @@
 package game.tower.impl;
 
 import game.Game;
-import game.GameState;
 import game.enemy.Enemy;
 import game.engine.GameObject;
-import game.engine.Model;
 import game.engine.Particle;
+import game.engine.assets.Model;
+import game.engine.assets.Sound;
+import game.state.GameState;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 
 public class CanonTower extends AbstractTower {
+
+    private static final Sound shootSound = Sound.loadSound("tower", "pew2.wav", 0.3f);
 
     private double angle; // Drehung der Kanone (zum Gegner hin)
 
@@ -47,7 +50,7 @@ public class CanonTower extends AbstractTower {
 
         state.registerProjectile(new Projectile(state, originX, originY, nx, ny));
 
-        state.playSound("pew2.wav",0.3f);
+        shootSound.playSound();
     }
 
     @Override

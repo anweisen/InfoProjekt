@@ -1,6 +1,6 @@
 package game.engine;
 
-import game.GameState;
+import game.state.GameState;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class GameObject {

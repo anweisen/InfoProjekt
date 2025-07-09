@@ -2,9 +2,9 @@ package game.tower.impl;
 
 import java.util.ArrayList;
 
-import game.GameState;
+import game.state.GameState;
 import game.enemy.Enemy;
-import game.engine.Model;
+import game.engine.assets.Model;
 import game.engine.Particle;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
@@ -52,12 +52,5 @@ public class AuraTower extends AbstractTower {
     @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
-        for (Enemy enemies : currenttargets) {
-            if (distanceTo(enemies) < getRange()) {
-                graphics.setStroke(Color.GREEN); // optional: change color
-                graphics.setLineWidth(2); // optional: change line width
-                graphics.strokeLine(getX(), getY() - 20, enemies.getX(), enemies.getY()); // -20 für offset
-            }
-        }
     }
 }

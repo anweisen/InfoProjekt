@@ -1,6 +1,7 @@
 package game.engine;
 
-import game.GameState;
+import game.engine.assets.Model;
+import game.state.GameState;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Particle extends GameObject {

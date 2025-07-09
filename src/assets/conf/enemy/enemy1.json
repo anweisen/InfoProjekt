@@ -1,13 +1,12 @@
 {
-    "type": "Type 1",
+    "name": "Type 1",
     "model": {
         "img": "Enemy.png",
         "width": 64,
         "height": 64
     },
-    "speed": "100.0",
-    "damage": "5",
-    "reward": "30",
-    "health": "10",
-    "maxHealth": "80"
+    "speed": 100.0,
+    "damage": 5,
+    "reward": 30,
+    "health": 80
 }

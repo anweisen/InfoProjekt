@@ -2,8 +2,9 @@ package game.tower;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import game.GameState;
-import game.engine.Model;
+import game.engine.assets.Assets;
+import game.state.GameState;
+import game.engine.assets.Model;
 import java.util.function.Function;
 
 /**
@@ -103,7 +104,7 @@ public final class TowerType {
         }
 
         public static Config load(String filename) {
-            JsonObject json = Model.loadJson("tower", filename, JsonObject.class);
+            JsonObject json = Assets.loadJson("tower", filename, JsonObject.class);
 
             JsonObject modelJson = json.getAsJsonObject("model");
             Model baseModel = Model.loadModelFrom("tower", modelJson);
@@ -122,8 +123,8 @@ public final class TowerType {
                     json.get("damage").getAsDouble(),
                     json.get("targets").getAsInt(),
                     json.get("speed").getAsDouble(),
-                    Model.GSON.fromJson(json.get("upgrades1"), Upgrade[].class),
-                    Model.GSON.fromJson(json.get("upgrades2"), Upgrade[].class));
+                    Assets.GSON.fromJson(json.get("upgrades1"), Upgrade[].class),
+                    Assets.GSON.fromJson(json.get("upgrades2"), Upgrade[].class));
         }
 
         private static Model[] loadModelArray(JsonArray json, Model baseModel) {
@@ -206,11 +207,14 @@ public final class TowerType {
                 return baseModel;
             Model[] models = upgradeTreeOne ? models1 : models2;
 
-            for (int i = level; i >= 0; i--) {
+            // Level 0: baseModel
+            // Level 1: models[0]
+            // Level 2: models[1] => model[level-1]
+            for (int i = level - 1; i >= 0; i--) {
                 if (i >= models.length)
                     continue; // fail-safe
-                if (models[i - 1] != null)
-                    return models[i - 1];
+                if (models[i] != null)
+                    return models[i];
             }
 
             return baseModel;

@@ -1,347 +1,363 @@
 package game.shop;
 
-import java.util.ArrayList;
-
 import game.Game;
-import game.GameState;
+import game.engine.Particle;
+import game.engine.assets.Model;
+import game.engine.assets.Sound;
 import game.hud.Hud;
+import game.state.GameState;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
-import javafx.geometry.VPos;
 
 public class Shop {
 
-    private static final int COLUMNS = 2;
-    private static final double PADDING_RATIO = 0.015;
+    private static final Model buttonModel = Model.loadModelWith("menu", "shop.png", 56, 56);
+    private static final Model coinModel = Model.loadModelWith("menu", "coin.png", 18, 18);
+
+    // Style
+    private static final double WIDTH = Game.VIRTUAL_WIDTH * 0.2;
+    private static final int SHOP_COLUMNS = 2;
+    private static final double shopPadding = WIDTH * 0.05;
+    private static final double buttonPadding = 15;
+    private static final double upgradeCardWidth = WIDTH * 0.58;
+    private static final double upgradeCardHeight = WIDTH * 0.72;
+    private static final double upgradeCardOffsetY = Game.VIRTUAL_HEIGHT * 0.3;
+    private static final double upgradeCardGap = 50;
 
     private final GameState state;
-    private final double WIDTH;
-    private final double HEIGHT;
-    private final double HUD_HEIGHT;
 
-    private ArrayList<TowerType> towerTypes;
-    private int selectedTowerIndex;
-    private boolean isOpen, isOpenUpgrades;
-    private final Hud hud;
+    private int selectedTowerIndex = 0; // Index of the currently selected tower in the shop
+
+    // Animation
+    private boolean opened = true;
+    private double openAnimationProgress = 0;
+    private double fadeinAnimationProgress = 1;
+    private AbstractTower lastSelectedTower; // to track the last selected tower for fade-in animation
 
     public Shop(GameState state) {
         this.state = state;
-        this.WIDTH = Game.VIRTUAL_WIDTH * 0.25;
-        this.hud = state.getHud();
-        this.HUD_HEIGHT = hud.getHeight();
-        this.HEIGHT = Game.VIRTUAL_HEIGHT - HUD_HEIGHT;
-
-        this.towerTypes = new ArrayList<>(state.getGame().getTowerTypes());
-        this.towerTypes.sort(java.util.Comparator.comparingInt(t -> t.getConfig().getPrice()));
-        this.selectedTowerIndex = 0;
-        this.isOpen = false;
-        this.isOpenUpgrades = false;
     }
 
-    public void addMoney(int amount) {
-        hud.addMoney(amount);
-        System.out.println(amount + " added to shop");
+    public boolean handleClick(double x, double y) {
+        // Button
+        if ((openAnimationProgress == 0 || openAnimationProgress == 1) &&
+            isButtonClicked(x, y, Game.VIRTUAL_WIDTH - (WIDTH * openAnimationProgress) - buttonPadding - buttonModel.getWidth(), Game.VIRTUAL_HEIGHT - buttonPadding - buttonModel.getHeight(), buttonModel.getWidth(), buttonModel.getHeight())) {
+            if (shouldBeOpened()) {
+                state.setSelectedTower(null);
+                opened = false;
+            } else {
+                opened = true;
+            }
+            Sound.SWOOSH.playSound();
+            return true;
+        }
+
+        // Upgrade
+        if (state.getSelectedTower() != null && openAnimationProgress == 1) {
+            for (int i = 0; i < 2; i++) {
+                double upgradeY = upgradeCardOffsetY + i * (upgradeCardHeight + upgradeCardGap);
+                if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, upgradeY, upgradeCardWidth, upgradeCardHeight)) {
+                    TowerType.Upgrade[] upgrades = i == 0 ? state.getSelectedTower().getConfig().getUpgrades1() : state.getSelectedTower().getConfig().getUpgrades2();
+                    if (state.getSelectedTower().getLevel() >= upgrades.length) continue;
+                    TowerType.Upgrade upgrade = upgrades[state.getSelectedTower().getLevel()];
+                    boolean blocked = isUpgradeTreeBlocked(i, state.getSelectedTower());
+                    if (!blocked && state.getMoney() >= upgrade.price()) {
+                        state.getSelectedTower().upgradeLevel();
+                        state.getSelectedTower().setUpgradeTree(i == 0);
+                        state.removeMoney(upgrade.price());
+                        Sound.BUY.playSound();
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Shop
+        if (opened && openAnimationProgress == 1) {
+            double availableWidth = WIDTH - (SHOP_COLUMNS + 1) * shopPadding;
+            double squareSize = availableWidth / SHOP_COLUMNS;
+
+            for (int i = 0; i < state.getGame().getTowerTypes().size(); i++) {
+                int row = i / SHOP_COLUMNS;
+                int col = i % SHOP_COLUMNS;
+                double xPos = Game.VIRTUAL_WIDTH - WIDTH + shopPadding + col * (squareSize + shopPadding);
+                double yPos = shopPadding + row * (squareSize + shopPadding);
+
+                if (isButtonClicked(x, y, xPos, yPos, squareSize, squareSize)) {
+                    selectedTowerIndex = i;
+                    Sound.CLICK.playSound();
+                    return true;
+                }
+            }
+        }
+
+        if (openAnimationProgress > 0) {
+            double width = WIDTH * openAnimationProgress;
+            return x >= (Game.VIRTUAL_WIDTH - width);
+        }
+
+        return false;
     }
 
-    public int getMoney() {
-        return hud.getMoney();
-    }
-
-    public void buy(TowerType towerType, double x, double y) {
-        if (hud.getMoney() >= towerType.getConfig().getPrice()) {
-            hud.removeMoney(towerType.getConfig().getPrice());
+    public boolean handlePlacementClick(double x, double y) {
+        TowerType towerType = state.getGame().getTowerTypes().get(selectedTowerIndex);
+        if (state.getMap().getCanPlace((int) x, (int) y) && towerType.getConfig().getPrice() < state.getMoney()) {
             state.spawnTower(towerType, x, y);
-            System.out.println("Tower placed: " + towerType.getConfig().getName());
+            state.removeMoney(towerType.getConfig().getPrice());
+            Sound.BUY.playSound();
+            return true;
+      }
+      return false;
+    }
+
+    public boolean shouldBeOpened() {
+        return opened || state.getSelectedTower() != null;
+    }
+
+    public void update(double deltaTime) {
+        // Wurde der Turm gewechselt (einer/keiner ausgewählt), muss eine weitere Animation abgespielt werden
+        if ((opened || openAnimationProgress > 0) && (state.getSelectedTower() != lastSelectedTower)) {
+            lastSelectedTower = state.getSelectedTower();
+            fadeinAnimationProgress = 0; // Reset fade-in animation when a new tower is selected
+        }
+
+        fadeinAnimationProgress += deltaTime * 3; // Fade-in speed
+        if (fadeinAnimationProgress > 1) {
+            fadeinAnimationProgress = 1;
+        }
+
+        if (shouldBeOpened()) {
+            openAnimationProgress += deltaTime * 2; // Animation speed
+            if (openAnimationProgress > 1) {
+                openAnimationProgress = 1;
+            }
         } else {
-            System.out.println("Not enough money to place tower: " + towerType.getConfig().getName());
+            openAnimationProgress -= deltaTime * 2; // Animation speed
+            if (openAnimationProgress < 0) {
+                openAnimationProgress = 0;
+            }
         }
     }
 
-    public boolean isOpen() {
-        return isOpen;
+    public void render(GraphicsContext graphics) {
+        double progress = Particle.Timing.EASE_OUT_QUAD.translate(openAnimationProgress);
+        graphics.save();
+        graphics.translate(WIDTH - WIDTH * progress, 0);
+
+        renderButton(graphics);
+
+        graphics.setGlobalAlpha(progress);
+        graphics.setFill(Color.rgb(30, 30, 30, .85));
+        graphics.fillRect(Game.VIRTUAL_WIDTH - WIDTH, 0, WIDTH, Game.VIRTUAL_HEIGHT);
+
+        graphics.setGlobalAlpha(fadeinAnimationProgress * progress);
+        graphics.translate(0, -10 * (1 - Particle.Timing.EASE_OUT_QUAD.translate(fadeinAnimationProgress)));
+
+        if (state.getSelectedTower() == null) {
+            renderShop(graphics);
+        } else {
+            renderUpgrades(graphics, state.getSelectedTower());
+        }
+
+        graphics.restore();
     }
 
-    public boolean isOpenUpgrades() {
-        return isOpenUpgrades;
+    private void renderButton(GraphicsContext graphics) {
+        graphics.setFill(Color.RED);
+        graphics.drawImage(
+            buttonModel.getImage(),
+            Game.VIRTUAL_WIDTH - WIDTH - buttonModel.getWidth() - buttonPadding,
+            Game.VIRTUAL_HEIGHT - buttonModel.getHeight() - buttonPadding,
+            buttonModel.getWidth(), buttonModel.getHeight()
+        );
     }
 
-    public void toggle() {
-        isOpen = !isOpen;
-    }
-
-    public void toggleUpgrades() {
-        isOpenUpgrades = !isOpenUpgrades;
-    }
-
-    public void setOpen(boolean open) {
-        isOpen = open;
-    }
-
-    public void setOpenUpgrades(boolean openU) {
-        isOpenUpgrades = openU;
-    }
-
-    public double getWidth() {
-        return WIDTH;
-    }
-
-    public double getHeight() {
-        return HEIGHT;
-    }
-
-    public Hud getHud() {
-        return hud;
-    }
-
-    public void renderShop(GraphicsContext context) {
-        // Draw semi-transparent dark background
-        context.setFill(Color.rgb(30, 30, 30, 0.85));
-        // context.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT,
-        // 30, 30);
-        context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT);
-
-        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
-        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
-        double squareSize = availableWidth / COLUMNS;
+    private void renderShop(GraphicsContext graphics) {
+        double availableWidth = WIDTH - (SHOP_COLUMNS + 1) * shopPadding;
+        double squareSize = availableWidth / SHOP_COLUMNS;
+        double modelPadding = 20;
 
         // Draw tower slots
-        for (int i = 0; i < towerTypes.size(); i++) {
-            int row = i / COLUMNS;
-            int col = i % COLUMNS;
-            double x = Game.VIRTUAL_WIDTH - WIDTH + padding + col * (squareSize + padding);
-            // double y = HUD_HEIGHT + padding + titleHeight + row * (squareSize + padding);
-            double y = HUD_HEIGHT + padding + row * (squareSize + padding);
-
-            // Highlight selected tower
-            if (i == selectedTowerIndex) {
-                context.setFill(Color.rgb(70, 130, 180, 0.7)); // Soft blue highlight
-                context.fillRoundRect(x - 4, y - 4, squareSize + 8, squareSize + 8, 18, 18);
-            }
+        for (int i = 0; i < state.getGame().getTowerTypes().size(); i++) {
+            int row = i / SHOP_COLUMNS;
+            int col = i % SHOP_COLUMNS;
+            double x = Game.VIRTUAL_WIDTH - WIDTH + shopPadding + col * (squareSize + shopPadding);
+            double y = shopPadding + row * (squareSize + shopPadding);
 
             // Draw slot background
-            context.setFill(Color.DARKGRAY);
-            context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
-
-            // Draw border
-            context.setStroke(Color.WHITE);
-            context.setLineWidth(2);
-            context.strokeRoundRect(x, y, squareSize, squareSize, 16, 16);
+            graphics.setFill(Color.rgb(30, 30, 30, 0.5));
+            graphics.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
 
             // Draw tower image
-            context.drawImage(
-                    towerTypes.get(i).getConfig().getBaseModel().getImage(),
-                    x + 6, y + 6, squareSize - 12, squareSize - 12);
+            graphics.drawImage(state.getGame().getTowerTypes().get(i).getConfig().getBaseModel().getImage(), x + modelPadding/2, y + modelPadding/2, squareSize - modelPadding, squareSize - modelPadding);
 
             // Grey out if not enough money
-            int cost = towerTypes.get(i).getConfig().getPrice();
-            if (hud.getMoney() < cost) {
-                context.setFill(Color.rgb(0, 0, 0, 0.5));
-                context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
+            int price = state.getGame().getTowerTypes().get(i).getConfig().getPrice();
+            if (state.getMoney() < price) {
+                graphics.setFill(Color.rgb(0, 0, 0, 0.5));
+                graphics.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
             }
 
             // Draw semi-transparent background for text at bottom of slot
             double textBgHeight = 36;
-            context.setFill(Color.rgb(30, 30, 30, 0.7));
-            context.fillRoundRect(x, y + squareSize - textBgHeight, squareSize, textBgHeight, 0, 0);
+            graphics.setFill(Color.rgb(30, 30, 30, 0.7));
+            graphics.fillRoundRect(x, y + squareSize - textBgHeight, squareSize, textBgHeight, 0, 0);
 
             // Draw tower name and price inside the slot
-            String name = towerTypes.get(i).getConfig().getName();
-            String price = "$" + cost;
-            context.setFill(Color.WHITE);
-            context.setFont(new javafx.scene.text.Font("Arial", 16));
-            context.setTextAlign(TextAlignment.CENTER);
-            context.setTextBaseline(VPos.TOP);
-            context.fillText(name, x + squareSize / 2, y + squareSize - textBgHeight + 4);
-            context.setFill(Color.LIGHTGREEN);
-            context.setFont(new javafx.scene.text.Font("Arial", 14));
-            context.fillText(price, x + squareSize / 2, y + squareSize - textBgHeight + 20);
+            String name = state.getGame().getTowerTypes().get(i).getConfig().getName();
+            String formattedPrice = Hud.DECIMAL_FORMAT.format(price);
+            graphics.setFill(Color.WHITE);
+            graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 16));
+            graphics.setTextBaseline(VPos.CENTER);
+            graphics.setTextAlign(TextAlignment.CENTER);
+            graphics.fillText(name, x + squareSize / 2, y + squareSize - textBgHeight + 10);
+            graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 18));
+            if (state.getMoney() < price) graphics.setFill(Color.RED);
+            graphics.fillText(formattedPrice, x + squareSize / 2 + coinModel.getWidth()/2d, y + squareSize - textBgHeight + 26);
+            coinModel.render(graphics, x + squareSize / 2 - approximateTextWidth(formattedPrice, graphics)/2, y + squareSize - textBgHeight + 24);
+
+            // Draw (highlighted) border
+            if (i == selectedTowerIndex) graphics.setStroke(Color.rgb(180, 180, 185, 1));
+            else graphics.setStroke(Color.rgb(100, 100, 105, 1));
+            graphics.setLineWidth(3);
+            graphics.strokeRoundRect(x, y, squareSize, squareSize, 18, 18);
         }
-        context.setTextAlign(TextAlignment.LEFT);
-        context.setTextBaseline(VPos.BASELINE);
+        graphics.setTextAlign(TextAlignment.LEFT);
+        graphics.setTextBaseline(VPos.BASELINE);
     }
 
-    public void renderUpgrades(GraphicsContext context, AbstractTower selectedTower) {
-        // Draw semi-transparent dark background
-        context.setFill(Color.rgb(30, 30, 30, 0.85));
-        context.fillRect(Game.VIRTUAL_WIDTH - WIDTH, HUD_HEIGHT, WIDTH, HEIGHT);
+    private void renderUpgrades(GraphicsContext graphics, AbstractTower selectedTower) {
+        // Tower Model
+        double modelSize = 80;
+        double modelY = Game.VIRTUAL_HEIGHT * 0.075 + modelSize / 2;
+        graphics.setFill(Color.rgb(30, 30, 30, .5));
+        double modelCardSize = modelSize + 16;
+        graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - modelCardSize / 2, modelY - modelCardSize / 2, modelCardSize, modelCardSize, 20, 20);
+        Model.render(graphics, selectedTower.getConfig().getBaseModel().getImage(), Game.VIRTUAL_WIDTH - WIDTH / 2d, modelY, modelSize, modelSize);
 
-        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
-        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
-        double squareSize = availableWidth / COLUMNS;
+        // Name & Info
+        graphics.setFill(Color.WHITE);
+        graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 28));
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        double titleY = modelY + (modelCardSize-modelSize) + 50 + 14;
+        graphics.fillText(selectedTower.getConfig().getName(), Game.VIRTUAL_WIDTH - WIDTH / 2d, titleY);
+        graphics.setFill(Color.GRAY);
+        double infoY = titleY + 14 + 8 + 7;
+        graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 14));
+        graphics.fillText(selectedTower.getConfig().getInfo(), Game.VIRTUAL_WIDTH - WIDTH / 2d, infoY);
 
-        // Get upgrades for both paths
-        TowerType.Upgrade[] upgrades1 = selectedTower.getConfig().getUpgrades1();
-        TowerType.Upgrade[] upgrades2 = selectedTower.getConfig().getUpgrades2();
-        int maxUpgrades = Math.max(upgrades1.length, upgrades2.length);
+        double upgradeY = upgradeCardOffsetY;
+        // Upgrade Bäume
+        for (int i = 0; i < 2; i++) {
+            TowerType.Upgrade[] upgrades = i == 0 ? selectedTower.getConfig().getUpgrades1() : selectedTower.getConfig().getUpgrades2();
+            boolean blocked = isUpgradeTreeBlocked(i, selectedTower);
+            int level = blocked ? 0 : selectedTower.getLevel();
+            boolean owned = level >= upgrades.length;
+            TowerType.Upgrade upgrade = upgrades[Math.min(level, upgrades.length - 1)]; // (level + 1) - 1
+            Model model = selectedTower.getConfig().getModelForLevel(level + 1, i == 0);
 
-        // Draw upgrade slots
-        for (int row = 0; row < maxUpgrades; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                TowerType.Upgrade upgrade = (col == 0) ? (row < upgrades1.length ? upgrades1[row] : null)
-                        : (row < upgrades2.length ? upgrades2[row] : null);
+            // Background
+            graphics.setFill(Color.rgb(30, 30, 30, .5));
+            graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, upgradeY, upgradeCardWidth, upgradeCardHeight, 20, 20);
 
-                double x = Game.VIRTUAL_WIDTH - WIDTH + padding + col * (squareSize + padding);
-                double y = HUD_HEIGHT + padding + row * (squareSize + padding);
+            // Name, Preis
+            graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 16));
+            graphics.setFill(Color.WHITE);
+            graphics.fillText(upgrade.name(), Game.VIRTUAL_WIDTH - WIDTH / 2d, upgradeY + upgradeCardHeight - 56);
+            graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 18));
+            graphics.setFill(Color.WHITE);
+            if (owned) {
+                graphics.setFill(Color.rgb(100, 200, 100, 1));
+                graphics.fillText("max. Level", Game.VIRTUAL_WIDTH - WIDTH / 2d, upgradeY + upgradeCardHeight - 36 + 1);
+            } else {
+                String formattedPrice = Hud.DECIMAL_FORMAT.format(upgrade.price());
+                if (upgrade.price() > state.getMoney()) graphics.setFill(Color.RED);
+                graphics.fillText(formattedPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth()/2d, upgradeY + upgradeCardHeight - 36 + 1);
+                coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH/2d - approximateTextWidth(formattedPrice, graphics)/2, upgradeY + upgradeCardHeight - 36);
+            }
 
-                // Draw slot background
-                context.setFill(Color.DARKGRAY);
-                context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
+            // Info
+            graphics.setFont(Font.font("Calibri", FontWeight.NORMAL, 14));
+            graphics.setFill(Color.GRAY);
+            String[] splitText = splitText(upgrade.info(), graphics, upgradeCardWidth - 5);
+            if (splitText.length > 3) {
+                splitText = new String[]{splitText[0], splitText[1], "..."};
+            }
+            for (int j = 0; j < splitText.length; j++) {
+                graphics.fillText(splitText[j], Game.VIRTUAL_WIDTH - WIDTH / 2d, upgradeY + 10 + 14 + j * 14);
+            }
 
-                // Draw border
-                context.setStroke(Color.WHITE);
-                context.setLineWidth(2);
-                context.strokeRoundRect(x, y, squareSize, squareSize, 16, 16);
+            // Upgrade Level Indicator
+            for (int j = 0; j < upgrades.length; j++) {
+                graphics.setFill(level > j ? Color.rgb(100, 200, 100, 1) : Color.rgb(100, 100, 105, 0.5));
+                graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2 + 10 + j * (upgradeCardWidth / upgrades.length), upgradeY + upgradeCardHeight - 16,
+                    upgradeCardWidth / upgrades.length - 20, 6, 5, 5);
+            }
 
-                if (upgrade != null) {
-                    // Draw the correct upgraded tower image for this slot
-                    context.drawImage(
-                            selectedTower.getConfig().getModelForLevel(row + 1, col == 0).getImage(),
-                            x + 6, y + 6, squareSize - 12, squareSize - 12);
+            // Upgraded Model
+            double iconSize = upgradeCardWidth * 0.4;
+            graphics.drawImage(model.getImage(), Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2 + (upgradeCardWidth - iconSize) / 2, upgradeY + (upgradeCardHeight - iconSize) / 2, iconSize, iconSize);
 
-                    // Grey out if not enough money
-                    if (hud.getMoney() < upgrade.price()) {
-                        context.setFill(Color.rgb(0, 0, 0, 0.5));
-                        context.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
-                    }
+            // Gray out blocked upgrades
+            if (blocked) {
+                graphics.setFill(Color.rgb(30, 30, 30, .66));
+                graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, upgradeY, upgradeCardWidth, upgradeCardHeight, 20, 20);
+            }
 
-                    // Draw semi-transparent background for text at bottom of slot
-                    double textBgHeight = 36;
-                    context.setFill(Color.rgb(30, 30, 30, 0.7));
-                    context.fillRoundRect(x, y + squareSize - textBgHeight, squareSize, textBgHeight, 0, 0);
+            // Border
+            graphics.setLineWidth(3);
+            if (!blocked && level > 0) graphics.setStroke(Color.rgb(180, 180, 185, 1));
+            else graphics.setStroke(Color.rgb(100, 100, 105, 1));
+            graphics.strokeRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, upgradeY, upgradeCardWidth, upgradeCardHeight, 20, 20);
 
-                    // Draw upgrade name
-                    context.setFill(Color.WHITE);
-                    context.setFont(new javafx.scene.text.Font("Arial", 16));
-                    context.setTextAlign(TextAlignment.CENTER);
-                    context.setTextBaseline(VPos.TOP);
-                    context.fillText(upgrade.name(), x + squareSize / 2, y + 6);
+            upgradeY += upgradeCardHeight + upgradeCardGap;
+        }
+    }
 
-                    // Draw upgrade price
-                    context.setFill(Color.LIGHTGREEN);
-                    context.setFont(new javafx.scene.text.Font("Arial", 14));
-                    context.fillText("$" + upgrade.price(), x + squareSize / 2, y + squareSize - textBgHeight + 4);
+    public static double approximateTextWidth(String text, GraphicsContext context) {
+        return context.getFont().getSize() * text.length() * 0.6; // Approximate width calculation
+    }
 
-                    // Draw upgrade info/description
-                    context.setFill(Color.LIGHTGRAY);
-                    context.setFont(new javafx.scene.text.Font("Arial", 12));
-                    String info = upgrade.info();
-                    double infoY = y + squareSize - textBgHeight + 20;
-                    context.fillText(info, x + squareSize / 2, infoY);
+    public static String[] splitText(String text, GraphicsContext context, double maxWidth) {
+        String[] words = text.split(" ");
+        StringBuilder currentLine = new StringBuilder();
+        StringBuilder result = new StringBuilder();
+
+        for (String word : words) {
+            String testLine = currentLine.isEmpty() ? word : currentLine + " " + word;
+            double width = approximateTextWidth(testLine, context);
+
+            if (width > maxWidth) {
+                if (!currentLine.isEmpty()) {
+                    result.append(currentLine).append("\n");
                 }
+                currentLine.setLength(0);
+                currentLine.append(word);
+            } else {
+                currentLine.append(currentLine.isEmpty() ? word : " " + word);
             }
         }
-        context.setTextAlign(TextAlignment.LEFT);
-        context.setTextBaseline(VPos.BASELINE);
 
-        /*
-         * for (int i = 0; i <= 3; i++) {
-         * context.drawImage(selectedTower.getConfig().getModelForLevel(i,
-         * true).getImage(),
-         * i * squareSize + 6, 120 + 6, squareSize - 12, squareSize - 12);
-         * }
-         */
-
-    }
-
-    /**
-     * Handles clicks in the shop area (for buying towers).
-     */
-    public void handleClick(double mouseX, double mouseY) {
-        // Only allow placing towers if upgrades menu is NOT open
-        if (isOpenUpgrades)
-            return;
-
-        double shopX = Game.VIRTUAL_WIDTH - WIDTH;
-        boolean insideShop = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
-                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT && isOpen;
-
-        if (!insideShop) {
-            // Click outside shop: try to buy selected tower
-            buy(towerTypes.get(selectedTowerIndex), mouseX, mouseY);
-            return;
+        if (!currentLine.isEmpty()) {
+            result.append(currentLine);
         }
 
-        int clickedIndex = getSlotIndex(mouseX, mouseY, shopX, HUD_HEIGHT, towerTypes.size());
-        if (clickedIndex != -1) {
-            selectedTowerIndex = clickedIndex;
-        }
+        return result.toString().split("\n");
     }
 
-    /**
-     * Handles clicks in the upgrades area (for upgrading a selected tower).
-     */
-    public void handleUpgradeClick(double mouseX, double mouseY, AbstractTower selectedTower) {
-        // Only allow upgrading if shop menu is NOT open
-        if (isOpen)
-            return;
-
-        double shopX = Game.VIRTUAL_WIDTH - WIDTH;
-        boolean insideUpgrades = mouseX >= shopX && mouseX <= Game.VIRTUAL_WIDTH
-                && mouseY >= HUD_HEIGHT && mouseY <= HUD_HEIGHT + HEIGHT && isOpenUpgrades;
-
-        if (!insideUpgrades || selectedTower == null)
-            return;
-
-        // Get upgrades for both paths
-        TowerType.Upgrade[] upgrades1 = selectedTower.getConfig().getUpgrades1();
-        TowerType.Upgrade[] upgrades2 = selectedTower.getConfig().getUpgrades2();
-        int maxUpgrades = Math.max(upgrades1.length, upgrades2.length);
-
-        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
-        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
-        double squareSize = availableWidth / COLUMNS;
-
-        for (int row = 0; row < maxUpgrades; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                TowerType.Upgrade upgrade = (col == 0) ? (row < upgrades1.length ? upgrades1[row] : null)
-                        : (row < upgrades2.length ? upgrades2[row] : null);
-
-                if (upgrade == null)
-                    continue;
-
-                double x = shopX + padding + col * (squareSize + padding);
-                double y = HUD_HEIGHT + padding + row * (squareSize + padding);
-
-                if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
-                    // Only allow upgrade if enough money and not already applied
-                    if (hud.getMoney() >= upgrade.price() /* && !selectedTower.hasUpgrade(upgrade) */) {
-                        hud.removeMoney(upgrade.price());
-                        // Set upgrade tree and level
-                        selectedTower.setUpgradeTree(col == 0); // true for path 1, false for path 2
-                        selectedTower.upgradeLevel();
-                        toggleUpgrades();
-                        System.out.println("Upgrade applied: " + upgrade.name());
-                    } else {
-                        System.out.println("Cannot apply upgrade: " + upgrade.name());
-                    }
-                    return;
-                }
-            }
-        }
+    public static boolean isUpgradeTreeBlocked(int nthTree, AbstractTower tower) {
+        return tower.getLevel() > 0 && (tower.getUpgradeTree() ? nthTree != 0 : nthTree != 1);
     }
 
-    /**
-     * Utility to get the slot index for a click in the shop area.
-     */
-    private int getSlotIndex(double mouseX, double mouseY, double baseX, double baseY, int itemCount) {
-        double padding = Game.VIRTUAL_WIDTH * PADDING_RATIO;
-        double availableWidth = WIDTH - (COLUMNS + 1) * padding;
-        double squareSize = availableWidth / COLUMNS;
-
-        for (int i = 0; i < itemCount; i++) {
-            int row = i / COLUMNS;
-            int col = i % COLUMNS;
-            double x = baseX + padding + col * (squareSize + padding);
-            double y = baseY + padding + row * (squareSize + padding);
-
-            if (mouseX >= x && mouseX <= x + squareSize && mouseY >= y && mouseY <= y + squareSize) {
-                return i;
-            }
-        }
-        return -1;
+    public static boolean isButtonClicked(double clickX, double clickY, double buttonX, double buttonY, double buttonWidth, double buttonHeight) {
+        return clickX >= buttonX && clickX <= buttonX + buttonWidth &&
+               clickY >= buttonY && clickY <= buttonY + buttonHeight;
     }
-
 }
