@@ -31,7 +31,7 @@ public class Enemy extends GameObject {
     private double healthAnimationProgress;
     private double healthBarAnimatedPercentage;
     private final double healthBarWidth = 50;
-    private final double healthBarHeight = 4;
+    private final double healthBarHeight = 5;
 
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
@@ -105,9 +105,9 @@ public class Enemy extends GameObject {
         double scaledHealthBarWidth = healthBarWidth * scale;
         double scaledHealthBarHeight = healthBarHeight * scale;
         graphics.setFill(Color.DARKSLATEGRAY);
-        graphics.fillRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth, scaledHealthBarHeight);
+        graphics.fillRoundRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth, scaledHealthBarHeight, healthBarHeight, healthBarHeight);
         graphics.setFill(getHealthColor(currentHealth / maxHealth));
-        graphics.fillRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth * healthBarAnimatedPercentage, scaledHealthBarHeight);
+        graphics.fillRoundRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth * healthBarAnimatedPercentage, scaledHealthBarHeight, healthBarHeight, healthBarHeight);
     }
 
     public String getType() {
