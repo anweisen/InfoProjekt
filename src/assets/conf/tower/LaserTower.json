@@ -15,12 +15,38 @@
     },
     "models1": [
         {
-            "img": "LaserTower.png",
+            "img": "LaserTower1.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "LaserTower2.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "LaserTower3.png",
             "width": 64,
             "height": 64
         }
     ],
-    "models2": [],
+    "models2": [
+        {
+            "img": "LaserTowerI.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "LaserTowerII.png",
+            "width": 64,
+            "height": 64
+        },
+        {
+            "img": "LaserTowerIII.png",
+            "width": 64,
+            "height": 64
+        }
+    ],
     "upgrades1": [
         {
             "name": "Level 1",

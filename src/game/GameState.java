@@ -19,7 +19,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-
+import javax.sound.sampled.FloatControl;
 
 public class GameState extends State {
 
@@ -38,8 +38,6 @@ public class GameState extends State {
     private boolean gameOver = false; // Spiel ist vorbei, wenn Leben = 0, also wenn Gegner bereits oft genug im Ziel
                                       // angekommen sind
 
- 
-
     // TODO: Leben, Geld, ...
     private double spawnIntervalStandard; // für Standard-Enemy
     private double spawnInterval; // für Type1-Enemy
@@ -53,31 +51,41 @@ public class GameState extends State {
         // playSound();
     }
 
-    public void playSound(String file,float volume) {
+    /**
+     * Plays a sound from the assets/sounds directory with adjustable volume.
+     * 
+     * @param file   The filename (e.g., "pew.wav").
+     * @param volume The volume (0.0 = mute, 1.0 = full, typical range 0.0-1.0)
+     */
+    public void playSound(String file, float volume) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
             return;
         }
-    try {
-        // Hole den Sound als InputStream aus dem Ressourcenpfad
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-            getClass().getResource("/assets/sounds/"+file)
-        );
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioIn);
-
-        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float dB = (float) (Math.log10(volume)*20);
-        gainControl.setValue(dB);
-
-        clip.start();
-    } catch (Exception e) {
-        System.out.println("Sound konnte nicht abgespielt werden: ");
-        e.printStackTrace();
+        try {
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                    getClass().getResource("/assets/sounds/" + file));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            // Set volume if supported
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                // Convert volume (0.0-1.0) to decibels
+                float min = gainControl.getMinimum();
+                float max = gainControl.getMaximum();
+                float dB = (float) (min + (max - min) * volume); // Linear mapping
+                gainControl.setValue(dB);
+            } else {
+                System.out.println("Volume control not supported for this clip.");
+            }
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("Sound konnte nicht abgespielt werden: ");
+            e.printStackTrace();
+        }
     }
-}
 
-//keine Runden, Zeit zb 5 Minuten zum übereben
+    // keine Runden, Zeit zb 5 Minuten zum übereben
     @Override
     public void render(GraphicsContext graphics) {
         if (gameOver() == true) {
@@ -95,6 +103,7 @@ public class GameState extends State {
                     selectedTower.getY() - selectedTower.getRange(),
                     selectedTower.getRange() * 2, selectedTower.getRange() * 2);
             shop.renderUpgrades(graphics, selectedTower);
+            shop.setOpen(false);
         }
 
         for (AbstractTower tower : towers) {

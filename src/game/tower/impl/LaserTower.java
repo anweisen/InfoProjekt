@@ -18,6 +18,7 @@ public class LaserTower extends AbstractTower {
 
     boolean hasShot = false;
     Enemy targetEnemy;
+    int cooloff = 0;
 
     public boolean shoot() {
         for (Enemy enemy : state.getEnemies()) {
@@ -36,6 +37,7 @@ public class LaserTower extends AbstractTower {
             System.out.println(damageBoost);
             hasShot = true;
             targetEnemy = enemy;
+            cooloff = 1;
             return true;
         }
         hasShot = false;
@@ -43,11 +45,21 @@ public class LaserTower extends AbstractTower {
     }
 
     @Override
+    public void update(double deltaTime) {
+        super.update(deltaTime);
+        if (targetEnemy != null && targetEnemy.isMarkedForRemoval()) {
+            cooloff -= 5 * deltaTime;
+            if (cooloff < 0)
+                cooloff = 0;
+        }
+    }
+
+    @Override
     public void render(GraphicsContext graphics) {
         super.render(graphics);
         if (targetEnemy != null && distanceTo(targetEnemy) < getRange() && hasShot) {
 
-            graphics.setStroke(Color.ORANGE); // optional: change color
+            graphics.setStroke(Color.ORANGE.deriveColor(1, 1, 1, cooloff)); // optional: change color
             graphics.setLineWidth(4); // optional: change line width
             graphics.strokeLine(getX(), getY() - 20, targetEnemy.getX(), targetEnemy.getY()); // -20 für offset
 
