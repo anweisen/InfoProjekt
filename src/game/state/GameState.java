@@ -114,7 +114,7 @@ public class GameState extends State {
         spawnIntervalStandard += deltaTime; // für Standard-Enemy
         if (spawnIntervalStandard > 1.1) {
             spawnIntervalStandard = 0;
-            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().getFirst()));
+            enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().get(0)));
         }
 
         if (money >= 300) {
