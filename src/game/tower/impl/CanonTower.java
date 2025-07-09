@@ -46,6 +46,8 @@ public class CanonTower extends AbstractTower {
         double originY = y + calculateRotatedOffsetY(radians);
 
         state.registerProjectile(new Projectile(state, originX, originY, nx, ny));
+
+        state.playSound("pew2.wav",0.3f);
     }
 
     @Override

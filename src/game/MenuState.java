@@ -2,6 +2,11 @@ package game;
 
 import java.util.ArrayList;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+
 import game.engine.Model;
 import game.engine.State;
 import javafx.scene.canvas.GraphicsContext;
@@ -44,6 +49,8 @@ public class MenuState extends State {
         closeHeight = 80;
         closeX = Game.VIRTUAL_WIDTH - closeWidth - 20;
         closeY = Game.VIRTUAL_HEIGHT - closeHeight - 20;
+
+        playSound("menu.wav", 0.5f);
     }
 
     @Override
@@ -128,4 +135,28 @@ public class MenuState extends State {
             game.setState(new GameState(game, game.getMaps().get(currentMapIndex)));
         }
     }
+
+    public void playSound(String file,float volume) {
+        if (file == null || file.isEmpty()) {
+            System.out.println("Sound Datei nicht vorhanden.");
+            return;
+        }
+    try {
+        // Hole den Sound als InputStream aus dem Ressourcenpfad
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+            getClass().getResource("/assets/sounds/"+file)
+        );
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+
+        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float dB = (float) (Math.log10(volume)*20);
+        gainControl.setValue(dB);
+
+        clip.start();
+    } catch (Exception e) {
+        System.out.println("Sound konnte nicht abgespielt werden: ");
+        e.printStackTrace();
+    }
+}
 }

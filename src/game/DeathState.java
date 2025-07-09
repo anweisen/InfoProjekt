@@ -3,6 +3,7 @@ package game;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 import game.engine.State;
 import game.map.Map;
@@ -24,11 +25,8 @@ public class DeathState extends State {
 
     public DeathState(Game game, Map map, int seconds) {
         super(game);
-<<<<<<< Updated upstream
         playSound("gameover.wav", 1.0f);
         highscore = seconds;
-=======
-        this.highscore = 1; // Erstmal 1 wie gewünscht
         this.playerName = "";
         this.isEnteringName = false;
         this.topScores = HighScoreManager.getHighscores();
@@ -37,7 +35,6 @@ public class DeathState extends State {
             this.topScores = new ArrayList<>();
         }
         this.scoreSaved = false;
->>>>>>> Stashed changes
     }
 
     @Override
@@ -149,17 +146,11 @@ public class DeathState extends State {
         }
         
         // Anweisungen für den Spieler
-<<<<<<< Updated upstream
-        graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
-        graphics.fillText("Klicke um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT / 2.0 + 80);
-        
-=======
         graphics.setFill(Color.LIGHTGRAY);
         graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
         graphics.setTextAlign(TextAlignment.CENTER);
         graphics.fillText("Klicke um zurück zum Menü zu gelangen", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 50);
         graphics.fillText("Klicke auf das Textfeld um deinen Namen einzugeben", Game.VIRTUAL_WIDTH / 2.0, Game.VIRTUAL_HEIGHT - 30);
->>>>>>> Stashed changes
     }
 
     @Override
@@ -225,6 +216,11 @@ public class DeathState extends State {
             );
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
+
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = (float) (Math.log10(volume)*20);
+            gainControl.setValue(dB);
+            
             clip.start();
         } catch (Exception e) {
             System.out.println("Sound konnte nicht abgespielt werden: ");
