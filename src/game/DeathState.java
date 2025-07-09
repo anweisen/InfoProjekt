@@ -3,6 +3,7 @@ package game;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 import game.engine.State;
 import game.map.Map;
@@ -72,6 +73,11 @@ public class DeathState extends State {
             );
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
+
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = (float) (Math.log10(volume)*20);
+            gainControl.setValue(dB);
+            
             clip.start();
         } catch (Exception e) {
             System.out.println("Sound konnte nicht abgespielt werden: ");
