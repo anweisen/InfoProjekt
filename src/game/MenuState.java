@@ -28,6 +28,8 @@ public class MenuState extends State {
 
     private double closeX, closeY, closeWidth, closeHeight;
 
+    private Clip menuClip;
+
     public MenuState(Game game) {
         super(game);
 
@@ -107,7 +109,11 @@ public class MenuState extends State {
 
     @Override
     public void dispose() {
-        
+        if(menuClip != null && menuClip.isRunning()) {
+            menuClip.stop();
+            menuClip.close();
+            menuClip = null;
+        }
     }
 
     @Override
@@ -156,6 +162,7 @@ public class MenuState extends State {
         if (loop==true) clip.loop(Clip.LOOP_CONTINUOUSLY);
         else clip.start();
 
+        menuClip = clip;
     } catch (Exception e) {
         System.out.println("Sound konnte nicht abgespielt werden: ");
         e.printStackTrace();
