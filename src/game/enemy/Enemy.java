@@ -7,7 +7,7 @@ import game.engine.GameObject;
 import game.engine.Model;
 import game.map.Map;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color;
 
 public class Enemy extends GameObject {
 
@@ -26,23 +26,22 @@ public class Enemy extends GameObject {
 
     private double maxHealth; //Macht noch keinen Sinn --> werde ich ausbessern
     private double currentHealth;
-    
 
-    //Lebenslinie
-    private Rectangle healthBar;
-    private double healthBarWidth = 50;
-    private double healthBarHeight = 4;
+    private double healthAnimationFrom;
+    private double healthAnimationProgress;
+    private double healthBarAnimatedPercentage;
+    private final double healthBarWidth = 50;
+    private final double healthBarHeight = 4;
 
     public Enemy(GameState state, double x, double y, String type) {
         super(state, x, y, 50, 50);
         this.type = type;
-        if(type.equals("Standard")){
+        if (type.equals("Standard")) {
             this.config = Config.load("enemy.json");
-        }
-        else{
+        } else {
             this.config = Config.load("enemy1.json");
         }
-        
+
         this.model = config.getModel();
         this.speed = config.getSpeed();
         this.damage = config.getDamage();
@@ -51,11 +50,6 @@ public class Enemy extends GameObject {
         this.maxHealth = config.getMaxHealth();
         this.myMap = state.getMap();
         this.numberOfWaypoints = myMap.getSplinePoints().size();
-
-        //Lebenslinie
-        this.healthBar = new Rectangle(healthBarWidth, healthBarHeight);
-        this.healthBar.setFill(javafx.scene.paint.Color.GREEN); 
-
     }
 
     @Override
@@ -83,26 +77,37 @@ public class Enemy extends GameObject {
             waypointCounter++;
         }
 
-        updateHealthBar();
+        updateHealthBar(deltaTime);
     }
 
-    public void updateHealthBar() {
-        double percentage = currentHealth / maxHealth;
-        healthBar.setWidth(healthBarWidth * percentage);
+    public void updateHealthBar(double deltaTime) {
+        healthAnimationProgress += 5 * deltaTime;
+        if (healthAnimationProgress > 1) healthAnimationProgress = 1;
+        healthBarAnimatedPercentage = (currentHealth + (healthAnimationFrom - currentHealth) * (1-healthAnimationProgress)) / maxHealth;
+    }
+
+    private Color getHealthColor(double percentage) {
         if (percentage > 0.65) {
-            healthBar.setFill(javafx.scene.paint.Color.GREEN);}
-        else if (percentage <= 0.65 && percentage > 0.35) {
-            healthBar.setFill(javafx.scene.paint.Color.ORANGE);
-        } else if (percentage <= 0.35) {
-            healthBar.setFill(javafx.scene.paint.Color.RED);
+            return Color.GREEN;
+        } else if (percentage > 0.35) {
+            return Color.ORANGE;
+        } else {
+            return Color.RED;
         }
     }
 
     @Override
     public void render(GraphicsContext graphics) {
         model.render(graphics, x, y);
-        graphics.setFill(healthBar.getFill());
-        graphics.fillRect(x-27, y +30, healthBar.getWidth(), healthBar.getHeight());
+
+        double scaleProgress = healthAnimationProgress < 0.5 ? healthAnimationProgress * 2 : (1 - healthAnimationProgress) * 2;
+        double scale = 1 + scaleProgress * 0.2;
+        double scaledHealthBarWidth = healthBarWidth * scale;
+        double scaledHealthBarHeight = healthBarHeight * scale;
+        graphics.setFill(Color.DARKSLATEGRAY);
+        graphics.fillRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth, scaledHealthBarHeight);
+        graphics.setFill(getHealthColor(currentHealth / maxHealth));
+        graphics.fillRect(x - scaledHealthBarWidth / 2, y + getHeight() / 2, scaledHealthBarWidth * healthBarAnimatedPercentage, scaledHealthBarHeight);
     }
 
     public String getType() {
@@ -130,7 +135,9 @@ public class Enemy extends GameObject {
     }
 
     public void reduceHealth(double damage) {
-        currentHealth = currentHealth - damage;
+        healthAnimationFrom = currentHealth;
+        healthAnimationProgress = 0;
+        currentHealth -= damage;
         if (currentHealth <= 0) {
             die();
         }
