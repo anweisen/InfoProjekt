@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 
 import game.engine.Model;
@@ -52,7 +53,7 @@ public class MenuState extends State {
         closeX = Game.VIRTUAL_WIDTH - closeWidth - 20;
         closeY = Game.VIRTUAL_HEIGHT - closeHeight - 20;
 
-        playSound("main.wav", 1f, true);
+        playSound("main.wav", 1f);
     }
 
     @Override
@@ -109,7 +110,7 @@ public class MenuState extends State {
 
     @Override
     public void dispose() {
-        if(menuClip != null && menuClip.isRunning()) {
+            if(menuClip != null && menuClip.isRunning()) {
             menuClip.stop();
             menuClip.close();
             menuClip = null;
@@ -142,7 +143,7 @@ public class MenuState extends State {
         }
     }
 
-    public void playSound(String file,float volume, boolean loop) {
+    public void playSound(String file,float volume) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
             return;
@@ -159,9 +160,8 @@ public class MenuState extends State {
         float dB = (float) (Math.log10(volume)*20);
         gainControl.setValue(dB);
 
-        if (loop==true) clip.loop(Clip.LOOP_CONTINUOUSLY);
-        else clip.start();
-
+        clip.start();
+        
         menuClip = clip;
     } catch (Exception e) {
         System.out.println("Sound konnte nicht abgespielt werden: ");

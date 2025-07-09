@@ -48,37 +48,25 @@ public class GameState extends State {
         this.map = map;
         this.hud = new Hud(this);
         this.shop = new Shop(this);
-        // playSound();
     }
 
-    /**
-     * Plays a sound from the assets/sounds directory with adjustable volume.
-     * 
-     * @param file   The filename (e.g., "pew.wav").
-     * @param volume The volume (0.0 = mute, 1.0 = full, typical range 0.0-1.0)
-     */
-    public void playSound(String file, float volume) {
+
+    public void playSound(String file,float volume) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
             return;
         }
         try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(
-                    getClass().getResource("/assets/sounds/" + file));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            // Set volume if supported
-            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                // Convert volume (0.0-1.0) to decibels
-                float min = gainControl.getMinimum();
-                float max = gainControl.getMaximum();
-                float dB = (float) (min + (max - min) * volume); // Linear mapping
-                gainControl.setValue(dB);
-            } else {
-                System.out.println("Volume control not supported for this clip.");
-            }
-            clip.start();
+        // Hole den Sound als InputStream aus dem Ressourcenpfad
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource("/assets/sounds/"+file));
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+
+        FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        float dB = (float) (Math.log10(volume)*20);
+        gainControl.setValue(dB);
+
+        clip.start();
         } catch (Exception e) {
             System.out.println("Sound konnte nicht abgespielt werden: ");
             e.printStackTrace();
