@@ -28,6 +28,8 @@ public class MenuState extends State {
 
     private double closeX, closeY, closeWidth, closeHeight;
 
+    private Clip menuClip;
+
     public MenuState(Game game) {
         super(game);
 
@@ -50,7 +52,7 @@ public class MenuState extends State {
         closeX = Game.VIRTUAL_WIDTH - closeWidth - 20;
         closeY = Game.VIRTUAL_HEIGHT - closeHeight - 20;
 
-        playSound("menu.wav", 0.5f);
+        playSound("main.wav", 1f, true);
     }
 
     @Override
@@ -107,7 +109,11 @@ public class MenuState extends State {
 
     @Override
     public void dispose() {
-        
+        if(menuClip != null && menuClip.isRunning()) {
+            menuClip.stop();
+            menuClip.close();
+            menuClip = null;
+        }
     }
 
     @Override
@@ -136,7 +142,7 @@ public class MenuState extends State {
         }
     }
 
-    public void playSound(String file,float volume) {
+    public void playSound(String file,float volume, boolean loop) {
         if (file == null || file.isEmpty()) {
             System.out.println("Sound Datei nicht vorhanden.");
             return;
@@ -153,7 +159,10 @@ public class MenuState extends State {
         float dB = (float) (Math.log10(volume)*20);
         gainControl.setValue(dB);
 
-        clip.start();
+        if (loop==true) clip.loop(Clip.LOOP_CONTINUOUSLY);
+        else clip.start();
+
+        menuClip = clip;
     } catch (Exception e) {
         System.out.println("Sound konnte nicht abgespielt werden: ");
         e.printStackTrace();
