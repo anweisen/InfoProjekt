@@ -19,7 +19,7 @@ public class Shop {
 
     private static final Model buttonModel = Model.loadModelWith("menu", "shop.png", 56, 56);
     private static final Model coinModel = Model.loadModelWith("menu", "coin.png", 18, 18);
-
+  
     // Style
     private static final double WIDTH = Game.VIRTUAL_WIDTH * 0.2;
     private static final int SHOP_COLUMNS = 2;
@@ -28,7 +28,9 @@ public class Shop {
     private static final double upgradeCardWidth = WIDTH * 0.58;
     private static final double upgradeCardHeight = WIDTH * 0.72;
     private static final double upgradeCardOffsetY = Game.VIRTUAL_HEIGHT * 0.3;
-    private static final double upgradeCardGap = 50;
+    private static final double upgradeCardGap = 36;
+    private static final double sellButtonHeight = 50;
+    private static final double sellButtonPosY = Game.VIRTUAL_HEIGHT - sellButtonHeight - 50;
 
     private final GameState state;
 
@@ -58,12 +60,20 @@ public class Shop {
             return true;
         }
 
-        // Upgrade
+        // Upgrade, Sell
         if (state.getSelectedTower() != null && openAnimationProgress == 1) {
+            if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH/2 - upgradeCardWidth/2, sellButtonPosY, upgradeCardWidth, sellButtonHeight)) {
+                state.addMoney(calculateSellingPrice(state.getSelectedTower()));
+                state.getSelectedTower().markForRemoval();
+                state.setSelectedTower(null);
+                Sound.BUY.playSound();
+                return true;
+            }
+
             for (int i = 0; i < 2; i++) {
                 double upgradeY = upgradeCardOffsetY + i * (upgradeCardHeight + upgradeCardGap);
                 if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, upgradeY, upgradeCardWidth, upgradeCardHeight)) {
-                    TowerType.Upgrade[] upgrades = i == 0 ? state.getSelectedTower().getConfig().getUpgrades1() : state.getSelectedTower().getConfig().getUpgrades2();
+                    TowerType.Upgrade[] upgrades = state.getSelectedTower().getConfig().getUpgradesForTree(i == 0);
                     if (state.getSelectedTower().getLevel() >= upgrades.length) continue;
                     TowerType.Upgrade upgrade = upgrades[state.getSelectedTower().getLevel()];
                     boolean blocked = isUpgradeTreeBlocked(i, state.getSelectedTower());
@@ -252,11 +262,22 @@ public class Shop {
         double infoY = titleY + 14 + 8 + 7;
         graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 14));
         graphics.fillText(selectedTower.getConfig().getInfo(), Game.VIRTUAL_WIDTH - WIDTH / 2d, infoY);
+        
+        // Verkaufen
+        graphics.setFill(Color.rgb(240, 54, 54));
+        graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH/2d - upgradeCardWidth/2d, sellButtonPosY, upgradeCardWidth, sellButtonHeight, 20, 20);
+        graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 18));
+        graphics.setFill(Color.WHITE);
+        graphics.fillText("Verkaufen", Game.VIRTUAL_WIDTH - WIDTH / 2d, sellButtonPosY + 15);
+        graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 24));
+        String formattedSellingPrice = Hud.DECIMAL_FORMAT.format(calculateSellingPrice(selectedTower));
+        graphics.fillText(formattedSellingPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth()/2d, sellButtonPosY + 32 + 1);
+        coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH/2d - approximateTextWidth(formattedSellingPrice, graphics)/2, sellButtonPosY + 32);
 
         double upgradeY = upgradeCardOffsetY;
         // Upgrade Bäume
         for (int i = 0; i < 2; i++) {
-            TowerType.Upgrade[] upgrades = i == 0 ? selectedTower.getConfig().getUpgrades1() : selectedTower.getConfig().getUpgrades2();
+            TowerType.Upgrade[] upgrades = selectedTower.getConfig().getUpgradesForTree(i == 0);
             boolean blocked = isUpgradeTreeBlocked(i, selectedTower);
             int level = blocked ? 0 : selectedTower.getLevel();
             boolean owned = level >= upgrades.length;
@@ -321,6 +342,10 @@ public class Shop {
         }
     }
 
+    public int calculateSellingPrice(AbstractTower tower) {
+        return (int) (0.6d * tower.getConfig().getTotalPrice(tower.getLevel(), tower.getUpgradeTree()));
+    }
+
     public static double approximateTextWidth(String text, GraphicsContext context) {
         return context.getFont().getSize() * text.length() * 0.6; // Approximate width calculation
     }
@@ -356,6 +381,7 @@ public class Shop {
         return tower.getLevel() > 0 && (tower.getUpgradeTree() ? nthTree != 0 : nthTree != 1);
     }
 
+    // ButtonX/Y: TopLeft Corner of Button
     public static boolean isButtonClicked(double clickX, double clickY, double buttonX, double buttonY, double buttonWidth, double buttonHeight) {
         return clickX >= buttonX && clickX <= buttonX + buttonWidth &&
                clickY >= buttonY && clickY <= buttonY + buttonHeight;

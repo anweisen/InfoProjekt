@@ -202,6 +202,10 @@ public final class TowerType {
             return upgrades2;
         }
 
+        public Upgrade[] getUpgradesForTree(boolean upgradeTreeOne) {
+            return upgradeTreeOne ? upgrades1 : upgrades2;
+        }
+
         public Model getModelForLevel(int level, boolean upgradeTreeOne) {
             if (level == 0)
                 return baseModel;
@@ -234,6 +238,10 @@ public final class TowerType {
 
         public double getSpeedAtLevel(int level, boolean upgradeTreeOne) {
             return sumUpgradedStat(level, upgradeTreeOne, baseSpeed, Upgrade::speed).doubleValue();
+        }
+
+        public int getTotalPrice(int level, boolean upgradeTreeOne) {
+            return sumUpgradedStat(level, upgradeTreeOne, price, Upgrade::price).intValue();
         }
 
         private Number sumUpgradedStat(int level, boolean upgradeTreeOne, Number baseStat,
