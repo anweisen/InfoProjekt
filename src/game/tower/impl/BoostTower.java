@@ -2,6 +2,7 @@ package game.tower.impl;
 
 import game.state.GameState;
 import game.tower.AbstractTower;
+import game.tower.TowerTargetSelector;
 import game.tower.TowerType;
 
 public class BoostTower extends AbstractTower {
@@ -10,6 +11,7 @@ public class BoostTower extends AbstractTower {
 
     public BoostTower(GameState state, TowerType.Config config, double x, double y) {
         super(state, config, x, y);
+        targetSelector = TowerTargetSelector.UNSUPPORTED;
     }
 
     @Override
@@ -22,4 +24,8 @@ public class BoostTower extends AbstractTower {
         return false;
     }
 
+    @Override
+    public TowerTargetSelector[] getPossibleTargetSelectors() {
+        return null;
+    }
 }

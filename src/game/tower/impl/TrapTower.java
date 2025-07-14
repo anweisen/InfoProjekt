@@ -16,8 +16,8 @@ import javafx.scene.canvas.GraphicsContext;
 public class TrapTower extends AbstractTower {
 
     // A spike thrower that sets a trap that slows down or damages enemies
-    List<Map.Waypoint> possible = new ArrayList<>();
-    Random random = new Random();
+    private final List<Map.Waypoint> possible = new ArrayList<>();
+    private final Random random = new Random();
 
     public TrapTower(GameState state, TowerType.Config config, double x, double y) {
         super(state, config, x, y);

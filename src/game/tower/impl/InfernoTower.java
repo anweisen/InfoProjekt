@@ -16,69 +16,26 @@ public class InfernoTower extends AbstractTower {
         super(state, config, x, y);
     }
 
-    Enemy targetEnemy;
-    Enemy lastEnemy = null;
-    int intensity = 1;
-    double cooloff = 0;
+    private Enemy targetEnemy;
+    private int intensity = 1;
+    private double cooloff = 0;
 
     @Override
     public boolean shoot() {
-
-        double closestDistance = Double.MAX_VALUE;
-        Enemy closestEnemy = null;
-
-        for (Enemy enemies : state.getEnemies()) {
-            if (enemies != null) {
-                if (distanceTo(enemies) < getRange() && distanceTo(enemies) < closestDistance
-                        && enemies.getHealth() > 0) {
-                    closestDistance = distanceTo(enemies);
-                    closestEnemy = enemies;
-                }
-            }
-        }
-        doShoot(closestEnemy); // Return the closest enemy within range
-        if (closestEnemy == null) {
-            return false; // No enemy in range
-        }
-        return true; // Successfully shot at the target enemy
-    }
-
-    public boolean doShoot(Enemy enemy) { // Update the target enemy before shooting
-        if (targetEnemy == null || targetEnemy.getHealth() <= 0 || distanceTo(targetEnemy) < getRange()) {
-            targetEnemy = getTargetEnemy();
-            if (targetEnemy == null) {
-                return false; // No enemy in range
-            }
-        }
-
-        if (lastEnemy != targetEnemy) {
+        if (isInvalidTarget(targetEnemy)) {
+            targetEnemy = targetSelector.findTarget(state, this); // Find a new target if the current one is invalid
             intensity = 1;
         }
 
-        if (distanceTo(targetEnemy) < getRange()) {
-            targetEnemy.reduceHealth(getDamage() * intensity);
-            intensity++;
-            lastEnemy = targetEnemy;
-            cooloff = 1;
-            return true;
-        }
-        return false; // Target enemy is out of range
+        if (targetEnemy == null) return false;
+        doShoot();
+        return true; // Successfully shot at the target enemy
     }
 
-    public Enemy getTargetEnemy() {
-        double closestDistance = Double.MAX_VALUE;
-        Enemy closestEnemy = null;
-
-        for (Enemy enemies : state.getEnemies()) {
-            if (enemies != null) {
-                if (distanceTo(enemies) < getRange() && distanceTo(enemies) < closestDistance
-                        && enemies.getHealth() > 0) {
-                    closestDistance = distanceTo(enemies);
-                    closestEnemy = enemies;
-                }
-            }
-        }
-        return closestEnemy; // Return the closest enemy within range
+    public void doShoot() {
+        targetEnemy.reduceHealth(getDamage() * intensity);
+        intensity++;
+        cooloff = 1;
     }
 
     @Override

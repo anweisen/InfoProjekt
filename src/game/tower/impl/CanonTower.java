@@ -23,14 +23,10 @@ public class CanonTower extends AbstractTower {
 
     @Override
     public boolean shoot() {
-        for (Enemy enemy : state.getEnemies()) {
-            if (distanceTo(enemy) <= getRange()) {
-                doShoot(enemy);
-                return true;
-            }
-        }
-
-        return false;
+        Enemy targetEnemy = targetSelector.findTarget(state, this);
+        if (targetEnemy == null) return false;
+        doShoot(targetEnemy);
+        return true;
     }
 
     private void doShoot(Enemy enemy) {

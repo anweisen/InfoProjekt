@@ -1,5 +1,6 @@
 package game.tower;
 
+import game.enemy.Enemy;
 import game.state.GameState;
 import game.engine.GameObject;
 import game.engine.assets.Model;
@@ -9,9 +10,9 @@ public abstract class AbstractTower extends GameObject {
 
     protected final TowerType.Config config;
 
+    protected TowerTargetSelector targetSelector = TowerTargetSelector.FIRST;
     protected double nextShotCounter;
 
-    // Level des Turms und Upgrade Baums des Turms (1 oder 2)
     protected int level;
     protected boolean upgradeTreeOne; // könnte auch ein Enum oder int sein -> mehr Upgrade-Bäume
     protected double damageBoost = 1;
@@ -53,7 +54,7 @@ public abstract class AbstractTower extends GameObject {
     }
 
     public double getDamage() {
-        return config.getDamageAtLevel(level, upgradeTreeOne) * damageBoost;
+        return getDamageRaw() * damageBoost;
     }
 
     public double getDamageRaw() {
@@ -96,6 +97,18 @@ public abstract class AbstractTower extends GameObject {
         this.upgradeTreeOne = isUpgradeTreeOne;
     }
 
+    public TowerTargetSelector getTargetSelector() {
+        return targetSelector;
+    }
+
+    public TowerTargetSelector[] getPossibleTargetSelectors() {
+        return TowerTargetSelector.DEFAULT_OPTIONS;
+    }
+
+    public void setTargetSelector(TowerTargetSelector targetSelector) {
+        this.targetSelector = targetSelector;
+    }
+
     public Model getModel() {
         return config.getModelForLevel(level, upgradeTreeOne);
     }
@@ -106,6 +119,10 @@ public abstract class AbstractTower extends GameObject {
 
     public double calculateRotatedOffsetY(double radians) {
         return calculateRotatedOffsetY(config.getProjectileOffsetX(), config.getProjectileOffsetY(), radians);
+    }
+
+    public boolean isInvalidTarget(Enemy enemy) {
+        return enemy == null || enemy.getHealth() <= 0 || enemy.isMarkedForRemoval() || distanceTo(enemy) > getRange();
     }
 
 }

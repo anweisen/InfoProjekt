@@ -9,11 +9,9 @@ import javafx.scene.paint.Color;
 
 public class Enemy extends GameObject {
 
-    // private static final Model model = Model.loadModelWith("enemy", "robo.png", 64, 64);
-
     private final EnemyType type;
 
-    private int numberOfWaypoints; // Anzahl aller gespeicherter Wegpunkte
+    private final int numberOfWaypoints; // Anzahl aller gespeicherter Wegpunkte
     private int waypointCounter = 0; // abgegangene Wegpunkte
 
     private double currentHealth;
@@ -96,6 +94,10 @@ public class Enemy extends GameObject {
 
     public double getHealth() {
         return currentHealth;
+    }
+
+    public int getWaypointCounter() {
+        return waypointCounter;
     }
 
     public void reduceHealth(double damage) {

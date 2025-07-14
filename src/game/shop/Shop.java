@@ -7,6 +7,7 @@ import game.engine.assets.Sound;
 import game.hud.Hud;
 import game.state.GameState;
 import game.tower.AbstractTower;
+import game.tower.TowerTargetSelector;
 import game.tower.TowerType;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
@@ -19,18 +20,20 @@ public class Shop {
 
     private static final Model buttonModel = Model.loadModelWith("menu", "shop.png", 56, 56);
     private static final Model coinModel = Model.loadModelWith("menu", "coin.png", 18, 18);
-  
+
     // Style
     private static final double WIDTH = Game.VIRTUAL_WIDTH * 0.2;
     private static final int SHOP_COLUMNS = 2;
     private static final double shopPadding = WIDTH * 0.05;
     private static final double buttonPadding = 15;
     private static final double upgradeCardWidth = WIDTH * 0.58;
-    private static final double upgradeCardHeight = WIDTH * 0.72;
-    private static final double upgradeCardOffsetY = Game.VIRTUAL_HEIGHT * 0.3;
+    private static final double upgradeCardHeight = WIDTH * 0.68;
+    private static final double upgradeCardOffsetY = Game.VIRTUAL_HEIGHT * 0.33;
     private static final double upgradeCardGap = 36;
     private static final double sellButtonHeight = 50;
     private static final double sellButtonPosY = Game.VIRTUAL_HEIGHT - sellButtonHeight - 50;
+    private static final double targetButtonHeight = 36;
+    private static final double targetButtonPosY = upgradeCardOffsetY - targetButtonHeight - 28;
 
     private final GameState state;
 
@@ -60,13 +63,19 @@ public class Shop {
             return true;
         }
 
-        // Upgrade, Sell
+        // Upgrade, Sell, Target
         if (state.getSelectedTower() != null && openAnimationProgress == 1) {
-            if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH/2 - upgradeCardWidth/2, sellButtonPosY, upgradeCardWidth, sellButtonHeight)) {
+            if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH / 2 - upgradeCardWidth / 2, sellButtonPosY, upgradeCardWidth, sellButtonHeight)) {
                 state.addMoney(calculateSellingPrice(state.getSelectedTower()));
                 state.getSelectedTower().markForRemoval();
                 state.setSelectedTower(null);
                 Sound.BUY.playSound();
+                return true;
+            }
+
+            if (isButtonClicked(x, y, Game.VIRTUAL_WIDTH - WIDTH / 2 - upgradeCardWidth / 2, targetButtonPosY, upgradeCardWidth, targetButtonHeight)) {
+                TowerTargetSelector.cycleTargetSelector(state.getSelectedTower());
+                Sound.CLICK.playSound();
                 return true;
             }
 
@@ -122,8 +131,8 @@ public class Shop {
             state.removeMoney(towerType.getConfig().getPrice());
             Sound.BUY.playSound();
             return true;
-      }
-      return false;
+        }
+        return false;
     }
 
     public boolean shouldBeOpened() {
@@ -205,7 +214,7 @@ public class Shop {
             graphics.fillRoundRect(x, y, squareSize, squareSize, 16, 16);
 
             // Draw tower image
-            graphics.drawImage(state.getGame().getTowerTypes().get(i).getConfig().getBaseModel().getImage(), x + modelPadding/2, y + modelPadding/2, squareSize - modelPadding, squareSize - modelPadding);
+            graphics.drawImage(state.getGame().getTowerTypes().get(i).getConfig().getBaseModel().getImage(), x + modelPadding / 2, y + modelPadding / 2, squareSize - modelPadding, squareSize - modelPadding);
 
             // Grey out if not enough money
             int price = state.getGame().getTowerTypes().get(i).getConfig().getPrice();
@@ -229,8 +238,8 @@ public class Shop {
             graphics.fillText(name, x + squareSize / 2, y + squareSize - textBgHeight + 10);
             graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 18));
             if (state.getMoney() < price) graphics.setFill(Color.RED);
-            graphics.fillText(formattedPrice, x + squareSize / 2 + coinModel.getWidth()/2d, y + squareSize - textBgHeight + 26);
-            coinModel.render(graphics, x + squareSize / 2 - approximateTextWidth(formattedPrice, graphics)/2, y + squareSize - textBgHeight + 24);
+            graphics.fillText(formattedPrice, x + squareSize / 2 + coinModel.getWidth() / 2d, y + squareSize - textBgHeight + 26);
+            coinModel.render(graphics, x + squareSize / 2 - approximateTextWidth(formattedPrice, graphics) / 2, y + squareSize - textBgHeight + 24);
 
             // Draw (highlighted) border
             if (i == selectedTowerIndex) graphics.setStroke(Color.rgb(180, 180, 185, 1));
@@ -256,23 +265,35 @@ public class Shop {
         graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 28));
         graphics.setTextAlign(TextAlignment.CENTER);
         graphics.setTextBaseline(VPos.CENTER);
-        double titleY = modelY + (modelCardSize-modelSize) + 50 + 14;
+        double titleY = modelY + (modelCardSize - modelSize) + 40 + 14;
         graphics.fillText(selectedTower.getConfig().getName(), Game.VIRTUAL_WIDTH - WIDTH / 2d, titleY);
         graphics.setFill(Color.GRAY);
         double infoY = titleY + 14 + 8 + 7;
         graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 14));
         graphics.fillText(selectedTower.getConfig().getInfo(), Game.VIRTUAL_WIDTH - WIDTH / 2d, infoY);
-        
+
+        // Target Selector
+        if (selectedTower.getPossibleTargetSelectors() != null) {
+            graphics.setFill(Color.rgb(30, 30, 30, .5));
+            graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2d, targetButtonPosY, upgradeCardWidth, targetButtonHeight, 20, 20);
+            graphics.setFill(Color.WHITE);
+            graphics.setFont(Font.font("Calibri", FontWeight.SEMI_BOLD, 16));
+            graphics.fillText(selectedTower.getTargetSelector().getDisplayName(), Game.VIRTUAL_WIDTH - WIDTH / 2d, targetButtonPosY + targetButtonHeight / 2 + 1);
+            graphics.setLineWidth(1.5);
+            graphics.setStroke(Color.rgb(180, 180, 185, 1));
+            graphics.strokeRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2, targetButtonPosY, upgradeCardWidth, targetButtonHeight, 20, 20);
+        }
+
         // Verkaufen
         graphics.setFill(Color.rgb(240, 54, 54));
-        graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH/2d - upgradeCardWidth/2d, sellButtonPosY, upgradeCardWidth, sellButtonHeight, 20, 20);
+        graphics.fillRoundRect(Game.VIRTUAL_WIDTH - WIDTH / 2d - upgradeCardWidth / 2d, sellButtonPosY, upgradeCardWidth, sellButtonHeight, 20, 20);
         graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 18));
         graphics.setFill(Color.WHITE);
         graphics.fillText("Verkaufen", Game.VIRTUAL_WIDTH - WIDTH / 2d, sellButtonPosY + 15);
         graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 24));
         String formattedSellingPrice = Hud.DECIMAL_FORMAT.format(calculateSellingPrice(selectedTower));
-        graphics.fillText(formattedSellingPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth()/2d, sellButtonPosY + 32 + 1);
-        coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH/2d - approximateTextWidth(formattedSellingPrice, graphics)/2, sellButtonPosY + 32);
+        graphics.fillText(formattedSellingPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth() / 2d, sellButtonPosY + 32 + 1);
+        coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH / 2d - approximateTextWidth(formattedSellingPrice, graphics) / 2, sellButtonPosY + 32);
 
         double upgradeY = upgradeCardOffsetY;
         // Upgrade Bäume
@@ -291,7 +312,7 @@ public class Shop {
             // Name, Preis
             graphics.setFont(Font.font("Calibri", FontWeight.MEDIUM, 16));
             graphics.setFill(Color.WHITE);
-            graphics.fillText(upgrade.name(), Game.VIRTUAL_WIDTH - WIDTH / 2d, upgradeY + upgradeCardHeight - 56);
+            graphics.fillText(upgrade.name(), Game.VIRTUAL_WIDTH - WIDTH / 2d, upgradeY + upgradeCardHeight - 52);
             graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 18));
             graphics.setFill(Color.WHITE);
             if (owned) {
@@ -300,8 +321,8 @@ public class Shop {
             } else {
                 String formattedPrice = Hud.DECIMAL_FORMAT.format(upgrade.price());
                 if (upgrade.price() > state.getMoney()) graphics.setFill(Color.RED);
-                graphics.fillText(formattedPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth()/2d, upgradeY + upgradeCardHeight - 36 + 1);
-                coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH/2d - approximateTextWidth(formattedPrice, graphics)/2, upgradeY + upgradeCardHeight - 36);
+                graphics.fillText(formattedPrice, Game.VIRTUAL_WIDTH - WIDTH / 2d + coinModel.getWidth() / 2d, upgradeY + upgradeCardHeight - 36 + 1);
+                coinModel.render(graphics, Game.VIRTUAL_WIDTH - WIDTH / 2d - approximateTextWidth(formattedPrice, graphics) / 2, upgradeY + upgradeCardHeight - 36);
             }
 
             // Info
@@ -383,7 +404,7 @@ public class Shop {
 
     // ButtonX/Y: TopLeft Corner of Button
     public static boolean isButtonClicked(double clickX, double clickY, double buttonX, double buttonY, double buttonWidth, double buttonHeight) {
-        return clickX >= buttonX && clickX <= buttonX + buttonWidth &&
-               clickY >= buttonY && clickY <= buttonY + buttonHeight;
+        return clickX >= buttonX && clickX <= buttonX + buttonWidth
+            && clickY >= buttonY && clickY <= buttonY + buttonHeight;
     }
 }

@@ -1,8 +1,8 @@
 package game.tower.impl;
 
+import game.enemy.Enemy;
 import game.engine.assets.Sound;
 import game.state.GameState;
-import game.enemy.Enemy;
 import game.tower.AbstractTower;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
@@ -23,27 +23,23 @@ public class LaserTower extends AbstractTower {
     Enemy targetEnemy;
     double cooloff = 0;
 
+    @Override
     public boolean shoot() {
-        for (Enemy enemy : state.getEnemies()) {
-            if (distanceTo(enemy) <= getRange()) {
-                doShoot(enemy);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean doShoot(Enemy enemy) {
-        if (distanceTo(enemy) < getRange()) {
-            enemy.reduceHealth(getDamage());
-            shootSound.playSound();
-            hasShot = true;
-            targetEnemy = enemy;
-            cooloff = 1;
+        Enemy target = targetSelector.findTarget(state, this);
+        if (target != null) {
+            doShoot(target);
             return true;
         }
         hasShot = false;
         return false;
+    }
+
+    public void doShoot(Enemy enemy) {
+        enemy.reduceHealth(getDamage());
+        shootSound.playSound();
+        hasShot = true;
+        targetEnemy = enemy;
+        cooloff = 1;
     }
 
     @Override
@@ -60,11 +56,9 @@ public class LaserTower extends AbstractTower {
     public void render(GraphicsContext graphics) {
         super.render(graphics);
         if (targetEnemy != null && distanceTo(targetEnemy) < getRange() && hasShot) {
-
             graphics.setStroke(Color.ORANGE.deriveColor(1, 1, 1, cooloff)); // optional: change color
             graphics.setLineWidth(4); // optional: change line width
             graphics.strokeLine(getX(), getY() - 20, targetEnemy.getX(), targetEnemy.getY()); // -20 für offset
-
         }
     }
 
