@@ -30,7 +30,7 @@ public class GameState extends State {
 
     private final int startLives = 20;
     private int lives = startLives;
-    private int money = 1000;
+    private int money = 450;
 
     private double seconds = 0;
 

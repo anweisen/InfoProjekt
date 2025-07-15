@@ -13,9 +13,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +73,7 @@ public class Game extends Application {
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.setFullScreenExitHint("");
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         stage.show();
 
         // TODO: 16:9?
@@ -90,6 +94,10 @@ public class Game extends Application {
         });
 
         scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.F11) {
+                stage.setFullScreen(!stage.isFullScreen());
+                return;
+            }
             currentState.handleKeyPressed(event);
         });
 

@@ -73,7 +73,7 @@ public class CanonTower extends AbstractTower {
             y += ny * speed * deltaTime;
 
             for (Enemy enemy : state.getEnemies()) {
-                if (enemy.containsPoint(this.x, this.y)) {
+                if (distanceTo(enemy) <= explosionModel.getWidth() / 2d) {
                     enemy.reduceHealth(CanonTower.super.getDamage());
                     this.markForRemoval();
                     state.registerParticle(new Particle.Image(state, x, y, explosionModel, Particle.Timing.LINEAR, 0.15));

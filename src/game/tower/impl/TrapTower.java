@@ -10,6 +10,7 @@ import game.engine.GameObject;
 import game.engine.assets.Model;
 import game.map.Map;
 import game.tower.AbstractTower;
+import game.tower.TowerTargetSelector;
 import game.tower.TowerType;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -21,6 +22,7 @@ public class TrapTower extends AbstractTower {
 
     public TrapTower(GameState state, TowerType.Config config, double x, double y) {
         super(state, config, x, y);
+        targetSelector = TowerTargetSelector.UNSUPPORTED;
         calculatePossible();
     }
 
@@ -48,6 +50,11 @@ public class TrapTower extends AbstractTower {
 
     public void doShoot(Map.Waypoint point) {
         state.registerProjectile(new Projectile(state, point.x(), point.y()));
+    }
+
+    @Override
+    public TowerTargetSelector[] getPossibleTargetSelectors() {
+        return null;
     }
 
     public class Projectile extends GameObject {

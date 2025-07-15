@@ -4,12 +4,15 @@ import game.Game;
 import game.engine.State;
 import game.engine.assets.Model;
 import game.engine.assets.Sound;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
+
 import javax.sound.sampled.Clip;
 import java.util.ArrayList;
 
@@ -21,7 +24,6 @@ public class MenuState extends State {
     private int currentMapIndex;
 
     // Layout
-    private double imageMargin;
     private double imageX, imageY, imageWidth, imageHeight;
 
     private double closeX, closeY, closeWidth, closeHeight;
@@ -31,7 +33,7 @@ public class MenuState extends State {
     public MenuState(Game game) {
         super(game);
 
-        backgroundImage = Model.loadImage("menu", "background.png");
+        backgroundImage = Model.loadImage("menu", "bg.png");
         for (int i = 0; i < game.getMaps().size(); i++) {
             mapImages.add(game.getMaps().get(i).getImage());
             mapNames.add(game.getMaps().get(i).getName());
@@ -39,11 +41,11 @@ public class MenuState extends State {
 
         currentMapIndex = 0;
 
-        imageMargin = Game.VIRTUAL_HEIGHT * 0.15;
-        imageX = Game.VIRTUAL_WIDTH * 0.1;
-        imageY = imageMargin;
-        imageWidth = Game.VIRTUAL_WIDTH * 0.8;
-        imageHeight = Game.VIRTUAL_HEIGHT * 0.7;
+        double padding = 0.2;
+        imageY = Game.VIRTUAL_HEIGHT * padding;
+        imageX = Game.VIRTUAL_WIDTH * padding;
+        imageWidth = Game.VIRTUAL_WIDTH - imageX * 2;
+        imageHeight = Game.VIRTUAL_HEIGHT - imageY * 2;
 
         closeWidth = 80;
         closeHeight = 80;
@@ -91,13 +93,24 @@ public class MenuState extends State {
 
         graphics.restore();
 
-        graphics.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        graphics.setFill(Color.BLACK);
-        graphics.fillText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d - 30, imageY + imageHeight + 30);
+        // draw outline around the image
+        graphics.setStroke(Color.rgb(248, 248, 248, .4));
+        double borderWidth = 8;
+        graphics.setLineWidth(borderWidth);
+        graphics.strokeRoundRect(imgX - borderWidth / 2, imgY - borderWidth / 2, imgW + borderWidth, imgH + borderWidth, arc * 2 + borderWidth, arc * 2 + borderWidth);
 
-        graphics.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
-        graphics.setFill(Color.BLACK);
-        graphics.fillText("Klicke auf das Bild zum Starten", Game.VIRTUAL_WIDTH / 2d - 100, Game.VIRTUAL_HEIGHT - 50);
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.setFont(Font.font("Calibri", FontWeight.BOLD, 26));
+        graphics.setLineWidth(2.5);
+        graphics.setFill(Color.rgb(248, 248, 248));
+        graphics.setStroke(Color.rgb(0, 0, 0, .25));
+        graphics.strokeText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d + .5, .5 + imageY + imageHeight + 66);
+        graphics.fillText(mapNames.get(currentMapIndex), Game.VIRTUAL_WIDTH / 2d, imageY + imageHeight + 66);
+        graphics.setFont(Font.font("Calibri", FontWeight.NORMAL, 20));
+        graphics.setLineWidth(2);
+        graphics.strokeText("Klicke auf das Bild zum Starten", Game.VIRTUAL_WIDTH / 2d + .5, .5 + imageY + imageHeight + 96);
+        graphics.fillText("Klicke auf das Bild zum Starten", Game.VIRTUAL_WIDTH / 2d, imageY + imageHeight + 96);
     }
 
     @Override

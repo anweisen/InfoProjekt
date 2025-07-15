@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Map {
 
-    private static final int DISTANCE_BETWEEN_SPLINE_SAMPLES = 18;
+    private static final int DISTANCE_BETWEEN_SPLINE_SAMPLES = 16;
 
     private final String name;
     private final Image background;
@@ -59,9 +59,7 @@ public class Map {
         PixelReader reader = allowPlace.getPixelReader();
         for (int i = 0; i < canPlace.length; i++) {
             for (int j = 0; j < canPlace[i].length; j++) {
-                if (reader.getColor(i, j).equals(Color.BLACK)) {
-                    canPlace[i][j] = true;
-                }
+                canPlace[i][j] = reader.getColor(i, j).equals(Color.BLACK);
             }
         }
     }
