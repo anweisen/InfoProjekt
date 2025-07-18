@@ -5,8 +5,9 @@
         "width": 64,
         "height": 64
     },
-    "speed": 100.0,
+    "speed": 90.0,
     "damage": 5,
     "reward": 30,
-    "health": 50
+    "health": 50,
+    "maxHealth": "50"
 }
