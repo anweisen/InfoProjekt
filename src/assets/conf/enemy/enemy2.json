@@ -1,0 +1,12 @@
+{
+    "type": "2",
+    "model": {
+        "img": "enemy2.png",
+        "width": 80,
+        "height": 80
+    },
+    "speed": "70.0",
+    "damage": "8",
+    "reward": "50",
+    "health": "70"
+}

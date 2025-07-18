@@ -1,5 +1,5 @@
 {
-    "name": "Type 1",
+    "type": "1",
     "model": {
         "img": "Enemy.png",
         "width": 64,
@@ -8,5 +8,5 @@
     "speed": 100.0,
     "damage": 5,
     "reward": 30,
-    "health": 80
+    "health": 50
 }

@@ -1,12 +1,13 @@
 {
-    "name": "Standard",
+    "type": "0",
     "model": {
         "img": "robo.png",
         "width": 64,
         "height": 64
     },
-    "speed": 200.0,
-    "damage": 1,
-    "reward": 20,
-    "health": 30
+    "speed": "200.0",
+    "damage": "20",
+    "reward": "20",
+    "health": "10",
+    "maxHealth": "30"
 }

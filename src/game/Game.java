@@ -58,6 +58,8 @@ public class Game extends Application {
 
         registerEnemy(EnemyType.load("enemy.json"));
         registerEnemy(EnemyType.load("enemy1.json"));
+        registerEnemy(EnemyType.load("enemy2.json"));
+        registerEnemy(EnemyType.load("enemy3.json"));
 
         currentState = new MenuState(this);
     }

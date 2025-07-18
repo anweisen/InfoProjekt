@@ -6,7 +6,7 @@ import game.engine.assets.Model;
 
 public final class EnemyType {
 
-    private final String name; // Gegnertyp
+    private final int type;
 
     private final Model model; // Grafik Model
 
@@ -15,8 +15,8 @@ public final class EnemyType {
     private final int reward; // Belohnung, wenn der Gegner getötet wird
     private final double health; // Maximales Leben des Gegners
 
-    public EnemyType(String name, Model model, double speed, int damage, int reward, double health) {
-        this.name = name;
+    public EnemyType(int type, Model model, double speed, int damage, int reward, double health) {
+        this.type = type;
         this.model = model;
         this.speed = speed;
         this.damage = damage;
@@ -30,7 +30,7 @@ public final class EnemyType {
         Model model = Model.loadModelFrom("enemy", modelJson);
 
         return new EnemyType(
-            json.get("name").getAsString(),
+            json.get("type").getAsInt(),
             model,
             json.get("speed").getAsDouble(),
             json.get("damage").getAsInt(),
@@ -39,8 +39,8 @@ public final class EnemyType {
         );
     }
 
-    public String getName() {
-        return name;
+    public int getType() {
+        return type;
     }
 
     public Model getModel() {

@@ -12,7 +12,7 @@ public class Enemy extends GameObject {
     private final EnemyType type;
 
     private final int numberOfWaypoints; // Anzahl aller gespeicherter Wegpunkte
-    private int waypointCounter = 0; // abgegangene Wegpunkte
+    private int waypointCounter; // abgegangene Wegpunkte
 
     private double currentHealth;
 
@@ -28,6 +28,7 @@ public class Enemy extends GameObject {
         this.type = type;
         this.currentHealth = type.getHealth();
         this.numberOfWaypoints = state.getMap().getSplinePoints().size();
+        this.waypointCounter = 0;
     }
 
     @Override
@@ -96,6 +97,10 @@ public class Enemy extends GameObject {
         return currentHealth;
     }
 
+    public void setWaypointCounter(int waypointCounter) {
+        this.waypointCounter = waypointCounter;
+    }
+
     public int getWaypointCounter() {
         return waypointCounter;
     }
@@ -107,12 +112,19 @@ public class Enemy extends GameObject {
         if (currentHealth <= 0) {
             die();
         }
-    }
+    } 
 
     private void die() {
-        state.addMoney(type.getReward());
-        markForRemoval();
-        Sound.MECHANICAL.playSound();
-    }
-
+        if(type.getType()!=0) {
+            Enemy neu = new Enemy(state, this.x, this.y, state.getGame().getEnemyTypes().get(type.getType()-1));
+            neu.setWaypointCounter(this.waypointCounter);
+            state.getEnemies().add(neu);
+            Sound.MECHANICAL.playSound();
+        } else { 
+            state.addMoney(type.getReward());
+            markForRemoval();
+            Sound.MECHANICAL.playSound();
+        }
+           
+    } 
 }

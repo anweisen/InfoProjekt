@@ -119,12 +119,27 @@ public class GameState extends State {
 
         if (money >= 300) {
             spawnInterval += deltaTime; // für Type1-Enemy
-            if (spawnInterval > 1.5) {
+            if (spawnInterval > 1.3) {
                 spawnInterval = 0;
                 enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().get(1)));
             }
         }
 
+         if (money >= 700) {
+            spawnInterval += deltaTime;
+            if (spawnInterval > 1.6) {
+                spawnInterval = 0;
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().get(2)));
+            }
+        }
+
+         if (money >= 1000) {
+            spawnInterval += deltaTime;
+            if (spawnInterval > 1.9) {
+                spawnInterval = 0;
+                enemies.add(new Enemy(this, map.getStart().x(), map.getStart().y(), game.getEnemyTypes().get(3)));
+            }
+        }
     }
 
     @Override
