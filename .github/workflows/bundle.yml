@@ -36,6 +36,7 @@ jobs:
         jar --create --file=out/MyApp.jar --main-class=game.Game -C out . -C src assets
 
     - name: Bundle native app with jpackage
+      shell: pwsh
       run: |
         jpackage `
           --type app-image `
@@ -44,8 +45,7 @@ jobs:
           --name MyGame `
           --main-jar MyApp.jar `
           --main-class game.Game `
-          --runtime-image "%JAVA_HOME%\jmods" `
-          --module-path "lib\javafx\lib" `
+          --module-path "lib/javafx/lib" `
           --add-modules javafx.controls,javafx.graphics `
           --java-options "-Dprism.forceGPU=true"
 
