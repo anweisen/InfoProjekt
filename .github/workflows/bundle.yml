@@ -1,4 +1,4 @@
-name: Build Native Windows Installer (JavaFX)
+name: Build Native Windows App (JavaFX)
 
 on:
   push:
@@ -22,12 +22,11 @@ jobs:
     - name: Create output directories
       run: |
         mkdir out
-        mkdir out\bin
         mkdir dist
 
     - name: Compile Java sources
       run: |
-        $env:CLASSPATH = "lib\javafx\lib\*;lib\gson\lib\*"
+        $env:CLASSPATH = "lib\\javafx\\lib\\*;lib\\gson\\lib\\*"
         $files = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName }
         javac -cp $env:CLASSPATH -d out $files
 
@@ -45,13 +44,13 @@ jobs:
           --name MyGame `
           --main-jar MyApp.jar `
           --main-class game.Game `
-          --module-path "lib/javafx/lib" `
+          --jmod-path lib/javafx-jmods `
           --add-modules javafx.controls,javafx.graphics `
           --java-options "-Dprism.forceGPU=true"
 
-    - name: List dist folder
+    - name: List dist folder contents
       shell: pwsh
-      run: Get-ChildItem -Recurse -Path dist | Format-List
+      run: Get-ChildItem -Recurse dist
 
     - name: Upload bundle
       uses: actions/upload-artifact@v4
