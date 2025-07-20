@@ -30,6 +30,11 @@ jobs:
         $files = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName }
         javac -cp $env:CLASSPATH -d out $files
 
+    - name: Copy JavaFX DLLs
+      shell: cmd
+      run: |
+        copy lib\\javafx\\bin\\*.dll dist\\MyGame\\bin
+
     - name: Create JAR file
       run: |
         jar --create --file=out/MyApp.jar --main-class=game.Game -C out . -C src assets
@@ -37,8 +42,6 @@ jobs:
     - name: Bundle native app with jpackage
       shell: pwsh
       run: |
-        $libPath = "$PWD\\lib\\javafx\\lib"
-        $dllPath = "$PWD\\lib\\javafx\\bin"
         jpackage `
           --type app-image `
           --input out `
@@ -46,11 +49,10 @@ jobs:
           --name MyGame `
           --main-jar MyApp.jar `
           --main-class game.Game `
-          --module-path "$libPath" `
+          --module-path lib/javafx/lib `
           --add-modules javafx.controls,javafx.graphics `
-          --java-options "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED" `
-          --java-options "-Djava.library.path=$dllPath"
-
+          --java-options "-Dprism.forceGPU=true" `
+          --verbose
 
     - name: List output
       shell: pwsh
