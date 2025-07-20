@@ -37,6 +37,8 @@ jobs:
     - name: Bundle native app with jpackage
       shell: pwsh
       run: |
+        $libPath = "$PWD\\lib\\javafx\\lib"
+        $dllPath = "$PWD\\lib\\javafx\\bin"
         jpackage `
           --type app-image `
           --input out `
@@ -44,9 +46,11 @@ jobs:
           --name MyGame `
           --main-jar MyApp.jar `
           --main-class game.Game `
-          --module-path lib/javafx/lib `
+          --module-path "$libPath" `
           --add-modules javafx.controls,javafx.graphics `
-          --java-options "-Dprism.forceGPU=true"
+          --java-options "--add-opens=javafx.graphics/javafx.scene=ALL-UNNAMED" `
+          --java-options "-Djava.library.path=$dllPath"
+
 
     - name: List output
       shell: pwsh
