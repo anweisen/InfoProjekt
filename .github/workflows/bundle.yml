@@ -1,0 +1,59 @@
+name: Build Native Windows Installer (JavaFX)
+
+on:
+  push:
+    branches: [ main, ci-workflow ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Create output directories
+      run: |
+        mkdir out
+        mkdir out\bin
+        mkdir dist
+
+    - name: Compile Java sources
+      run: |
+        $env:CLASSPATH = "lib\javafx\lib\*;lib\gson\lib\*"
+        $files = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName }
+        javac -cp $env:CLASSPATH -d out $files
+
+    - name: Create JAR file
+      run: |
+        jar --create --file=out/MyApp.jar --main-class=game.Game -C out . -C src assets
+
+    - name: Bundle native app with jpackage
+      run: |
+        jpackage `
+          --type app-image `
+          --input out `
+          --dest dist `
+          --name MyGame `
+          --main-jar MyApp.jar `
+          --main-class game.Game `
+          --runtime-image "%JAVA_HOME%\jmods" `
+          --module-path "lib\javafx\lib" `
+          --add-modules javafx.controls,javafx.graphics `
+          --java-options "-Dprism.forceGPU=true"
+
+    - name: List dist folder
+      run: dir dist /s
+
+    - name: Upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: MyGame-Windows
+        path: dist
