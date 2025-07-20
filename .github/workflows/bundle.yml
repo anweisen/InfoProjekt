@@ -44,15 +44,15 @@ jobs:
           --name MyGame `
           --main-jar MyApp.jar `
           --main-class game.Game `
-          --jmod-path lib/javafx-jmods `
+          --module-path lib/javafx/lib `
           --add-modules javafx.controls,javafx.graphics `
           --java-options "-Dprism.forceGPU=true"
 
-    - name: List dist folder contents
+    - name: List output
       shell: pwsh
       run: Get-ChildItem -Recurse dist
 
-    - name: Upload bundle
+    - name: Upload bundled app
       uses: actions/upload-artifact@v4
       with:
         name: MyGame-Windows
